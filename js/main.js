@@ -16,6 +16,7 @@ var row;
 var beers, drinkers, bottles;
 var random;
 var drinkerTimer, bottleTimer;
+var emmiter; //event emmiter
 
 const screenWidth = 1920;
 const screenHeight = 1080;
@@ -45,6 +46,8 @@ function create ()
     space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     drinkerTimer = this.time.addEvent({ delay: 3000, callback: spawnDrinker, loop: true }); //Spawn drinkers based on a time delay
     bottleTimer = this.time.addEvent({ delay: 7000, callback: spawnBottle, loop: true }); //Spawn bottles based on a time delay
+    emmiter = new Phaser.Events.EventEmitter(); //event handler
+    emmiter.on('getBeer', beerOnHit, this);
     row = 1; //Limits the number of rows
 
     //Beer Class
@@ -72,6 +75,9 @@ function create ()
                     if (this.x < drinkers.children.entries[elem].x)
                     {
                         drinkers.children.entries[elem].x -= 300; //TODO: Fix to also account for effect of pushing back, as well as if the person lives and has to throw back their item
+                        //drinkers.children.entries[elem].time.addEvent({delay: 3000, callback: spawnBottle(this.x, this.y), loop: false});
+                        //game.time.addEvent({delay: 3000, callback: spawnBottle(this.x, this.y), loop: false});
+                        emmiter.emit('getBeer', this.x, this.y);
                         this.setActive(false);
                         this.setVisible(false);
                     }
@@ -99,8 +105,9 @@ function create ()
         initialize:
             function Drinker (game)
             {
-                Phaser.GameObjects.Image.call(this, game, 0, 0, 'drinker')
+                Phaser.GameObjects.Image.call(this, game, 0, 0, 'drinker');
                 this.speed = Phaser.Math.GetSpeed(100, 1); // Set the drinkers' speed
+                var drinking = false;
             },
         fire: function (){
             random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects drinkers' spawn locations
@@ -152,8 +159,8 @@ function create ()
                 Phaser.GameObjects.Image.call(this, game, 0, 0, 'bottle')
                 this.speed = Phaser.Math.GetSpeed(500, 1); // Set the bottles' speed
             },
-        fire: function (){
-            random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bottles' spawn locations
+        fire: function (x,y){
+            /*random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bottles' spawn locations
             if(random == 0){
                 this.setPosition(0, row1Position);
             }
@@ -165,7 +172,8 @@ function create ()
             }
             else if(random == 3){
                 this.setPosition(0, row4Position);
-            }
+            }*/
+            this.setPosition(x,y);
 
             this.setActive(true);
             this.setVisible(true);
@@ -236,4 +244,16 @@ function spawnBottle() {
     if (bottle) {
         bottle.fire()
     }
+}
+
+function spawnBottle(x,y){
+    var bottle = bottles.get();
+    if(bottle){
+        bottle.fire(x,y);
+    }
+}
+
+function beerOnHit(x, y) {
+    console.log("Beer hit a customer");
+    spawnBottle(x,y)
 }

@@ -35,9 +35,9 @@ class Playing extends Phaser.Scene{
     {
         this.load.image('background', 'assets/back.png');
         this.load.image('player', 'assets/player.png');
-        this.load.image('beer', 'assets/beer.png');
-        this.load.image('drinker', 'assets/drinker.png');
-        this.load.image('bottle', 'assets/bottle.png');
+        this.load.image('beer', 'assets/Beer.png');
+        this.load.image('drinker', 'assets/Customer_01.png');
+        this.load.image('bottle', 'assets/Beer_empty.png');
     }
 //Create Objects
     create ()

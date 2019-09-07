@@ -4,18 +4,25 @@ var row;
 var beers, drinkers, bottles;
 var random;
 var drinkerTimer, bottleTimer;
+var gameTimer;
 var ui;
-var score, hp;
+var score, hp, gameTime;
 var emmiter; //event emmiter
 
 const screenWidth = 1920;
 const screenHeight = 1080;
 const playerXOffset = 300;
 
+const drinkerRange = 50;
+
 const row1Position = 100;
 const row2Position = 320;
 const row3Position = 540;
 const row4Position = 760;
+
+const pushedBackMod = 4;
+const pushBackXDistance = 400;
+const drinkingTime = 3000;
 
 class Playing extends Phaser.Scene{
     constructor(){
@@ -41,13 +48,15 @@ class Playing extends Phaser.Scene{
         down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         drinkerTimer = this.time.addEvent({ delay: 3000, callback: spawnDrinker, loop: true }); //Spawn drinkers based on a time delay
+		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
         ui = this.add.text(screenWidth - playerXOffset, 10, '');
         score = 0;
         hp = 3;
+		gameTime = 0;
 
-        emmiter = new Phaser.Events.EventEmitter();
-        emmiter.on('getBeer', beerOnHit, this);
+        //emmiter = new Phaser.Events.EventEmitter();
+        //emmiter.on('getBeer', beerOnHit, this);
 
         //Beer Class
         var Beer = new Phaser.Class({
@@ -71,10 +80,12 @@ class Playing extends Phaser.Scene{
                 for (var elem in drinkers.children.entries) {
                     if(this.y == drinkers.children.entries[elem].y)
                     {
-                        if (this.x < drinkers.children.entries[elem].x)
+                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange 
+							&& drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
                         {
-                            drinkers.children.entries[elem].x -= 300; //TODO: Fix to also account for effect of pushing back, as well as if the person lives and has to throw back their item
-                            emmiter.emit('getBeer', this.x, this.y);
+							drinkers.children.entries[elem].pushedBack = true;
+							drinkers.children.entries[elem].pushedBackXLocation = this.x;
+                            //emmiter.emit('getBeer', this.x, this.y);
                             score++;
                             this.setActive(false);
                             this.setVisible(false);
@@ -106,6 +117,10 @@ class Playing extends Phaser.Scene{
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'drinker')
                     this.speed = Phaser.Math.GetSpeed(100, 1); // Set the drinkers' speed
+					this.pushedBack = false; //If the drinker is pushed back
+					this.drinking = false; //If the drinker is drinking
+					this.pushedBackXLocation = 0; //the location where the drinker was pushed back
+					this.drinkTimer = 0; //the time for drinking
                 },
             fire: function (){
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects drinkers' spawn locations
@@ -127,18 +142,50 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
-                this.x += this.speed * delta;
+				if(this.pushedBack == true)
+				{
+					this.x -= this.speed * delta * pushedBackMod;
+					if(this.x < this.pushedBackXLocation - pushBackXDistance)
+					{
+						this.pushedBack = false;
+						this.drinking = true;
+					}
+				}
+				else if (this.drinking == true)
+				{
+					this.drinkTimer += delta;
+					if(this.drinkTimer > 3000)
+					{
+						this.drinking = false;
+						this.drinkTimer = 0;
+						beerOnHit(this.x, this.y); //send off the beer after drinking
+					}
+				}
+				else
+				{
+					this.x += this.speed * delta;
+				}
+				
+                
                 if (this.x > screenWidth - playerXOffset) //if reaching the player
                 {
                     //Reached player fail state
                     this.setActive(false);
                     this.setVisible(false);
+					this.pushedBack = false;
+					this.pushedBackXLocation = 0;
+					this.drinking = false;
+					this.drinkTimer = 0;
                     hp--;
                 }
                 if (this.x < 0) //if pushed back off the screen
                 {
                     this.setActive(false);
                     this.setVisible(false);
+					this.pushedBack = false;
+					this.pushedBackXLocation = 0;
+					this.drinking = false;
+					this.drinkTimer = 0;
                 }
             }
 
@@ -196,7 +243,7 @@ class Playing extends Phaser.Scene{
 //Update Loop
     update (time)
     {
-        ui.setText('HP: ' + hp + '\nScore: ' + score);
+        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + time);
         if(hp <= 0){
             this.scene.start("FailScreen");
         }
@@ -237,6 +284,10 @@ function spawnBottle(x,y){
     if(bottle){
         bottle.fire(x,y);
     }
+}
+
+function addGameTime(){
+	gameTime += 1;
 }
 
 function beerOnHit(x, y) {

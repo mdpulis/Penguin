@@ -376,7 +376,12 @@ class Playing extends Phaser.Scene{
             {
                 beer.fire(player.x, player.y);
             }
-
+        }
+        if(cursors.left.isDown){
+            player.setVelocityX(-200);
+        }
+        else{
+            player.setVelocityX(0);
         }
 
     }

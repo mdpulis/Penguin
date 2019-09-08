@@ -7,6 +7,7 @@ var config = {
     scene: [
         Menu,
         Playing,
+        Win,
         Fail
     ]
 };

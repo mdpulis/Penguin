@@ -52,6 +52,8 @@ class Playing extends Phaser.Scene{
         this.load.audio('down','assets/audio/down.wav');
         this.load.audio('get_mug','assets/audio/get_mug.wav');
         this.load.audio('drinker_out','assets/audio/out_customer.wav');
+        this.load.audio('drinker_in','assets/audio/popup.wav');
+        this.load.audio('win','assets/audio/win.wav');
     }
 //Create Objects
     create ()
@@ -89,13 +91,24 @@ class Playing extends Phaser.Scene{
         //emmiter = new Phaser.Events.EventEmitter();
         //emmiter.on('getBeer', beerOnHit, this);
         //Add audio files to the game
+        var bgm_config = {
+            mute: false,
+            volume: 1,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        };
         sound.add('bgm');
+        sound.add('win');
         sound.add('lose');
         sound.add('break');
         sound.add('throw_mug');
         sound.add('get_mug');
         sound.add('drinker_out');
-        sound.play('bgm');
+        sound.add('drinker_in');
+        sound.play('bgm',bgm_config);
 
         //Beer Class
         var Beer = new Phaser.Class({
@@ -165,6 +178,7 @@ class Playing extends Phaser.Scene{
                 },
             fire: function (x, y){
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects drinkers' spawn locations
+                //sound.play('drinker_in');
                 if(level1 == true && spawnCount <= 4){ // spawn 4 drinkers for level 1
                     this.setPosition(x, y);
                 }
@@ -282,6 +296,7 @@ class Playing extends Phaser.Scene{
 
                 }
                 if(this.x >= player.x && this.y == player.y){
+                    sound.play('get_mug');
                     score++;
                     this.setActive(false);
                     this.setVisible(false);
@@ -327,10 +342,12 @@ class Playing extends Phaser.Scene{
             this.scene.start("FailScreen");
         }
         else if(score >= 10 && level1 == true){ // reaches level 1 win state
+            sound.play('win');
             sound.removeByKey('bgm');
             this.scene.start("WinScreen");
         }
         else if(score >= 20 && level2 == true){ // reaches level 2 win state
+            sound.play('win');
             sound.removeByKey('bgm');
             this.scene.start("WinScreen");
         }

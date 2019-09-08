@@ -8,6 +8,7 @@ var gameTimer;
 var ui;
 var score, hp, gameTime;
 var emmiter; //event emmiter
+var sound;
 
 const screenWidth = 1920;
 const screenHeight = 1080;
@@ -33,20 +34,33 @@ class Playing extends Phaser.Scene{
 //Load Assets
     preload ()
     {
-        this.load.image('background', 'assets/back.png');
+        //Load images
+        this.load.image('background', 'assets/Game_BG.png');
         this.load.image('player', 'assets/player.png');
         this.load.image('beer', 'assets/Beer.png');
         this.load.image('drinker', 'assets/Customer_01.png');
         this.load.image('bottle', 'assets/Beer_empty.png');
+        //Load audio
+        this.load.audio('bgm','assets/audio/level1_bgm.mp3');
+        this.load.audio('lose','assets/audio/tune_lose.mp3');
+        this.load.audio('break','assets/audio/mug_break.mp3');
+        this.load.audio('throw_mug','assets/audio/throw_mug.wav')
+        this.load.audio('up','assets/audio/up.wav');
+        this.load.audio('down','assets/audio/down.wav');
+        this.load.audio('get_mug','assets/audio/get_mug.wav');
+        this.load.audio('drinker_out','assets/audio/out_customer.wav');
     }
 //Create Objects
     create ()
     {
         this.add.image(960, 540, 'background');
+        //var music = this.sound.add('bgm');
+        //music.play();
         player = this.add.image(screenWidth - playerXOffset, 0 + 100, 'player');
         up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP); //Assign key actions
         down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        sound = this.sound;
         drinkerTimer = this.time.addEvent({ delay: 3000, callback: spawnDrinker, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
@@ -57,6 +71,15 @@ class Playing extends Phaser.Scene{
 
         //emmiter = new Phaser.Events.EventEmitter();
         //emmiter.on('getBeer', beerOnHit, this);
+        //Add audio files to the game
+        sound.add('bgm');
+        sound.add('lose');
+        sound.add('break');
+        sound.add('throw_mug');
+        sound.add('get_mug');
+        sound.add('drinker_out');
+
+        sound.play('bgm');
 
         //Beer Class
         var Beer = new Phaser.Class({
@@ -69,6 +92,7 @@ class Playing extends Phaser.Scene{
                 },
             fire: function (x, y) //Spawn beer based on player's location
             {
+                sound.play('throw_mug');
                 this.setPosition(x, y);
                 this.setActive(true);
                 this.setVisible(true);
@@ -83,6 +107,7 @@ class Playing extends Phaser.Scene{
                         if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange 
 							&& drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
                         {
+                            sound.play('get_mug');
 							drinkers.children.entries[elem].pushedBack = true;
 							drinkers.children.entries[elem].pushedBackXLocation = this.x;
                             //emmiter.emit('getBeer', this.x, this.y);
@@ -180,6 +205,7 @@ class Playing extends Phaser.Scene{
                 }
                 if (this.x < 0) //if pushed back off the screen
                 {
+                    sound.play('drinker_out');
                     this.setActive(false);
                     this.setVisible(false);
 					this.pushedBack = false;
@@ -206,6 +232,7 @@ class Playing extends Phaser.Scene{
                     this.speed = Phaser.Math.GetSpeed(500, 1); // Set the bottles' speed
                 },
             fire: function (x, y){
+                sound.play('throw_mug');
                 this.setPosition(x, y);
                 this.setActive(true);
                 this.setVisible(true);
@@ -224,6 +251,7 @@ class Playing extends Phaser.Scene{
                     else
                     {
                         //didn't catch bottle fail state
+                        sound.play('break');
                         this.setActive(false);
                         this.setVisible(false);
                         hp--;
@@ -245,16 +273,20 @@ class Playing extends Phaser.Scene{
     {
         ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + time);
         if(hp <= 0){
+            sound.play('lose');
+            sound.removeByKey('bgm');
             this.scene.start("FailScreen");
         }
 
         if (Phaser.Input.Keyboard.JustDown(up) && row > 1) //Prevent "holding down" actions
         {
+            sound.play('up');
             player.y -= 220;
             row --;
         }
         else if (Phaser.Input.Keyboard.JustDown(down) && row < 4)
         {
+            sound.play('down');
             player.y += 220;
             row ++;
         }

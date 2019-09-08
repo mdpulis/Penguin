@@ -1,5 +1,5 @@
 var player;
-var up, down, space;
+var up, down, left, right, space;
 var row;
 var beers, drinkers, bottles, spawnDrinkers;
 var random;
@@ -11,6 +11,7 @@ var emmiter; //event emmiter
 var sound;
 var drinkerAmount, spawnCount;
 var position, position2;
+var cursors;
 
 const screenWidth = 1920;
 const screenHeight = 1080;
@@ -58,10 +59,13 @@ class Playing extends Phaser.Scene{
         this.add.image(960, 540, 'background');
         //var music = this.sound.add('bgm');
         //music.play();
-        player = this.add.image(screenWidth - playerXOffset, 0 + 100, 'player');
+        player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player');
         up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP); //Assign key actions
         down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        cursors = this.input.keyboard.createCursorKeys();
         sound = this.sound;
         drinkerTimer = this.time.addEvent({ delay: 3000, callback: spawnDrinker, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
@@ -257,6 +261,7 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
+                console.log(player.x);
                 this.x += this.speed * delta;
                 if (this.x > screenWidth - playerXOffset)
                 {
@@ -276,12 +281,17 @@ class Playing extends Phaser.Scene{
                     }
 
                 }
+                if(this.x >= player.x && this.y == player.y){
+                    score++;
+                    this.setActive(false);
+                    this.setVisible(false);
+                }
             }
 
         });
         bottles = this.add.group({
             classType: Bottle,
-            maxSize: 3,
+            maxSize: 10,
             runChildUpdate: true
         });
     }
@@ -289,7 +299,6 @@ class Playing extends Phaser.Scene{
 //Update Loop
     update (time)
     {
-        bgm.play();
         if(level1 == true){ //spawn 4 drinkers for level 1
             if(spawnCount <= 4){
                 spawnDrinker(0, position);
@@ -309,7 +318,9 @@ class Playing extends Phaser.Scene{
                 position2 += 220;
             }
         }
+
         ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + time);
+
         if(hp <= 0){ // reaches fail state
             sound.play('lose');
             sound.removeByKey('bgm');
@@ -324,20 +335,41 @@ class Playing extends Phaser.Scene{
             this.scene.start("WinScreen");
         }
 
-        if (Phaser.Input.Keyboard.JustDown(up) && row > 1) //Prevent "holding down" actions
+        if (Phaser.Input.Keyboard.JustDown(up) && row >= 1) //Prevent "holding down" actions
         {
-            sound.play('up');
-            player.y -= 220;
-            row --;
+            if(row == 1){
+                sound.play('up');
+                player.x = screenWidth - playerXOffset;
+                player.y = row4Position;
+                row = 4;
+            }
+            else{
+                sound.play('up');
+                player.x = screenWidth - playerXOffset;
+                player.y -= 220;
+                row --;
+            }
         }
-        else if (Phaser.Input.Keyboard.JustDown(down) && row < 4)
+        if (Phaser.Input.Keyboard.JustDown(down) && row <= 4)
         {
-            sound.play('down');
-            player.y += 220;
-            row ++;
+            if(row == 4){
+                sound.play('down');
+                player.x = screenWidth - playerXOffset;
+                player.y = row1Position;
+                row = 1;
+            }
+            else{
+                sound.play('down');
+                player.x = screenWidth - playerXOffset;
+                player.y += 220;
+                row ++;
+            }
+        }
+        if(Phaser.Input.Keyboard.JustDown(right)){
+            player.x = screenWidth - playerXOffset;
         }
 
-        if(Phaser.Input.Keyboard.JustDown(space)){
+        if(Phaser.Input.Keyboard.JustDown(space) && player.x == screenWidth - playerXOffset){
             var beer = beers.get();
 
             if (beer)
@@ -369,7 +401,7 @@ function addGameTime(){
 }
 
 function beerOnHit(x, y) {
-    console.log("Beer hit a customer");
+    //console.log("Beer hit a customer");
     spawnBottle(x,y)
 }
 

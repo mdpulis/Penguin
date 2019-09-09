@@ -344,18 +344,7 @@ class Playing extends Phaser.Scene{
             sound.removeByKey('bgm');
             this.scene.start("FailScreen");
         }
-        /*
-        else if(score >= 10 && level1 == true){ // reaches level 1 win state
-            sound.play('win');
-            sound.removeByKey('bgm');
-            this.scene.start("WinScreen");
-        }
-        else if(score >= 20 && level2 == true){ // reaches level 2 win state
-            sound.play('win');
-            sound.removeByKey('bgm');
-            this.scene.start("WinScreen");
-        }
-        */
+
         else if(visibleDrinker == 0){
             sound.play('win');
             sound.removeByKey('bgm');
@@ -392,20 +381,21 @@ class Playing extends Phaser.Scene{
                 row ++;
             }
         }
-        if(Phaser.Input.Keyboard.JustDown(right)){
+
+        if(Phaser.Input.Keyboard.JustDown(space)){
             player.x = screenWidth - playerXOffset;
-        }
-
-        if(Phaser.Input.Keyboard.JustDown(space) && player.x == screenWidth - playerXOffset){
             var beer = beers.get();
-
             if (beer)
             {
                 beer.fire(player.x, player.y);
             }
         }
+
         if(cursors.left.isDown){
             player.setVelocityX(-200);
+        }
+        else if(cursors.right.isDown && player.x < screenWidth - playerXOffset){
+            player.setVelocityX(200);
         }
         else{
             player.setVelocityX(0);

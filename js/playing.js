@@ -1,7 +1,7 @@
 var player;
 var up, down, left, right, space;
 var row;
-var beers, drinkers, bottles, spawnDrinkers;
+var beers, drinkers, bottles, spawnDrinkers, bears, penguins, bombs, sushi;
 var random;
 var drinkerTimer;
 var gameTimer;
@@ -9,10 +9,12 @@ var ui;
 var hp, gameTime;
 var emmiter; //event emmiter
 var sound;
-var drinkerAmount, spawnCount;
+var drinkerAmount, spawnCount, bearAmount;
 var position, position2;
 var cursors;
 var visibleDrinker;
+var visibleBear;
+var usingBomb; //indicate whether the player is using sushi or bomb
 
 const screenWidth = 1920;
 const screenHeight = 1080;
@@ -43,7 +45,9 @@ class Playing extends Phaser.Scene{
         this.load.image('player', 'assets/player.png');
         this.load.image('beer', 'assets/Beer.png');
         this.load.image('drinker', 'assets/Customer_01.png');
+        this.load.image('bear','assets/drinker.png');
         this.load.image('bottle', 'assets/Beer_empty.png');
+        this.load.image('bomb','assets/bomb.jpg')
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('lose','assets/audio/tune_lose.mp3');
@@ -77,6 +81,7 @@ class Playing extends Phaser.Scene{
         position2 = row1Position;
         ui = this.add.text(screenWidth - playerXOffset, 10, '');
         hp = 3;
+        usingBomb = false;
 		gameTime = 0;
         spawnCount = 1;
 
@@ -133,7 +138,7 @@ class Playing extends Phaser.Scene{
                 for (var elem in drinkers.children.entries) {
                     if(this.y == drinkers.children.entries[elem].y)
                     {
-                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange 
+                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
 							&& drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
                         {
                             sound.play('get_mug');
@@ -162,6 +167,173 @@ class Playing extends Phaser.Scene{
             maxSize: 30,
             runChildUpdate: true
         });
+        //Bomb class
+        var Bomb = new Phaser.Class({
+            Extends: Phaser.GameObjects.Image,
+            initialize:
+                function Bullet (game)
+                {
+                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bomb');
+                    this.speed = Phaser.Math.GetSpeed(900, 1);
+                },
+            fire: function (x, y) //Spawn bomb based on player's location
+            {
+                sound.play('throw_mug');
+                this.setPosition(x, y);
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                this.x -= this.speed * delta;
+
+                for (var elem in drinkers.children.entries) {
+                    if(this.y == drinkers.children.entries[elem].y)
+                    {
+                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
+                            && drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
+                        {
+                            sound.play('get_mug');
+                            drinkers.children.entries[elem].pushedBack = true;
+                            drinkers.children.entries[elem].pushedBackXLocation = this.x;
+                            //============================ Modify on lanes here===================================
+
+
+                            //emmiter.emit('getBeer', this.x, this.y); ==============================================
+                            score++;
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                    }
+                }
+
+                for (var elem in bears.children.entries) {
+                    if(this.y == bears.children.entries[elem].y)
+                    {
+                        if (this.x < bears.children.entries[elem].x + drinkerRange && this.x > bears.children.entries[elem].x - drinkerRange
+                            && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
+                        {
+                            sound.play('get_mug');
+                            bears.children.entries[elem].pushedBack = true;
+                            bears.children.entries[elem].pushedBackXLocation = this.x;
+                            score++;
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                    }
+                }
+                if (this.x < 0)
+                {
+                    //Thrown beer doesn't hit anyone fail state
+                    this.setActive(false);
+                    this.setVisible(false);
+                    hp--; //Need discussion whether decrese hp or not
+                }
+
+            }
+        });
+        bombs = this.add.group({
+            classType: Bomb,
+            maxSize: 30,
+            runChildUpdate: true
+        });
+
+        //Polar bear class
+        var Bear = new Phaser.Class({
+            Extends: Phaser.GameObjects.Image,
+            initialize:
+                function Bear (game)
+                {
+                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bear')
+                    this.speed = Phaser.Math.GetSpeed(100, 1);
+                    this.pushedBack = false;
+                    this.sushi = 0; //how much sushi the bear has got
+                    this.pushedBackXLocation = 0;
+                    this.eating = false;
+                    this.eating_Timer = 0;
+                },
+            fire: function (x, y){
+                visibleBear ++;
+                random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
+                //sound.play('drinker_in');
+                if(level1 == true && spawnCount <= 4){ // spawn 4 bears for level 1
+                    this.setPosition(x, y);
+                }
+                else if(level2 == true && spawnCount <= 8){ // spawn 8 bears for level 2
+                    this.setPosition(x, y);
+                }
+                else{
+                    if(random == 0){
+                        this.setPosition(0, row1Position);
+                    }
+                    else if(random == 1){
+                        this.setPosition(0, row2Position);
+                    }
+                    else if(random == 2){
+                        this.setPosition(0, row3Position);
+                    }
+                    else if(random == 3){
+                        this.setPosition(0, row4Position);
+                    }
+                }
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                if(this.pushedBack == true) //once the bear got a boom, it will be pushed out the screen
+                {
+                    this.x -= this.speed * delta * pushedBackMod;
+                }
+                else if (this.eating == true)
+                {
+                    this.eating_Timer += delta;
+                    if(this.eating_Timer > 3000)
+                    {
+                        this.eating = false;
+                        this.eating_Timer = 0;
+                        beerOnHit(this.x, this.y); //send off the plate after drinking =================================Need change later
+                    }
+                }
+                else
+                {
+                    this.x += this.speed * delta;
+                }
+
+
+                if (this.x > screenWidth - playerXOffset) //if reaching the player
+                {
+                    //Reached player fail state
+                    visibleBear --;
+                    this.setActive(false);
+                    this.setVisible(false);
+                    this.pushedBack = false;
+                    this.pushedBackXLocation = 0;
+                    this.eating = false;
+                    this.eating_Timer = 0;
+                    hp--;
+                }
+                //The bear may need time for eating sushi
+                if (this.x < 0) //if pushed back off the screen
+                {
+                    sound.play('drinker_out');
+                    visibleDrinker --;
+                    this.setActive(false);
+                    this.setVisible(false);
+                    this.pushedBack = false;
+                    this.pushedBackXLocation = 0;
+                    this.eating = false;
+                    this.eating_Timer = 0;
+                }
+            }
+
+        });
+        bears = this.add.group({
+            classType: Bear,
+            maxSize: bearAmount,
+            runChildUpdate: true
+        });
+
 
         //Drinker Class
         var Drinker = new Phaser.Class({
@@ -228,8 +400,8 @@ class Playing extends Phaser.Scene{
 				{
 					this.x += this.speed * delta;
 				}
-				
-                
+
+
                 if (this.x > screenWidth - playerXOffset) //if reaching the player
                 {
                     //Reached player fail state
@@ -384,15 +556,29 @@ class Playing extends Phaser.Scene{
 
         if(Phaser.Input.Keyboard.JustDown(space)){
             player.x = screenWidth - playerXOffset;
-            var beer = beers.get();
-            if (beer)
+            if(!usingBomb)
             {
-                beer.fire(player.x, player.y);
+                var beer = beers.get();
+                if (beer)
+                {
+                    beer.fire(player.x, player.y);
+                }
             }
+            else
+            {
+                var bomb = bombs.get();
+                if (bomb)
+                {
+                    bomb.fire(player.x, player.y);
+                }
+            }
+
         }
 
         if(cursors.left.isDown){
             player.setVelocityX(-200);
+            //change the type of usingBomb here
+            //usingBomb = !usingBomb; //switch the gadget
         }
         else if(cursors.right.isDown && player.x < screenWidth - playerXOffset){
             player.setVelocityX(200);
@@ -406,6 +592,7 @@ class Playing extends Phaser.Scene{
 
 function spawnDrinker(x, y) {
     var drinker = drinkers.get();
+    //var drinker = bears.get();
     if (drinker) {
         drinker.fire(x, y)
     }

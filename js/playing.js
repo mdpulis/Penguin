@@ -61,6 +61,8 @@ class Playing extends Phaser.Scene{
         this.load.image('arrow_key_icon', 'assets/arrow_key.png')
         this.load.image('sushi_icon', 'assets/sushi_icon.png')
         this.load.image('bomb_icon', 'assets/bomb_icon.png')
+        //Load animation spriteSheets
+        this.load.spritesheet('boom','assets/anim/testing.png', {frameWidth: 32, frameHeight: 48});
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('lose','assets/audio/tune_lose.mp3');
@@ -117,8 +119,8 @@ class Playing extends Phaser.Scene{
             drinkerAmount = 8;
         }
         visibleDrinker = 0;
-        //emmiter = new Phaser.Events.EventEmitter();
-        //emmiter.on('getBeer', beerOnHit, this);
+        emmiter = new Phaser.Events.EventEmitter(); //an event emitter for animation
+        //emmiter.on('boom', addBoomAnim, this);
         //Add audio files to the game
         var bgm_config = {
             mute: false,
@@ -138,6 +140,18 @@ class Playing extends Phaser.Scene{
         sound.add('drinker_out');
         sound.add('drinker_in');
         sound.play('bgm',bgm_config);
+        //Animations here
+        this.anims.create({
+            key: 'boom1',
+            frames: this.anims.generateFrameNumbers('boom',{start: 0, end: 3}),
+            frameRate: 10,
+            repeat: -1
+        });
+        
+        //boom.play('boom1');
+        function addBoomAnim(x,y) {
+            //this.
+        }
 
         //Beer Class
         var Beer = new Phaser.Class({

@@ -17,6 +17,8 @@ var visibleBear;
 var usingBomb; //indicate whether the player is using sushi or bomb
 let lane;
 
+var arrow_key_icon, sushi_icon, bomb_icon;
+
 const screenWidth = 1920;
 const screenHeight = 1080;
 const playerXOffset = 500;
@@ -55,6 +57,10 @@ class Playing extends Phaser.Scene{
         this.load.image('bottle', 'assets/Beer_empty.png');
         this.load.image('bomb','assets/bomb.jpg')
         this.load.image('bear','assets/bear.png')
+
+        this.load.image('arrow_key_icon', 'assets/arrow_key.png')
+        this.load.image('sushi_icon', 'assets/sushi_icon.png')
+        this.load.image('bomb_icon', 'assets/bomb_icon.png')
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('lose','assets/audio/tune_lose.mp3');
@@ -71,6 +77,12 @@ class Playing extends Phaser.Scene{
     create ()
     {
         this.add.image(960, 540, 'background');
+
+        arrow_key_icon = this.add.image(screenWidth - 128 * 2, screenHeight - 128, 'arrow_key_icon');
+        sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
+        bomb_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'bomb_icon');
+
+
         //var music = this.sound.add('bgm');
         //music.play();
         player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player');
@@ -89,6 +101,7 @@ class Playing extends Phaser.Scene{
         ui = this.add.text(screenWidth - playerXOffset, 10, '');
         hp = 30;
         usingBomb = false;
+        changeThrowableDisplay(); //set the bomb or sushi icon
 		gameTime = 0;
         spawnCount = 1;
         lane = [{length : barLength5, position: row1Position},
@@ -603,7 +616,7 @@ class Playing extends Phaser.Scene{
             }
         }
 
-        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + time);
+        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + gameTime.toMMSS());
 
         if(hp <= 0){ // reaches fail state
             sound.play('lose');
@@ -679,6 +692,7 @@ class Playing extends Phaser.Scene{
         if(Phaser.Input.Keyboard.JustDown(right)){
             //change the type of usingBomb here
             usingBomb = !usingBomb;
+            changeThrowableDisplay();
         }
 
     }
@@ -715,8 +729,24 @@ function spawnBottle(x,y){
     }
 }
 
+function changeThrowableDisplay()
+{
+    if(usingBomb)
+    {
+        //show bomb
+        bomb_icon.setVisible(true);
+        sushi_icon.setVisible(false);
+    }
+    else
+    {
+        //show sushi
+        sushi_icon.setVisible(true);
+        bomb_icon.setVisible(false);
+    }
+}
+
 function addGameTime(){
-	gameTime += 1;
+	gameTime += Math.floor(1);
 }
 
 function beerOnHit(x, y) {
@@ -724,3 +754,23 @@ function beerOnHit(x, y) {
     spawnBottle(x,y)
 }
 
+Number.prototype.toMMSS = function () {
+    var minutes = Math.floor(gameTime / 60);
+    var seconds = Math.floor(gameTime % 60);
+
+    if (minutes == 0) {
+        minutes = "00";
+    }
+    else if (minutes < 10) {
+        minutes = "0" + minutes;
+    }
+
+    if (seconds == 0) {
+        seconds = "00";
+    }
+    else if(seconds < 10) {
+        seconds = "0" + seconds;
+    }
+
+    return minutes + ':' + seconds;
+}

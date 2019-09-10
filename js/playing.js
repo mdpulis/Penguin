@@ -1,17 +1,25 @@
 var player;
-var up, down, space;
+var up, down, left, right, space;
 var row;
-var beers, drinkers, bottles;
+var beers, drinkers, bottles, spawnDrinkers, bears, penguins, bombs, sushi;
 var random;
-var drinkerTimer, bottleTimer;
+var drinkerTimer;
 var gameTimer;
 var ui;
-var score, hp, gameTime;
+var hp, gameTime;
 var emmiter; //event emmiter
+var sound;
+var drinkerAmount, spawnCount, bearAmount;
+var position, position2;
+var cursors;
+var visibleDrinker;
+var visibleBear;
+var usingBomb; //indicate whether the player is using sushi or bomb
+let lane;
 
 const screenWidth = 1920;
 const screenHeight = 1080;
-const playerXOffset = 300;
+const playerXOffset = 500;
 
 const drinkerRange = 50;
 
@@ -19,6 +27,12 @@ const row1Position = 100;
 const row2Position = 320;
 const row3Position = 540;
 const row4Position = 760;
+
+const barLength1 = 284;
+const barLength2 = 568;
+const barLength3 = 852;
+const barLength4 = 1136;
+const barLength5 = 1420;
 
 const pushedBackMod = 4;
 const pushBackXDistance = 400;
@@ -33,30 +47,84 @@ class Playing extends Phaser.Scene{
 //Load Assets
     preload ()
     {
-        this.load.image('background', 'assets/back.png');
+        //Load images
+        this.load.image('background', 'assets/Game_BG.png');
         this.load.image('player', 'assets/player.png');
         this.load.image('beer', 'assets/Beer.png');
         this.load.image('drinker', 'assets/Customer_01.png');
         this.load.image('bottle', 'assets/Beer_empty.png');
+        this.load.image('bomb','assets/bomb.jpg')
+        this.load.image('bear','assets/bear.png')
+        //Load audio
+        this.load.audio('bgm','assets/audio/level1_bgm.mp3');
+        this.load.audio('lose','assets/audio/tune_lose.mp3');
+        this.load.audio('break','assets/audio/mug_break.mp3');
+        this.load.audio('throw_mug','assets/audio/throw_mug.wav')
+        this.load.audio('up','assets/audio/up.wav');
+        this.load.audio('down','assets/audio/down.wav');
+        this.load.audio('get_mug','assets/audio/get_mug.wav');
+        this.load.audio('drinker_out','assets/audio/out_customer.wav');
+        this.load.audio('drinker_in','assets/audio/popup.wav');
+        this.load.audio('win','assets/audio/win.wav');
     }
 //Create Objects
     create ()
     {
         this.add.image(960, 540, 'background');
-        player = this.add.image(screenWidth - playerXOffset, 0 + 100, 'player');
+        //var music = this.sound.add('bgm');
+        //music.play();
+        player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player');
         up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP); //Assign key actions
         down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
+        left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
+        right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        drinkerTimer = this.time.addEvent({ delay: 3000, callback: spawnDrinker, loop: true }); //Spawn drinkers based on a time delay
+        cursors = this.input.keyboard.createCursorKeys();
+        sound = this.sound;
+        drinkerTimer = this.time.addEvent({ delay: 4500, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
+        position = row1Position;
+        position2 = row1Position;
         ui = this.add.text(screenWidth - playerXOffset, 10, '');
-        score = 0;
-        hp = 3;
+        hp = 30;
+        usingBomb = false;
 		gameTime = 0;
+        spawnCount = 1;
+        lane = [{length : barLength5, position: row1Position},
+                {length : barLength5, position: row2Position},
+                {length : barLength5, position: row3Position},
+                {length : barLength5, position: row4Position}];
 
+        //variables that change based on levels
+		if(level1 == true){
+            drinkerAmount = 4;
+        }
+		else if(level2 == true){
+            drinkerAmount = 8;
+        }
+        visibleDrinker = 0;
         //emmiter = new Phaser.Events.EventEmitter();
         //emmiter.on('getBeer', beerOnHit, this);
+        //Add audio files to the game
+        var bgm_config = {
+            mute: false,
+            volume: 1,
+            rate: 1,
+            detune: 0,
+            seek: 0,
+            loop: true,
+            delay: 0
+        };
+        sound.add('bgm');
+        sound.add('win');
+        sound.add('lose');
+        sound.add('break');
+        sound.add('throw_mug');
+        sound.add('get_mug');
+        sound.add('drinker_out');
+        sound.add('drinker_in');
+        sound.play('bgm',bgm_config);
 
         //Beer Class
         var Beer = new Phaser.Class({
@@ -69,6 +137,7 @@ class Playing extends Phaser.Scene{
                 },
             fire: function (x, y) //Spawn beer based on player's location
             {
+                sound.play('throw_mug');
                 this.setPosition(x, y);
                 this.setActive(true);
                 this.setVisible(true);
@@ -80,11 +149,13 @@ class Playing extends Phaser.Scene{
                 for (var elem in drinkers.children.entries) {
                     if(this.y == drinkers.children.entries[elem].y)
                     {
-                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange 
+                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
 							&& drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
                         {
+                            sound.play('get_mug');
 							drinkers.children.entries[elem].pushedBack = true;
 							drinkers.children.entries[elem].pushedBackXLocation = this.x;
+
                             //emmiter.emit('getBeer', this.x, this.y);
                             score++;
                             this.setActive(false);
@@ -108,6 +179,231 @@ class Playing extends Phaser.Scene{
             maxSize: 30,
             runChildUpdate: true
         });
+        //Bomb class
+        var Bomb = new Phaser.Class({
+            Extends: Phaser.GameObjects.Image,
+            initialize:
+                function Bullet (game)
+                {
+                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bomb');
+                    this.speed = Phaser.Math.GetSpeed(900, 1);
+                },
+            fire: function (x, y) //Spawn bomb based on player's location
+            {
+                sound.play('throw_mug');
+                this.setPosition(x, y);
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                this.x -= this.speed * delta;
+
+                for (var elem in drinkers.children.entries) {
+                    if(this.y == drinkers.children.entries[elem].y)
+                    {
+                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
+                            && drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
+                        {
+                            sound.play('get_mug');
+                            //drinkers.children.entries[elem].pushedBack = true;
+                            //drinkers.children.entries[elem].pushedBackXLocation = this.x;
+                            drinkers.children.entries[elem].setActive(false);
+                            drinkers.children.entries[elem].setVisible(false);
+                            //bomb & lane logic
+                            if(drinkers.children.entries[elem].x > barLength4 && drinkers.children.entries[elem].x <= barLength5){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength4;
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength4;
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength4;
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength4;
+                                }
+                            }
+                            else if(drinkers.children.entries[elem].x > barLength3 && drinkers.children.entries[elem].x <= barLength4){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength3;
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength3;
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength3;
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength3;
+                                }
+                            }
+                            else if(drinkers.children.entries[elem].x > barLength2 && drinkers.children.entries[elem].x <= barLength3){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength2;
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength2;
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength2;
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength2;
+                                }
+                            }
+                            else if(drinkers.children.entries[elem].x > 0 && drinkers.children.entries[elem].x <= barLength2){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength1;
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength1;
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength1;
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength1;
+                                }
+                            }
+
+                            //emmiter.emit('getBeer', this.x, this.y); ==============================================
+                            score++;
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                    }
+                }
+
+                for (var elem in bears.children.entries) {
+                    if(this.y == bears.children.entries[elem].y)
+                    {
+                        if (this.x < bears.children.entries[elem].x + drinkerRange && this.x > bears.children.entries[elem].x - drinkerRange
+                            && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
+                        {
+                            sound.play('get_mug');
+                            bears.children.entries[elem].pushedBack = true;
+                            bears.children.entries[elem].pushedBackXLocation = this.x;
+                            score++;
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                    }
+                }
+                if (this.x < 0)
+                {
+                    //Thrown beer doesn't hit anyone fail state
+                    this.setActive(false);
+                    this.setVisible(false);
+                    hp--; //Need discussion whether decrese hp or not
+                }
+
+            }
+        });
+        bombs = this.add.group({
+            classType: Bomb,
+            maxSize: 30,
+            runChildUpdate: true
+        });
+
+        //Polar bear class
+        var Bear = new Phaser.Class({
+            Extends: Phaser.GameObjects.Image,
+            initialize:
+                function Bear (game)
+                {
+                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bear')
+                    this.speed = Phaser.Math.GetSpeed(100, 1);
+                    this.pushedBack = false;
+                    this.sushi = 0; //how much sushi the bear has got
+                    this.pushedBackXLocation = 0;
+                    this.eating = false;
+                    this.eating_Timer = 0;
+                },
+            fire: function (x, y){
+                visibleBear ++;
+                random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
+                //sound.play('drinker_in');
+                if(level1 == true && spawnCount <= 4){ // spawn 4 bears for level 1
+                    this.setPosition(x, y);
+                }
+                else if(level2 == true && spawnCount <= 8){ // spawn 8 bears for level 2
+                    this.setPosition(x, y);
+                }
+                else{
+                    if(random == 0){
+                        this.setPosition(0, row1Position);
+                    }
+                    else if(random == 1){
+                        this.setPosition(0, row2Position);
+                    }
+                    else if(random == 2){
+                        this.setPosition(0, row3Position);
+                    }
+                    else if(random == 3){
+                        this.setPosition(0, row4Position);
+                    }
+                }
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                if(this.pushedBack == true) //once the bear got a boom, it will be pushed out the screen
+                {
+                    this.x -= this.speed * delta * pushedBackMod;
+                }
+                else if (this.eating == true)
+                {
+                    this.eating_Timer += delta;
+                    if(this.eating_Timer > 3000)
+                    {
+                        this.eating = false;
+                        this.eating_Timer = 0;
+                        beerOnHit(this.x, this.y); //send off the plate after drinking TODO: =================================Need change later
+                    }
+                }
+                else
+                {
+                    this.x += this.speed * delta;
+                }
+
+                for(var i = 0; i < lane.length; i++){ //if reaching end of lane
+                    if (this.x > lane[i].length && this.y == lane[i].position)
+                    {
+                        //Reached player fail state
+                        visibleBear --;
+                        this.setActive(false);
+                        this.setVisible(false);
+                        this.pushedBack = false;
+                        this.pushedBackXLocation = 0;
+                        this.eating = false;
+                        this.eating_Timer = 0;
+                        hp--;
+                    }
+                }
+                //The bear may need time for eating sushi
+                if (this.x < 0) //if pushed back off the screen
+                {
+                    sound.play('drinker_out');
+                    visibleDrinker --;
+                    this.setActive(false);
+                    this.setVisible(false);
+                    this.pushedBack = false;
+                    this.pushedBackXLocation = 0;
+                    this.eating = false;
+                    this.eating_Timer = 0;
+                }
+            }
+
+        });
+        bears = this.add.group({
+            classType: Bear,
+            maxSize: bearAmount,
+            runChildUpdate: true
+        });
+
 
         //Drinker Class
         var Drinker = new Phaser.Class({
@@ -122,21 +418,30 @@ class Playing extends Phaser.Scene{
 					this.pushedBackXLocation = 0; //the location where the drinker was pushed back
 					this.drinkTimer = 0; //the time for drinking
                 },
-            fire: function (){
+            fire: function (x, y){
+                visibleDrinker ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects drinkers' spawn locations
-                if(random == 0){
-                    this.setPosition(0, row1Position);
+                //sound.play('drinker_in');
+                if(level1 == true && spawnCount <= 4){ // spawn 4 drinkers for level 1
+                    this.setPosition(x, y);
                 }
-                else if(random == 1){
-                    this.setPosition(0, row2Position);
+                else if(level2 == true && spawnCount <= 8){ // spawn 8 drinkers for level 2
+                    this.setPosition(x, y);
                 }
-                else if(random == 2){
-                    this.setPosition(0, row3Position);
+                else{
+                    if(random == 0){
+                        this.setPosition(0, row1Position);
+                    }
+                    else if(random == 1){
+                        this.setPosition(0, row2Position);
+                    }
+                    else if(random == 2){
+                        this.setPosition(0, row3Position);
+                    }
+                    else if(random == 3){
+                        this.setPosition(0, row4Position);
+                    }
                 }
-                else if(random == 3){
-                    this.setPosition(0, row4Position);
-                }
-
                 this.setActive(true);
                 this.setVisible(true);
             },
@@ -165,21 +470,25 @@ class Playing extends Phaser.Scene{
 				{
 					this.x += this.speed * delta;
 				}
-				
-                
-                if (this.x > screenWidth - playerXOffset) //if reaching the player
-                {
-                    //Reached player fail state
-                    this.setActive(false);
-                    this.setVisible(false);
-					this.pushedBack = false;
-					this.pushedBackXLocation = 0;
-					this.drinking = false;
-					this.drinkTimer = 0;
-                    hp--;
+
+                for(var i = 0; i < lane.length; i++){
+                    if (this.x > lane[i].length && this.y == lane[i].position) //if reaching end of lane
+                    {
+                        //Reached player fail state
+                        visibleDrinker --;
+                        this.setActive(false);
+                        this.setVisible(false);
+                        this.pushedBack = false;
+                        this.pushedBackXLocation = 0;
+                        this.drinking = false;
+                        this.drinkTimer = 0;
+                        hp--;
+                    }
                 }
                 if (this.x < 0) //if pushed back off the screen
                 {
+                    sound.play('drinker_out');
+                    visibleDrinker --;
                     this.setActive(false);
                     this.setVisible(false);
 					this.pushedBack = false;
@@ -192,10 +501,9 @@ class Playing extends Phaser.Scene{
         });
         drinkers = this.add.group({
             classType: Drinker,
-            maxSize: 9,
+            maxSize: drinkerAmount,
             runChildUpdate: true
         });
-
         //Bottle Class
         var Bottle = new Phaser.Class({
             Extends: Phaser.GameObjects.Image,
@@ -203,16 +511,19 @@ class Playing extends Phaser.Scene{
                 function Bottle (game)
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'bottle')
-                    this.speed = Phaser.Math.GetSpeed(500, 1); // Set the bottles' speed
+                    this.speed = Phaser.Math.GetSpeed(200, 1); // Set the bottles' speed
                 },
             fire: function (x, y){
+                sound.play('throw_mug');
                 this.setPosition(x, y);
                 this.setActive(true);
                 this.setVisible(true);
             },
             update: function (time, delta)
             {
+                //console.log(player.x);
                 this.x += this.speed * delta;
+                /*
                 if (this.x > screenWidth - playerXOffset)
                 {
                     if(this.y == player.y)
@@ -224,18 +535,47 @@ class Playing extends Phaser.Scene{
                     else
                     {
                         //didn't catch bottle fail state
+                        sound.play('break');
                         this.setActive(false);
                         this.setVisible(false);
                         hp--;
                     }
 
                 }
+                */
+                for(var i = 0; i < lane.length; i++){
+                    if (this.x > lane[i].length && this.y == lane[i].position)
+                    {
+                        if(this.y == player.y)
+                        {
+                            score++;
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                        else
+                        {
+                            //didn't catch bottle fail state
+                            sound.play('break');
+                            this.setActive(false);
+                            this.setVisible(false);
+                            hp--;
+                        }
+
+                    }
+                }
+
+                if(this.x >= player.x && this.y == player.y){
+                    sound.play('get_mug');
+                    score++;
+                    this.setActive(false);
+                    this.setVisible(false);
+                }
             }
 
         });
         bottles = this.add.group({
             classType: Bottle,
-            maxSize: 3,
+            maxSize: 10,
             runChildUpdate: true
         });
     }
@@ -243,46 +583,135 @@ class Playing extends Phaser.Scene{
 //Update Loop
     update (time)
     {
+        if(level1 == true){ //spawn 4 drinkers for level 1
+            if(spawnCount <= 4){
+                spawnDrinker(0, position);
+                spawnCount++;
+                position += 220;
+            }
+        }
+        else if(level2 == true){ //spawn 8 drinkers for level 2
+            if(spawnCount <= 4){
+                spawnDrinker(0, position);
+                spawnCount++;
+                position += 220;
+            }
+            else if(spawnCount <= 8){
+                spawnDrinker(90, position2); // offset the x value for a row of drinkers
+                spawnCount++;
+                position2 += 220;
+            }
+        }
+
         ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + time);
-        if(hp <= 0){
+
+        if(hp <= 0){ // reaches fail state
+            sound.play('lose');
+            sound.removeByKey('bgm');
             this.scene.start("FailScreen");
         }
 
-        if (Phaser.Input.Keyboard.JustDown(up) && row > 1) //Prevent "holding down" actions
-        {
-            player.y -= 220;
-            row --;
+        else if(visibleDrinker == 0){
+            sound.play('win');
+            sound.removeByKey('bgm');
+            this.scene.start("WinScreen");
         }
-        else if (Phaser.Input.Keyboard.JustDown(down) && row < 4)
+        console.log(lane[row - 1].length);
+        if (Phaser.Input.Keyboard.JustDown(up) && row >= 1) //Prevent "holding down" actions
         {
-            player.y += 220;
-            row ++;
+            if(row == 1){
+                sound.play('up');
+                player.y = row4Position;
+                row = 4;
+                player.x = lane[row - 1].length;
+            }
+            else{
+                sound.play('up');
+                player.y -= 220;
+                row --;
+                player.x = lane[row - 1].length;
+            }
+        }
+        if (Phaser.Input.Keyboard.JustDown(down) && row <= 4)
+        {
+            if(row == 4){
+                sound.play('down');
+                player.y = row1Position;
+                row = 1;
+                player.x = lane[row - 1].length;
+            }
+            else{
+                sound.play('down');
+                player.y += 220;
+                row ++;
+                player.x = lane[row - 1].length;
+            }
+        }
+
+        if(cursors.left.isDown){
+            player.setVelocityX(-200);
+        }
+        else{
+            player.setVelocityX(0);
         }
 
         if(Phaser.Input.Keyboard.JustDown(space)){
-            var beer = beers.get();
-
-            if (beer)
+            player.x = lane[row - 1].length;
+            if(!usingBomb)
             {
-                beer.fire(player.x, player.y);
+                var beer = beers.get();
+                if (beer)
+                {
+                    beer.fire(player.x, player.y);
+                }
+            }
+            else
+            {
+                var bomb = bombs.get();
+                if (bomb)
+                {
+                    bomb.fire(player.x, player.y);
+                }
             }
 
+        }
+
+        if(Phaser.Input.Keyboard.JustDown(right)){
+            //change the type of usingBomb here
+            usingBomb = !usingBomb;
         }
 
     }
 }
 
-function spawnDrinker() {
+function spawnDrinker(x, y) {
     var drinker = drinkers.get();
     if (drinker) {
-        drinker.fire()
+        drinker.fire(x, y)
+    }
+}
+
+function spawnBear(x, y) {
+    var bear = bears.get();
+    if (bear) {
+        bear.fire(x, y)
+    }
+}
+
+function spawnCustomer(){
+    random = Math.floor(Math.random() * Math.floor(3));
+    if(random == 0 || random == 1){
+        spawnDrinker();
+    }
+    else{
+        spawnBear();
     }
 }
 
 function spawnBottle(x,y){
     var bottle = bottles.get();
     if(bottle){
-        bottle.fire(x,y);
+        bottle.fire(x, y);
     }
 }
 
@@ -291,6 +720,7 @@ function addGameTime(){
 }
 
 function beerOnHit(x, y) {
-    console.log("Beer hit a customer");
+    //console.log("Beer hit a customer");
     spawnBottle(x,y)
 }
+

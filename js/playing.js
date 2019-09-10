@@ -171,6 +171,7 @@ class Playing extends Phaser.Scene{
 
                             //emmiter.emit('getBeer', this.x, this.y);
                             score++;
+
                             this.setActive(false);
                             this.setVisible(false);
                         }
@@ -283,6 +284,7 @@ class Playing extends Phaser.Scene{
 
                             //emmiter.emit('getBeer', this.x, this.y); ==============================================
                             score++;
+                            drinkers.children.entries[elem].y = -50;
                             this.setActive(false);
                             this.setVisible(false);
                         }

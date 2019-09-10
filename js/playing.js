@@ -649,7 +649,7 @@ class Playing extends Phaser.Scene{
         }
 
         if(cursors.left.isDown){
-            player.setVelocityX(-200);
+            player.setVelocityX(-400);
         }
         else{
             player.setVelocityX(0);

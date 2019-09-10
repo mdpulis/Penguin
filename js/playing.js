@@ -1,7 +1,7 @@
 var player;
-var up, down, left, right, space;
+var up, down, left, right, space, q;
 var row;
-var beers, drinkers, bottles, spawnDrinkers, bears, penguins, bombs, sushi;
+var beers, drinkers, bottles, spawnDrinkers, bears, penguins, busboys, bombs, sushi;
 var random;
 var drinkerTimer;
 var gameTimer;
@@ -15,6 +15,7 @@ var cursors;
 var visibleDrinker;
 var visibleBear;
 var usingBomb; //indicate whether the player is using sushi or bomb
+var busboyCounter;
 let lane;
 
 var arrow_key_icon, sushi_icon, bomb_icon;
@@ -24,6 +25,7 @@ const screenHeight = 1080;
 const playerXOffset = 500;
 
 const drinkerRange = 50;
+const bottleRange = 25;
 
 const row1Position = 100;
 const row2Position = 320;
@@ -57,6 +59,7 @@ class Playing extends Phaser.Scene{
         this.load.image('bottle', 'assets/Beer_empty.png');
         this.load.image('bomb','assets/bomb.jpg')
         this.load.image('bear','assets/bear.png')
+        this.load.image('busboy','assets/penguin_round.png')
 
         this.load.image('arrow_key_icon', 'assets/arrow_key.png')
         this.load.image('sushi_icon', 'assets/sushi_icon.png')
@@ -91,6 +94,7 @@ class Playing extends Phaser.Scene{
         left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        q = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
         cursors = this.input.keyboard.createCursorKeys();
         sound = this.sound;
         drinkerTimer = this.time.addEvent({ delay: 4500, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
@@ -104,6 +108,7 @@ class Playing extends Phaser.Scene{
         changeThrowableDisplay(); //set the bomb or sushi icon
 		gameTime = 0;
         spawnCount = 1;
+        busboyCounter = 0;
         lane = [{length : barLength5, position: row1Position},
                 {length : barLength5, position: row2Position},
                 {length : barLength5, position: row3Position},
@@ -162,7 +167,7 @@ class Playing extends Phaser.Scene{
                 for (var elem in drinkers.children.entries) {
                     if(this.y == drinkers.children.entries[elem].y)
                     {
-                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
+                        if (this.x < drinkers.children.entries[elem].x + bottleRange && this.x > drinkers.children.entries[elem].x - bottleRange
 							&& drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
                         {
                             sound.play('get_mug');
@@ -519,6 +524,7 @@ class Playing extends Phaser.Scene{
             maxSize: drinkerAmount,
             runChildUpdate: true
         });
+
         //Bottle Class
         var Bottle = new Phaser.Class({
             Extends: Phaser.GameObjects.Image,
@@ -591,6 +597,61 @@ class Playing extends Phaser.Scene{
         bottles = this.add.group({
             classType: Bottle,
             maxSize: 10,
+            runChildUpdate: true
+        });
+
+        //Busboy Class
+        var Busboy = new Phaser.Class({
+            Extends: Phaser.GameObjects.Image,
+            initialize:
+                function Busboy (game)
+                {
+                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'busboy')
+                    this.speed = Phaser.Math.GetSpeed(1200, 1); // Set the busboy's speed
+                    this.row = busboyCounter;
+                    console.log('new busboy: ' + busboyCounter);
+                    busboyCounter++;
+                },
+            fire: function (x, y){
+                if(this.row == 0){
+                    this.setPosition(screenWidth - playerXOffset, row1Position);
+                }
+                else if(this.row == 1){
+                    this.setPosition(screenWidth - playerXOffset, row2Position);
+                }
+                else if(this.row == 2){
+                    this.setPosition(screenWidth - playerXOffset, row3Position);
+                }
+                else if(this.row == 3){
+                    this.setPosition(screenWidth - playerXOffset, row4Position);
+                }
+
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                this.x -= this.speed * delta;
+
+                for (var elem in bottles.children.entries) {
+                    if (this.y == bottles.children.entries[elem].y &&
+                        this.x < bottles.children.entries[elem].x + drinkerRange && this.x > bottles.children.entries[elem].x - drinkerRange) {
+                        bottles.children.entries[elem].setActive(false);
+                        bottles.children.entries[elem].setVisible(false);
+                    }
+                }
+
+                if (this.x < 0) //if they reach the end of the screen
+                {
+                    this.setActive(false);
+                    this.setVisible(false);
+                }
+            }
+
+        });
+        busboys = this.add.group({
+            classType: Busboy,
+            maxSize: 4,
             runChildUpdate: true
         });
     }
@@ -691,6 +752,11 @@ class Playing extends Phaser.Scene{
 
         }
 
+        if(Phaser.Input.Keyboard.JustDown(q)){
+            //TODO: Remove the key press and change to picking up the fish or something
+            spawnBusboys();
+        }
+
         if(Phaser.Input.Keyboard.JustDown(right)){
             //change the type of usingBomb here
             usingBomb = !usingBomb;
@@ -728,6 +794,21 @@ function spawnBottle(x,y){
     var bottle = bottles.get();
     if(bottle){
         bottle.fire(x, y);
+    }
+}
+
+function spawnBusboys() {
+    if(busboys.children.entries <= 0)
+    {
+        //initialize 4 busboys
+        busboys.get();
+        busboys.get();
+        busboys.get();
+        busboys.get();
+    }
+
+    for (var elem in busboys.children.entries) {
+        busboys.children.entries[elem].fire();
     }
 }
 

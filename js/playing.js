@@ -1,8 +1,8 @@
 var player;
 var up, down, left, right, space, q;
 var row;
-var beers, drinkers, bottles, spawnDrinkers, bears, penguins, busboys, bombs, sushi;
-var beers, drinkers, bottles, spawnDrinkers, bears, penguins, bombs, bombAnims, sushi;
+var beers, drinkers, bottles, spawnDrinkers, bears, penguins, busboys, bombs, sushi, bombAnims;
+
 var random;
 var drinkerTimer;
 var gameTimer;

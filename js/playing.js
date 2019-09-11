@@ -2,6 +2,7 @@ var player;
 var up, down, left, right, space, q;
 var row;
 var beers, drinkers, bottles, spawnDrinkers, bears, penguins, busboys, bombs, sushi;
+var beers, drinkers, bottles, spawnDrinkers, bears, penguins, bombs, bombAnims, sushi;
 var random;
 var drinkerTimer;
 var gameTimer;
@@ -64,6 +65,8 @@ class Playing extends Phaser.Scene{
         this.load.image('arrow_key_icon', 'assets/arrow_key.png')
         this.load.image('sushi_icon', 'assets/sushi_icon.png')
         this.load.image('bomb_icon', 'assets/bomb_icon.png')
+        //Load animation spriteSheets
+        this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('lose','assets/audio/tune_lose.mp3');
@@ -122,8 +125,8 @@ class Playing extends Phaser.Scene{
             drinkerAmount = 8;
         }
         visibleDrinker = 0;
-        //emmiter = new Phaser.Events.EventEmitter();
-        //emmiter.on('getBeer', beerOnHit, this);
+        emmiter = new Phaser.Events.EventEmitter(); //an event emitter for animation
+        //emmiter.on('boom', addBoomAnim, this);
         //Add audio files to the game
         var bgm_config = {
             mute: false,
@@ -143,6 +146,35 @@ class Playing extends Phaser.Scene{
         sound.add('drinker_out');
         sound.add('drinker_in');
         sound.play('bgm',bgm_config);
+        //Animations here
+        this.anims.create({
+            key: 'boom1',
+            frames: this.anims.generateFrameNumbers('boom',{start: 0, end: 6}),
+            frameRate: 10,
+            repeat: 1
+        });
+        bombAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 30,
+            runChildUpdate: true
+        });
+
+        function addBoomAnim(x,y) {
+            var boomAnim = bombAnims.get();
+            boomAnim.setActive(true);
+            boomAnim.setVisible(true);
+            if (boomAnim) {
+                //boomAnim.setScale(4);
+                boomAnim.x = x;
+                boomAnim.y = y;
+                boomAnim.anims.play('boom1',false);
+                boomAnim.once('animationcomplete',()=>{
+                    boomAnim.setActive(false);
+                    boomAnim.setVisible(false);
+                    console.log("animation complete");
+                })
+            }
+        }
 
         //Beer Class
         var Beer = new Phaser.Class({
@@ -290,6 +322,7 @@ class Playing extends Phaser.Scene{
                             //emmiter.emit('getBeer', this.x, this.y); ==============================================
                             score++;
                             drinkers.children.entries[elem].y = -50;
+                            addBoomAnim(this.x, this.y);
                             this.setActive(false);
                             this.setVisible(false);
                         }
@@ -306,6 +339,7 @@ class Playing extends Phaser.Scene{
                             bears.children.entries[elem].pushedBack = true;
                             bears.children.entries[elem].pushedBackXLocation = this.x;
                             score++;
+                            addBoomAnim(this.x, this.y);
                             this.setActive(false);
                             this.setVisible(false);
                         }

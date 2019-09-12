@@ -39,6 +39,8 @@ const barLength3 = 852;
 const barLength4 = 1136;
 const barLength5 = 1420;
 
+const laneImgX = screenWidth/2 - 250;
+
 const pushedBackMod = 4;
 const pushBackXDistance = 400;
 const drinkingTime = 3000;
@@ -58,13 +60,18 @@ class Playing extends Phaser.Scene{
         this.load.image('beer', 'assets/Beer.png');
         this.load.image('drinker', 'assets/Customer_01.png');
         this.load.image('bottle', 'assets/Beer_empty.png');
-        this.load.image('bomb','assets/bomb.jpg')
-        this.load.image('bear','assets/bear.png')
-        this.load.image('busboy','assets/penguin_round.png')
+        this.load.image('bomb','assets/bomb.jpg');
+        this.load.image('bear','assets/bear.png');
+        this.load.image('busboy','assets/penguin_round.png');
+        this.load.image('table_284','assets/Table_284.png');
+        this.load.image('table_568','assets/Table_568.png');
+        this.load.image('table_852','assets/Table_852.png');
+        this.load.image('table_1136','assets/Table_1136.png');
+        this.load.image('table_1420','assets/Table_1420.png');
 
-        this.load.image('arrow_key_icon', 'assets/arrow_key.png')
-        this.load.image('sushi_icon', 'assets/sushi_icon.png')
-        this.load.image('bomb_icon', 'assets/bomb_icon.png')
+        this.load.image('arrow_key_icon', 'assets/arrow_key.png');
+        this.load.image('sushi_icon', 'assets/sushi_icon.png');
+        this.load.image('bomb_icon', 'assets/bomb_icon.png');
         //Load animation spriteSheets
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
         //Load audio
@@ -83,6 +90,12 @@ class Playing extends Phaser.Scene{
     create ()
     {
         this.add.image(960, 540, 'background');
+        //Lane pictures
+        var lane1 = this.add.image(laneImgX, row1Position+100, 'table_1420');
+        var lane2 = this.add.image(laneImgX, row2Position+100, 'table_1420');
+        var lane3 = this.add.image(laneImgX, row3Position+100, 'table_1420');
+        var lane4 = this.add.image(laneImgX, row4Position+100, 'table_1420');
+
 
         arrow_key_icon = this.add.image(screenWidth - 128 * 2, screenHeight - 128, 'arrow_key_icon');
         sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
@@ -116,6 +129,8 @@ class Playing extends Phaser.Scene{
                 {length : barLength5, position: row2Position},
                 {length : barLength5, position: row3Position},
                 {length : barLength5, position: row4Position}];
+
+
 
         //variables that change based on levels
 		if(level1 == true){
@@ -265,57 +280,73 @@ class Playing extends Phaser.Scene{
                             if(drinkers.children.entries[elem].x > barLength4 && drinkers.children.entries[elem].x <= barLength5){
                                 if(drinkers.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength4;
+                                    lane1.setTexture('table_1136');
                                 }
                                 else if(drinkers.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength4;
+                                    lane2.setTexture('table_1136');
                                 }
                                 else if(drinkers.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength4;
+                                    lane2.setTexture('table_1136');
                                 }
                                 else if(drinkers.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength4;
+                                    lane3.setTexture('table_1136');
                                 }
                             }
                             else if(drinkers.children.entries[elem].x > barLength3 && drinkers.children.entries[elem].x <= barLength4){
                                 if(drinkers.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength3;
+                                    lane1.setTexture('table_852');
                                 }
                                 else if(drinkers.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength3;
+                                    lane2.setTexture('table_852');
                                 }
                                 else if(drinkers.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength3;
+                                    lane3.setTexture('table_852');
                                 }
                                 else if(drinkers.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength3;
+                                    lane4.setTexture('table_852');
                                 }
                             }
                             else if(drinkers.children.entries[elem].x > barLength2 && drinkers.children.entries[elem].x <= barLength3){
                                 if(drinkers.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength2;
+                                    lane1.setTexture('table_568');
                                 }
                                 else if(drinkers.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength2;
+                                    lane2.setTexture('table_568');
                                 }
                                 else if(drinkers.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength2;
+                                    lane3.setTexture('table_568');
                                 }
                                 else if(drinkers.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength2;
+                                    lane4.setTexture('table_568');
                                 }
                             }
                             else if(drinkers.children.entries[elem].x > 0 && drinkers.children.entries[elem].x <= barLength2){
                                 if(drinkers.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength1;
+                                    lane1.setTexture('table_284');
                                 }
                                 else if(drinkers.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength1;
+                                    lane2.setTexture('table_284');
                                 }
                                 else if(drinkers.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength1;
+                                    lane3.setTexture('table_284');
                                 }
                                 else if(drinkers.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength1;
+                                    lane4.setTexture('table_284');
                                 }
                             }
 

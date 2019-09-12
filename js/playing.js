@@ -288,11 +288,11 @@ class Playing extends Phaser.Scene{
                                 }
                                 else if(drinkers.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength4;
-                                    lane2.setTexture('table_1136');
+                                    lane3.setTexture('table_1136');
                                 }
                                 else if(drinkers.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength4;
-                                    lane3.setTexture('table_1136');
+                                    lane4.setTexture('table_1136');
                                 }
                             }
                             else if(drinkers.children.entries[elem].x > barLength3 && drinkers.children.entries[elem].x <= barLength4){

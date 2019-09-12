@@ -12,6 +12,7 @@ var sound;
 var levelBgm;
 var drinkerAmount, spawnCount, bearAmount;
 var position, position2;
+var movementSpeedMod;
 var cursors;
 var served;
 var visibleDrinker;
@@ -30,6 +31,25 @@ const tableYOffset = 70;
 
 const drinkerRange = 50;
 const bottleRange = 25;
+
+const penguinSpeed = 125;
+const bearSpeed = 100;
+const fastBearSpeed = 400;
+
+const bombSpeed = 900;
+const sushiSpeed = 900;
+const returnedSushiSpeed = 250;
+const busboySpeed = 1200;
+
+const servesRequiredPerLevel = 3;
+const additionalServesPerLevel = 4;
+const maxServesPerLevel = 50;
+
+const playerYVariance = 220;
+const playerMoveSpeed = -400;
+
+const minSpawnDelay = 2500;
+const maxSpawnDelay = 5000;
 
 const row1Position = 100;
 const row2Position = 320;
@@ -126,13 +146,16 @@ class Playing extends Phaser.Scene{
         cursors = this.input.keyboard.createCursorKeys();
         served = 0;
         sound = this.sound;
-        drinkerTimer = this.time.addEvent({ delay: 4000, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
+
+        var spawnDelay = Phaser.Math.Between(minSpawnDelay - 50 * level, maxSpawnDelay - 50 * level);
+        drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
         position = row1Position;
         position2 = row1Position;
+        movementSpeedMod = 1 + (.1 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
-        hp = 2;
+        hp = 3;
         usingBomb = false;
         changeThrowableDisplay(); //set the bomb or sushi icon
 		gameTime = 0;
@@ -225,7 +248,7 @@ class Playing extends Phaser.Scene{
                 function Bear (game)
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'bear')
-                    this.speed = Phaser.Math.GetSpeed(100, 1);
+                    this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                     this.pushedBack = false;
                     this.sushi = 0; //how much sushi the bear has got
                     this.pushedBackXLocation = 0;
@@ -286,7 +309,7 @@ class Playing extends Phaser.Scene{
                         //Reached player fail state
                         visibleBear --;
                         this.y = -50;
-                        this.speed = Phaser.Math.GetSpeed(100, 1);
+                        this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                         this.setActive(false);
                         this.setVisible(false);
                         this.pushedBack = false;
@@ -302,7 +325,7 @@ class Playing extends Phaser.Scene{
                     sound.play('drinker_out');
                     visibleDrinker --;
                     this.y = -50;
-                    this.speed = Phaser.Math.GetSpeed(100, 1);
+                    this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                     this.setActive(false);
                     this.setVisible(false);
                     this.pushedBack = false;
@@ -328,7 +351,7 @@ class Playing extends Phaser.Scene{
                 function Drinker (game)
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'drinker')
-                    this.speed = Phaser.Math.GetSpeed(125, 1); // Set the drinkers' speed
+                    this.speed = Phaser.Math.GetSpeed(penguinSpeed * movementSpeedMod, 1); // Set the drinkers' speed
 					this.pushedBack = false; //If the drinker is pushed back
 					this.drinking = false; //If the drinker is drinking
 					this.pushedBackXLocation = 0; //the location where the drinker was pushed back
@@ -431,7 +454,7 @@ class Playing extends Phaser.Scene{
                 function Bullet (game)
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'bomb');
-                    this.speed = Phaser.Math.GetSpeed(900, 1);
+                    this.speed = Phaser.Math.GetSpeed(bombSpeed, 1);
                 },
             fire: function (x, y) //Spawn bomb based on player's location
             {
@@ -580,7 +603,7 @@ class Playing extends Phaser.Scene{
                 function Bullet (game)
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'beer');
-                    this.speed = Phaser.Math.GetSpeed(900, 1);
+                    this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
                 },
             fire: function (x, y) //Spawn beer based on player's location
             {
@@ -621,7 +644,7 @@ class Playing extends Phaser.Scene{
                             sound.play('get_mug');
                             //bears.children.entries[elem].pushedBack = true;
                             //bears.children.entries[elem].pushedBackXLocation = this.x;
-                            bears.children.entries[elem].speed = Phaser.Math.GetSpeed(500, 1);
+                            bears.children.entries[elem].speed = Phaser.Math.GetSpeed(fastBearSpeed * movementSpeedMod, 1);
                             //score++;
 
                             this.setActive(false);
@@ -654,7 +677,7 @@ class Playing extends Phaser.Scene{
                 function Bottle (game)
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'bottle')
-                    this.speed = Phaser.Math.GetSpeed(250, 1); // Set the bottles' speed
+                    this.speed = Phaser.Math.GetSpeed(returnedSushiSpeed * movementSpeedMod, 1); // Set the bottles' speed
                 },
             fire: function (x, y){
                 sound.play('throw_mug');
@@ -708,7 +731,7 @@ class Playing extends Phaser.Scene{
                 function Busboy (game)
                 {
                     Phaser.GameObjects.Image.call(this, game, 0, 0, 'busboy')
-                    this.speed = Phaser.Math.GetSpeed(1200, 1); // Set the busboy's speed
+                    this.speed = Phaser.Math.GetSpeed(busboySpeed * movementSpeedMod, 1); // Set the busboy's speed
                     this.row = busboyCounter;
                     console.log('new busboy: ' + busboyCounter);
                     busboyCounter++;
@@ -764,19 +787,19 @@ class Playing extends Phaser.Scene{
             if(spawnCount <= 4){
                 spawnDrinker(0, position);
                 spawnCount++;
-                position += 220;
+                position += playerYVariance;
             }
         }
         else if(level == 2){ //spawn 8 drinkers for level 2
             if(spawnCount <= 4){
                 spawnDrinker(0, position);
                 spawnCount++;
-                position += 220;
+                position += playerYVariance;
             }
             else if(spawnCount <= 8){
                 spawnDrinker(90, position2); // offset the x value for a row of drinkers
                 spawnCount++;
-                position2 += 220;
+                position2 += playerYVariance;
             }
         }
         else
@@ -784,7 +807,7 @@ class Playing extends Phaser.Scene{
             if(spawnCount <= 4){
                 spawnDrinker(0, position);
                 spawnCount++;
-                position += 220;
+                position += playerYVariance;
             }
         }
 
@@ -796,7 +819,7 @@ class Playing extends Phaser.Scene{
             this.scene.start("FailScreen");
         }
         //TODO: win state
-        else if(served == 10){
+        else if(served >= maxServesPerLevel || served >= (servesRequiredPerLevel + additionalServesPerLevel * level)){
             sound.play('win');
             sound.removeByKey(levelBgm);
             this.scene.start("WinScreen");
@@ -812,7 +835,7 @@ class Playing extends Phaser.Scene{
             }
             else{
                 sound.play('up');
-                player.y -= 220;
+                player.y -= playerYVariance;
                 row --;
                 player.x = lane[row - 1].length;
             }
@@ -827,14 +850,14 @@ class Playing extends Phaser.Scene{
             }
             else{
                 sound.play('down');
-                player.y += 220;
+                player.y += playerYVariance;
                 row ++;
                 player.x = lane[row - 1].length;
             }
         }
 
         if(cursors.left.isDown){
-            player.setVelocityX(-400);
+            player.setVelocityX(playerMoveSpeed * movementSpeedMod);
         }
         else{
             player.setVelocityX(0);
@@ -897,6 +920,10 @@ function spawnCustomer(){
     else{
         spawnBear();
     }
+
+    //let spawnDelay = Phaser.Math.Between(minSpawnDelay - 50 * level, maxSpawnDelay - 50 * level);
+    //var timer = this.time.delayedCall(spawnDelay, spawnCustomer);
+    //drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: false }); //Spawn drinkers based on a time delay
 }
 
 function spawnBottle(x,y){

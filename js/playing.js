@@ -88,6 +88,9 @@ class Playing extends Phaser.Scene{
         this.load.audio('drinker_out','assets/audio/out_customer.wav');
         this.load.audio('drinker_in','assets/audio/popup.wav');
         this.load.audio('win','assets/audio/win.wav');
+
+        //this.load.bitmapFont('frostbitten-wanker', 'assets/fonts/frostbitten-wanker.png', 'assets/fonts/frostbitten-wanker.fnt');
+        this.load.bitmapFont('frosty', 'assets/fonts/frosty.png', 'assets/fonts/frosty.fnt');
     }
 //Create Objects
     create ()
@@ -122,8 +125,8 @@ class Playing extends Phaser.Scene{
         row = 1; //Limits the number of rows
         position = row1Position;
         position2 = row1Position;
-        ui = this.add.text(screenWidth - playerXOffset, 10, '');
-        hp = 30;
+        ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
+        hp = 2;
         usingBomb = false;
         changeThrowableDisplay(); //set the bomb or sushi icon
 		gameTime = 0;

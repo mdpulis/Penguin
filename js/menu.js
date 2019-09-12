@@ -1,6 +1,5 @@
 var space;
-var level1;
-var level2;
+var level;
 var score;
 class Menu extends Phaser.Scene {
     constructor(){
@@ -10,8 +9,7 @@ class Menu extends Phaser.Scene {
     }
     create(){
         score = 0;
-        level1 = true;
-        level2 = false;
+        level = 1;
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         this.add.text(960, 540, "Menu" + "\n\nPress Space to Begin")
     }

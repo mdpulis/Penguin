@@ -21,8 +21,7 @@ class Fail extends Phaser.Scene {
 
     update(){
         if(Phaser.Input.Keyboard.JustDown(space)){
-            level1 = true;
-            level2  = false;
+            level = 1;
             score = 0;
             this.scene.start("PlayingScreen");
         }

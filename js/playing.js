@@ -8,7 +8,6 @@ var drinkerTimer;
 var gameTimer;
 var ui;
 var hp, gameTime;
-var emmiter; //event emmiter
 var sound;
 var drinkerAmount, spawnCount, bearAmount;
 var position, position2;
@@ -79,6 +78,8 @@ class Playing extends Phaser.Scene{
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
+        this.load.audio('bgm-level2','assets/audio/vivaldis-winter.mp3');
+        this.load.audio('bgm-level3','assets/audio/snow-skirell.mp3');
         this.load.audio('lose','assets/audio/tune_lose.mp3');
         this.load.audio('break','assets/audio/mug_break.mp3');
         this.load.audio('throw_mug','assets/audio/throw_mug.wav')
@@ -139,15 +140,13 @@ class Playing extends Phaser.Scene{
                 {length : barLength5, position: row4Position}];
 
         //variables that change based on levels
-		if(level1 == true){
+		if(level == 1){
             drinkerAmount = 5;
         }
-		else if(level2 == true){
+		else if(level == 2){
             drinkerAmount = 9;
         }
         visibleDrinker = 0;
-        emmiter = new Phaser.Events.EventEmitter(); //an event emitter for animation
-        //emmiter.on('boom', addBoomAnim, this);
         //Add audio files to the game
         var bgm_config = {
             mute: false,
@@ -215,10 +214,10 @@ class Playing extends Phaser.Scene{
                 visibleBear ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
                 //sound.play('drinker_in');
-                if(level1 == true && spawnCount <= 4){ // spawn 4 bears for level 1
+                if(level == 1 && spawnCount <= 4){ // spawn 4 bears for level 1
                     this.setPosition(x, y);
                 }
-                else if(level2 == true && spawnCount <= 8){ // spawn 8 bears for level 2
+                else if(level == 2 && spawnCount <= 8){ // spawn 8 bears for level 2
                     this.setPosition(x, y);
                 }
                 else{
@@ -316,10 +315,10 @@ class Playing extends Phaser.Scene{
                 visibleDrinker ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects drinkers' spawn locations
                 //sound.play('drinker_in');
-                if(level1 == true && spawnCount <= 4){ // spawn 4 drinkers for level 1
+                if(level == 1 && spawnCount <= 4){ // spawn 4 drinkers for level 1
                     this.setPosition(x, y);
                 }
-                else if(level2 == true && spawnCount <= 8){ // spawn 8 drinkers for level 2
+                else if(level == 2 && spawnCount <= 8){ // spawn 8 drinkers for level 2
                     this.setPosition(x, y);
                 }
                 else{
@@ -504,7 +503,6 @@ class Playing extends Phaser.Scene{
                                 }
                             }
 
-                            //emmiter.emit('getBeer', this.x, this.y); ==============================================
                             score++;
                             drinkers.children.entries[elem].y = -50;
                             addBoomAnim(this.x, this.y);
@@ -582,7 +580,6 @@ class Playing extends Phaser.Scene{
                             drinkers.children.entries[elem].pushedBack = true;
                             drinkers.children.entries[elem].pushedBackXLocation = this.x;
 
-                            //emmiter.emit('getBeer', this.x, this.y);
                             score++;
 
                             this.setActive(false);
@@ -739,14 +736,14 @@ class Playing extends Phaser.Scene{
 //Update Loop
     update (time)
     {
-        if(level1 == true){ //spawn 4 drinkers for level 1
+        if(level == 1){ //spawn 4 drinkers for level 1
             if(spawnCount <= 4){
                 spawnDrinker(0, position);
                 spawnCount++;
                 position += 220;
             }
         }
-        else if(level2 == true){ //spawn 8 drinkers for level 2
+        else if(level == 2){ //spawn 8 drinkers for level 2
             if(spawnCount <= 4){
                 spawnDrinker(0, position);
                 spawnCount++;

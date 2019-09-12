@@ -18,12 +18,14 @@ var visibleBear;
 var usingBomb; //indicate whether the player is using sushi or bomb
 var busboyCounter;
 let lane;
+//var bear;
 
 var arrow_key_icon, sushi_icon, bomb_icon;
 
 const screenWidth = 1920;
 const screenHeight = 1080;
 const playerXOffset = 500;
+const tableYOffset = 70;
 
 const drinkerRange = 50;
 const bottleRange = 25;
@@ -57,12 +59,13 @@ class Playing extends Phaser.Scene{
         //Load images
         this.load.image('background', 'assets/Game_BG.png');
         this.load.image('player', 'assets/player.png');
-        this.load.image('beer', 'assets/Beer.png');
+        this.load.image('beer', 'assets/sushi.png');
         this.load.image('drinker', 'assets/Customer_01.png');
-        this.load.image('bottle', 'assets/Beer_empty.png');
-        this.load.image('bomb','assets/bomb.jpg');
-        this.load.image('bear','assets/bear.png');
+        this.load.image('bottle', 'assets/EmptyPlate.png');
+        this.load.image('bomb','assets/bomb.png');
+        this.load.image('bear','assets/PolarBear.png');
         this.load.image('busboy','assets/penguin_round.png');
+        this.load.image('chief','assets/tapper.png');
         this.load.image('table_284','assets/Table_284.png');
         this.load.image('table_568','assets/Table_568.png');
         this.load.image('table_852','assets/Table_852.png');
@@ -90,21 +93,22 @@ class Playing extends Phaser.Scene{
     create ()
     {
         this.add.image(960, 540, 'background');
-        //Lane pictures
-        var lane1 = this.add.image(laneImgX, row1Position+100, 'table_1420');
-        var lane2 = this.add.image(laneImgX, row2Position+100, 'table_1420');
-        var lane3 = this.add.image(laneImgX, row3Position+100, 'table_1420');
-        var lane4 = this.add.image(laneImgX, row4Position+100, 'table_1420');
+        this.add.image(screenWidth - 80, screenHeight / 2, 'chief');
 
+        //Lane pictures
+        var lane1 = this.add.image(laneImgX, row1Position + tableYOffset, 'table_1420');
+        var lane2 = this.add.image(laneImgX, row2Position + tableYOffset, 'table_1420');
+        var lane3 = this.add.image(laneImgX, row3Position + tableYOffset, 'table_1420');
+        var lane4 = this.add.image(laneImgX, row4Position + tableYOffset, 'table_1420');
+
+        player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0);
 
         arrow_key_icon = this.add.image(screenWidth - 128 * 2, screenHeight - 128, 'arrow_key_icon');
         sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
         bomb_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'bomb_icon');
 
-
         //var music = this.sound.add('bgm');
         //music.play();
-        player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player');
         up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP); //Assign key actions
         down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
         left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
@@ -125,19 +129,18 @@ class Playing extends Phaser.Scene{
 		gameTime = 0;
         spawnCount = 1;
         busboyCounter = 0;
+
         lane = [{length : barLength5, position: row1Position},
                 {length : barLength5, position: row2Position},
                 {length : barLength5, position: row3Position},
                 {length : barLength5, position: row4Position}];
 
-
-
         //variables that change based on levels
 		if(level1 == true){
-            drinkerAmount = 4;
+            drinkerAmount = 5;
         }
 		else if(level2 == true){
-            drinkerAmount = 8;
+            drinkerAmount = 9;
         }
         visibleDrinker = 0;
         emmiter = new Phaser.Events.EventEmitter(); //an event emitter for animation
@@ -186,211 +189,10 @@ class Playing extends Phaser.Scene{
                 boomAnim.once('animationcomplete',()=>{
                     boomAnim.setActive(false);
                     boomAnim.setVisible(false);
-                    console.log("animation complete");
+                    //console.log("animation complete");
                 })
             }
         }
-
-        //Beer Class
-        var Beer = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
-            initialize:
-                function Bullet (game)
-                {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'beer');
-                    this.speed = Phaser.Math.GetSpeed(900, 1);
-                },
-            fire: function (x, y) //Spawn beer based on player's location
-            {
-                sound.play('throw_mug');
-                this.setPosition(x, y);
-                this.setActive(true);
-                this.setVisible(true);
-            },
-            update: function (time, delta)
-            {
-                this.x -= this.speed * delta;
-
-                for (var elem in drinkers.children.entries) {
-                    if(this.y == drinkers.children.entries[elem].y)
-                    {
-                        if (this.x < drinkers.children.entries[elem].x + bottleRange && this.x > drinkers.children.entries[elem].x - bottleRange
-							&& drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
-                        {
-                            sound.play('get_mug');
-							drinkers.children.entries[elem].pushedBack = true;
-							drinkers.children.entries[elem].pushedBackXLocation = this.x;
-
-                            //emmiter.emit('getBeer', this.x, this.y);
-                            score++;
-
-                            this.setActive(false);
-                            this.setVisible(false);
-                        }
-                    }
-                }
-
-                if (this.x < 0)
-                {
-                    //Thrown beer doesn't hit anyone fail state
-                    this.setActive(false);
-                    this.setVisible(false);
-                    hp--;
-                }
-
-            }
-        });
-        beers = this.add.group({
-            classType: Beer,
-            maxSize: 30,
-            runChildUpdate: true
-        });
-        //Bomb class
-        var Bomb = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
-            initialize:
-                function Bullet (game)
-                {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bomb');
-                    this.speed = Phaser.Math.GetSpeed(900, 1);
-                },
-            fire: function (x, y) //Spawn bomb based on player's location
-            {
-                sound.play('throw_mug');
-                this.setPosition(x, y);
-                this.setActive(true);
-                this.setVisible(true);
-            },
-            update: function (time, delta)
-            {
-                this.x -= this.speed * delta;
-
-                for (var elem in drinkers.children.entries) {
-                    if(this.y == drinkers.children.entries[elem].y)
-                    {
-                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
-                            && drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
-                        {
-                            sound.play('get_mug');
-                            //drinkers.children.entries[elem].pushedBack = true;
-                            //drinkers.children.entries[elem].pushedBackXLocation = this.x;
-                            drinkers.children.entries[elem].setActive(false);
-                            drinkers.children.entries[elem].setVisible(false);
-                            //bomb & lane logic
-                            if(drinkers.children.entries[elem].x > barLength4 && drinkers.children.entries[elem].x <= barLength5){
-                                if(drinkers.children.entries[elem].y == row1Position){
-                                    lane[0].length = barLength4;
-                                    lane1.setTexture('table_1136');
-                                }
-                                else if(drinkers.children.entries[elem].y == row2Position){
-                                    lane[1].length = barLength4;
-                                    lane2.setTexture('table_1136');
-                                }
-                                else if(drinkers.children.entries[elem].y == row3Position){
-                                    lane[2].length = barLength4;
-                                    lane3.setTexture('table_1136');
-                                }
-                                else if(drinkers.children.entries[elem].y == row4Position){
-                                    lane[3].length = barLength4;
-                                    lane4.setTexture('table_1136');
-                                }
-                            }
-                            else if(drinkers.children.entries[elem].x > barLength3 && drinkers.children.entries[elem].x <= barLength4){
-                                if(drinkers.children.entries[elem].y == row1Position){
-                                    lane[0].length = barLength3;
-                                    lane1.setTexture('table_852');
-                                }
-                                else if(drinkers.children.entries[elem].y == row2Position){
-                                    lane[1].length = barLength3;
-                                    lane2.setTexture('table_852');
-                                }
-                                else if(drinkers.children.entries[elem].y == row3Position){
-                                    lane[2].length = barLength3;
-                                    lane3.setTexture('table_852');
-                                }
-                                else if(drinkers.children.entries[elem].y == row4Position){
-                                    lane[3].length = barLength3;
-                                    lane4.setTexture('table_852');
-                                }
-                            }
-                            else if(drinkers.children.entries[elem].x > barLength2 && drinkers.children.entries[elem].x <= barLength3){
-                                if(drinkers.children.entries[elem].y == row1Position){
-                                    lane[0].length = barLength2;
-                                    lane1.setTexture('table_568');
-                                }
-                                else if(drinkers.children.entries[elem].y == row2Position){
-                                    lane[1].length = barLength2;
-                                    lane2.setTexture('table_568');
-                                }
-                                else if(drinkers.children.entries[elem].y == row3Position){
-                                    lane[2].length = barLength2;
-                                    lane3.setTexture('table_568');
-                                }
-                                else if(drinkers.children.entries[elem].y == row4Position){
-                                    lane[3].length = barLength2;
-                                    lane4.setTexture('table_568');
-                                }
-                            }
-                            else if(drinkers.children.entries[elem].x > 0 && drinkers.children.entries[elem].x <= barLength2){
-                                if(drinkers.children.entries[elem].y == row1Position){
-                                    lane[0].length = barLength1;
-                                    lane1.setTexture('table_284');
-                                }
-                                else if(drinkers.children.entries[elem].y == row2Position){
-                                    lane[1].length = barLength1;
-                                    lane2.setTexture('table_284');
-                                }
-                                else if(drinkers.children.entries[elem].y == row3Position){
-                                    lane[2].length = barLength1;
-                                    lane3.setTexture('table_284');
-                                }
-                                else if(drinkers.children.entries[elem].y == row4Position){
-                                    lane[3].length = barLength1;
-                                    lane4.setTexture('table_284');
-                                }
-                            }
-
-                            //emmiter.emit('getBeer', this.x, this.y); ==============================================
-                            score++;
-                            drinkers.children.entries[elem].y = -50;
-                            addBoomAnim(this.x, this.y);
-                            this.setActive(false);
-                            this.setVisible(false);
-                        }
-                    }
-                }
-
-                for (var elem in bears.children.entries) {
-                    if(this.y == bears.children.entries[elem].y)
-                    {
-                        if (this.x < bears.children.entries[elem].x + drinkerRange && this.x > bears.children.entries[elem].x - drinkerRange
-                            && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
-                        {
-                            sound.play('get_mug');
-                            bears.children.entries[elem].pushedBack = true;
-                            bears.children.entries[elem].pushedBackXLocation = this.x;
-                            score++;
-                            addBoomAnim(this.x, this.y);
-                            this.setActive(false);
-                            this.setVisible(false);
-                        }
-                    }
-                }
-                if (this.x < 0)
-                {
-                    //Thrown beer doesn't hit anyone fail state
-                    this.setActive(false);
-                    this.setVisible(false);
-                    hp--; //Need discussion whether decrese hp or not
-                }
-
-            }
-        });
-        bombs = this.add.group({
-            classType: Bomb,
-            maxSize: 30,
-            runChildUpdate: true
-        });
 
         //Polar bear class
         var Bear = new Phaser.Class({
@@ -459,6 +261,8 @@ class Playing extends Phaser.Scene{
                     {
                         //Reached player fail state
                         visibleBear --;
+                        this.y = -50;
+                        this.speed = Phaser.Math.GetSpeed(100, 1);
                         this.setActive(false);
                         this.setVisible(false);
                         this.pushedBack = false;
@@ -473,6 +277,8 @@ class Playing extends Phaser.Scene{
                 {
                     sound.play('drinker_out');
                     visibleDrinker --;
+                    this.y = -50;
+                    this.speed = Phaser.Math.GetSpeed(100, 1);
                     this.setActive(false);
                     this.setVisible(false);
                     this.pushedBack = false;
@@ -561,6 +367,7 @@ class Playing extends Phaser.Scene{
                     {
                         //Reached player fail state
                         visibleDrinker --;
+                        this.y = -50;
                         this.setActive(false);
                         this.setVisible(false);
                         this.pushedBack = false;
@@ -574,6 +381,7 @@ class Playing extends Phaser.Scene{
                 {
                     sound.play('drinker_out');
                     visibleDrinker --;
+                    this.y = -50;
                     this.setActive(false);
                     this.setVisible(false);
 					this.pushedBack = false;
@@ -587,6 +395,231 @@ class Playing extends Phaser.Scene{
         drinkers = this.add.group({
             classType: Drinker,
             maxSize: drinkerAmount,
+            runChildUpdate: true
+        });
+
+        //Bomb class
+        var Bomb = new Phaser.Class({
+            Extends: Phaser.GameObjects.Image,
+            initialize:
+                function Bullet (game)
+                {
+                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bomb');
+                    this.speed = Phaser.Math.GetSpeed(900, 1);
+                },
+            fire: function (x, y) //Spawn bomb based on player's location
+            {
+                sound.play('throw_mug');
+                this.setPosition(x, y);
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                this.x -= this.speed * delta;
+
+                for (var elem in drinkers.children.entries) {
+                    if(this.y == drinkers.children.entries[elem].y)
+                    {
+                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
+                            && drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
+                        {
+                            sound.play('get_mug');
+
+
+                            //bomb & lane logic
+                            if(drinkers.children.entries[elem].x > barLength4 && drinkers.children.entries[elem].x <= barLength5){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength4;
+                                    lane1.setTexture('table_1136');
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength4;
+                                    lane2.setTexture('table_1136');
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength4;
+                                    lane3.setTexture('table_1136');
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength4;
+                                    lane4.setTexture('table_1136');
+                                }
+                            }
+                            else if(drinkers.children.entries[elem].x > barLength3 && drinkers.children.entries[elem].x <= barLength4){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength3;
+                                    lane1.setTexture('table_852');
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength3;
+                                    lane2.setTexture('table_852');
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength3;
+                                    lane3.setTexture('table_852');
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength3;
+                                    lane4.setTexture('table_852');
+                                }
+                            }
+                            else if(drinkers.children.entries[elem].x > barLength2 && drinkers.children.entries[elem].x <= barLength3){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength2;
+                                    lane1.setTexture('table_568');
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength2;
+                                    lane2.setTexture('table_568');
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength2;
+                                    lane3.setTexture('table_568');
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength2;
+                                    lane4.setTexture('table_568');
+                                }
+                            }
+                            else if(drinkers.children.entries[elem].x > 0 && drinkers.children.entries[elem].x <= barLength2){
+                                if(drinkers.children.entries[elem].y == row1Position){
+                                    lane[0].length = barLength1;
+                                    lane1.setTexture('table_284');
+                                }
+                                else if(drinkers.children.entries[elem].y == row2Position){
+                                    lane[1].length = barLength1;
+                                    lane2.setTexture('table_284');
+                                }
+                                else if(drinkers.children.entries[elem].y == row3Position){
+                                    lane[2].length = barLength1;
+                                    lane3.setTexture('table_284');
+                                }
+                                else if(drinkers.children.entries[elem].y == row4Position){
+                                    lane[3].length = barLength1;
+                                    lane4.setTexture('table_284');
+                                }
+                            }
+
+                            //emmiter.emit('getBeer', this.x, this.y); ==============================================
+                            score++;
+                            drinkers.children.entries[elem].y = -50;
+                            addBoomAnim(this.x, this.y);
+                            console.log("hit with penguin"+ this.x + " " + this.y);
+                            this.setActive(false);
+                            this.setVisible(false);
+                            drinkers.children.entries[elem].setActive(false);
+                            drinkers.children.entries[elem].setVisible(false);
+                        }
+                    }
+                }
+
+                for (var elem in bears.children.entries) {
+                    if(this.y == bears.children.entries[elem].y)
+                    {
+                        if (this.x < bears.children.entries[elem].x + drinkerRange && this.x > bears.children.entries[elem].x - drinkerRange
+                            && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
+                        {
+                            sound.play('get_mug');
+                            bears.children.entries[elem].pushedBack = true;
+                            bears.children.entries[elem].pushedBackXLocation = this.x;
+                            score++;
+                            addBoomAnim(this.x, this.y);
+                            console.log("hit with bear" + this.x + " " + this.y);
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                    }
+                }
+
+                if (this.x < 0)
+                {
+                    //Thrown beer doesn't hit anyone fail state
+                    console.log("hit with bound");
+                    this.setActive(false);
+                    this.setVisible(false);
+                    hp--; //Need discussion whether decrese hp or not
+                }
+
+            }
+        });
+        bombs = this.add.group({
+            classType: Bomb,
+            maxSize: 30,
+            runChildUpdate: true
+        });
+
+        //Beer Class
+        var Beer = new Phaser.Class({
+            Extends: Phaser.GameObjects.Image,
+            initialize:
+                function Bullet (game)
+                {
+                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'beer');
+                    this.speed = Phaser.Math.GetSpeed(900, 1);
+                },
+            fire: function (x, y) //Spawn beer based on player's location
+            {
+                sound.play('throw_mug');
+                this.setPosition(x, y);
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                this.x -= this.speed * delta;
+                //drinker receives beer
+                for (var elem in drinkers.children.entries) {
+                    if(this.y == drinkers.children.entries[elem].y)
+                    {
+                        if (this.x < drinkers.children.entries[elem].x + bottleRange && this.x > drinkers.children.entries[elem].x - bottleRange
+                            && drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
+                        {
+                            sound.play('get_mug');
+                            drinkers.children.entries[elem].pushedBack = true;
+                            drinkers.children.entries[elem].pushedBackXLocation = this.x;
+
+                            //emmiter.emit('getBeer', this.x, this.y);
+                            score++;
+
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                    }
+                }
+
+                //TODO: bear receives beer
+                for (var elem in bears.children.entries) {
+                    if(this.y == bears.children.entries[elem].y)
+                    {
+                        if (this.x < bears.children.entries[elem].x + bottleRange && this.x > bears.children.entries[elem].x - bottleRange
+                            && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
+                        {
+                            sound.play('get_mug');
+                            //bears.children.entries[elem].pushedBack = true;
+                            //bears.children.entries[elem].pushedBackXLocation = this.x;
+                            bears.children.entries[elem].speed = Phaser.Math.GetSpeed(500, 1);
+                            //score++;
+
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                    }
+                }
+
+                if (this.x < 0)
+                {
+                    //Thrown beer doesn't hit anyone fail state
+                    this.setActive(false);
+                    this.setVisible(false);
+                    hp--;
+                }
+
+            }
+        });
+        beers = this.add.group({
+            classType: Beer,
+            maxSize: 30,
             runChildUpdate: true
         });
 
@@ -607,28 +640,7 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
-                //console.log(player.x);
                 this.x += this.speed * delta;
-                /*
-                if (this.x > screenWidth - playerXOffset)
-                {
-                    if(this.y == player.y)
-                    {
-                        score++;
-                        this.setActive(false);
-                        this.setVisible(false);
-                    }
-                    else
-                    {
-                        //didn't catch bottle fail state
-                        sound.play('break');
-                        this.setActive(false);
-                        this.setVisible(false);
-                        hp--;
-                    }
-
-                }
-                */
                 for(var i = 0; i < lane.length; i++){
                     if (this.x > lane[i].length && this.y == lane[i].position)
                     {
@@ -751,13 +763,14 @@ class Playing extends Phaser.Scene{
             sound.removeByKey('bgm');
             this.scene.start("FailScreen");
         }
-
+        //TODO: win state
+/*
         else if(visibleDrinker == 0){
             sound.play('win');
             sound.removeByKey('bgm');
             this.scene.start("WinScreen");
         }
-        console.log(lane[row - 1].length);
+*/
         if (Phaser.Input.Keyboard.JustDown(up) && row >= 1) //Prevent "holding down" actions
         {
             if(row == 1){
@@ -898,7 +911,6 @@ function addGameTime(){
 }
 
 function beerOnHit(x, y) {
-    //console.log("Beer hit a customer");
     spawnBottle(x,y)
 }
 

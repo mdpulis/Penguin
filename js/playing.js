@@ -98,6 +98,8 @@ class Playing extends Phaser.Scene{
         this.load.image('bomb_icon', 'assets/bomb_icon.png');
         //Load animation spriteSheets
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
+        this.load.spritesheet('testing','assets/anim/testing.png',{frameWidth: 32, frameHeight: 48});
+        this.load.spritesheet('sushi','assets/sushi.png', {frameWidth: 96, frameHeight: 96});
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('bgm-level2','assets/audio/vivaldis-winter.mp3');
@@ -155,7 +157,7 @@ class Playing extends Phaser.Scene{
         position2 = row1Position;
         movementSpeedMod = 1 + (.1 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
-        hp = 3;
+        hp = 30;
         usingBomb = false;
         changeThrowableDisplay(); //set the bomb or sushi icon
 		gameTime = 0;
@@ -218,6 +220,12 @@ class Playing extends Phaser.Scene{
             frameRate: 10,
             repeat: 1,
         });
+        this.anims.create({
+            key: 'left',
+            frames: this.anims.generateFrameNumbers('testing', { start: 0, end: 3 }),
+            frameRate: 1,
+            repeat: 1
+        });
         bombAnims = this.add.group({
             classType: Phaser.GameObjects.Sprite,
             maxSize: 30,
@@ -243,11 +251,11 @@ class Playing extends Phaser.Scene{
 
         //Polar bear class
         var Bear = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
+            Extends: Phaser.GameObjects.Sprite,
             initialize:
                 function Bear (game)
                 {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bear')
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bear')
                     this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                     this.pushedBack = false;
                     this.sushi = 0; //how much sushi the bear has got
@@ -346,11 +354,11 @@ class Playing extends Phaser.Scene{
 
         //Drinker Class
         var Drinker = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
+            Extends: Phaser.GameObjects.Sprite,
             initialize:
                 function Drinker (game)
                 {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'drinker')
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'drinker')
                     this.speed = Phaser.Math.GetSpeed(penguinSpeed * movementSpeedMod, 1); // Set the drinkers' speed
 					this.pushedBack = false; //If the drinker is pushed back
 					this.drinking = false; //If the drinker is drinking
@@ -449,11 +457,11 @@ class Playing extends Phaser.Scene{
 
         //Bomb class
         var Bomb = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
+            Extends: Phaser.GameObjects.Sprite,
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bomb');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bomb');
                     this.speed = Phaser.Math.GetSpeed(bombSpeed, 1);
                 },
             fire: function (x, y) //Spawn bomb based on player's location
@@ -598,11 +606,11 @@ class Playing extends Phaser.Scene{
 
         //Beer Class
         var Beer = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
+            Extends: Phaser.GameObjects.Sprite,//Image
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'beer');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'beer');
                     this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
                 },
             fire: function (x, y) //Spawn beer based on player's location
@@ -672,12 +680,14 @@ class Playing extends Phaser.Scene{
 
         //Bottle Class
         var Bottle = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
+            Extends: Phaser.GameObjects.Sprite,
             initialize:
                 function Bottle (game)
                 {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'bottle')
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'boom'); //bottle
                     this.speed = Phaser.Math.GetSpeed(returnedSushiSpeed * movementSpeedMod, 1); // Set the bottles' speed
+                    this.inAnimation = false;
+                    this.animTimer = 2000;
                 },
             fire: function (x, y){
                 sound.play('throw_mug');
@@ -700,6 +710,26 @@ class Playing extends Phaser.Scene{
                         else
                         {
                             //didn't catch bottle fail state
+                            /*
+                            this.speed = 0;
+                            if(!this.inAnimation)
+                            {
+                                this.anims.play('boom1',false);
+                                this.inAnimation = true;
+                            }
+                            else
+                            {
+                                this.animTimer -= delta;
+                                if(this.animTimer <= 0)
+                                {
+                                    console.log("animation complete");
+                                    sound.play('break');
+                                    this.setActive(false);
+                                    this.setVisible(false);
+                                    hp--;
+                                }
+                            }*/
+
                             sound.play('break');
                             this.setActive(false);
                             this.setVisible(false);
@@ -726,11 +756,11 @@ class Playing extends Phaser.Scene{
 
         //Busboy Class
         var Busboy = new Phaser.Class({
-            Extends: Phaser.GameObjects.Image,
+            Extends: Phaser.GameObjects.Sprite,
             initialize:
                 function Busboy (game)
                 {
-                    Phaser.GameObjects.Image.call(this, game, 0, 0, 'busboy')
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'busboy')
                     this.speed = Phaser.Math.GetSpeed(busboySpeed * movementSpeedMod, 1); // Set the busboy's speed
                     this.row = busboyCounter;
                     console.log('new busboy: ' + busboyCounter);

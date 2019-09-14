@@ -7,7 +7,7 @@ class Win extends Phaser.Scene {
     }
     create(){
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.add.text(960, 540, "You Completed Level " + level + "\n\nYour Total Score is: " + score + "\n\nPress Space to Continue")
+        this.add.text(960, 540, "You Completed Level " + level + "\n\nYour Total Score is: " + score + "\n\nPress Space to Continue");
         level++;
     }
 

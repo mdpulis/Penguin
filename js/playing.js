@@ -10,7 +10,9 @@ var ui;
 var hp, gameTime;
 var sound;
 var levelBgm;
-var drinkerAmount, spawnCount, bearAmount;
+var drinkerAmount, drinkerCount, bearAmount, bearCount;
+var drinkerCol1, drinkerCol2, drinkerCol3, drinkerCol4;
+var bearCol1, bearCol2, bearCol3, bearCol4;
 var position, position2;
 var movementSpeedMod;
 var cursors;
@@ -153,15 +155,15 @@ class Playing extends Phaser.Scene{
         drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
-        position = row1Position;
-        position2 = row1Position;
+
         movementSpeedMod = 1 + (.1 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
         hp = 30;
         usingBomb = false;
         changeThrowableDisplay(); //set the bomb or sushi icon
 		gameTime = 0;
-        spawnCount = 1;
+        drinkerCount = 1;
+        bearCount = 1;
         busboyCounter = 0;
 
         lane = [{length : barLength5, position: row1Position},
@@ -172,14 +174,72 @@ class Playing extends Phaser.Scene{
         //variables that change based on levels
 		if(level == 1){
             drinkerAmount = 5;
+            drinkerCol1 = row1Position;
+            bearCol1 = row4Position;
         }
 		else if(level == 2){
             drinkerAmount = 9;
+            drinkerCol1 = row2Position;
+            bearCol1 = row1Position;
+            drinkerCol2 = row1Position;
         }
-		else
-        {
-            drinkerAmount = 5;
+		else if(level == 3){
+            drinkerAmount = 10;
+            drinkerCol1 = row2Position;
+            bearCol1 = row1Position;
+            drinkerCol2 = row1Position;
+            bearCol2 = row4Position;
+            drinkerCol3 = row1Position;
         }
+		else if(level == 4){
+            drinkerAmount = 11;
+            drinkerCol1 = row1Position;
+            drinkerCol2 = row1Position;
+            bearCol2 = row3Position;
+            drinkerCol3 = row1Position;
+        }
+		else if(level == 5){
+            drinkerAmount = 12;
+            drinkerCol1 = row2Position;
+            bearCol1 = row1Position;
+            drinkerCol2 = row1Position;
+            bearCol2 = row4Position;
+            drinkerCol3 = row2Position;
+            bearCol3 = row1Position;
+            drinkerCol4 = row1Position;
+        }
+		else if(level == 6){
+            drinkerAmount = 13;
+            drinkerCol1 = row1Position;
+            bearCol1 = row4Position;
+            drinkerCol2 = row1Position;
+            drinkerCol3 = row3Position;
+            bearCol3 = row1Position;
+            drinkerCol4 = row1Position;
+        }
+        else if(level == 7){
+            drinkerAmount = 14;
+            drinkerCol1 = row1Position;
+            bearCol1 = row4Position;
+            drinkerCol2 = row1Position;
+            bearCol2 = row4Position;
+            drinkerCol3 = row2Position;
+            bearCol3 = row1Position;
+            drinkerCol4 = row2Position;
+            bearCol4 = row1Position;
+        }
+        else if(level >= 8){
+            drinkerAmount = 16;
+            drinkerCol1 = row2Position;
+            bearCol1 = row1Position;
+            drinkerCol2 = row1Position;
+            bearCol2 = row4Position;
+            drinkerCol3 = row2Position;
+            bearCol3 = row1Position;
+            drinkerCol4 = row1Position;
+            bearCol4 = row4Position;
+        }
+
         visibleDrinker = 0;
         //Add audio files to the game
         var bgm_config = {
@@ -211,7 +271,7 @@ class Playing extends Phaser.Scene{
             levelBgm = 'bgm-level3';
         }
         sound.add(levelBgm);
-        sound.play(levelBgm, bgm_config);
+        //sound.play(levelBgm, bgm_config);
 
         //Animations here
         this.anims.create({
@@ -267,10 +327,28 @@ class Playing extends Phaser.Scene{
                 visibleBear ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
                 //sound.play('drinker_in');
-                if(level == 1 && spawnCount <= 4){ // spawn 4 bears for level 1
+                if(level == 1 && bearCount <= 1){ // spawn 4 bears for level 1
                     this.setPosition(x, y);
                 }
-                else if(level == 2 && spawnCount <= 8){ // spawn 8 bears for level 2
+                else if(level == 2 && bearCount <= 1){ // spawn 8 bears for level 2
+                    this.setPosition(x, y);
+                }
+                else if(level == 3 && bearCount <= 2){
+                    this.setPosition(x, y);
+                }
+                else if(level == 4 && bearCount <= 2){
+                    this.setPosition(x, y);
+                }
+                else if(level == 5 && bearCount <= 3){
+                    this.setPosition(x, y);
+                }
+                else if(level == 6 && bearCount <= 3){
+                    this.setPosition(x, y);
+                }
+                else if(level == 7 && bearCount <= 4){
+                    this.setPosition(x, y);
+                }
+                else if(level >= 8 && bearCount <= 4){
                     this.setPosition(x, y);
                 }
                 else{
@@ -369,10 +447,28 @@ class Playing extends Phaser.Scene{
                 visibleDrinker ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects drinkers' spawn locations
                 //sound.play('drinker_in');
-                if(level == 1 && spawnCount <= 4){ // spawn 4 drinkers for level 1
+                if(level == 1 && drinkerCount <= 3){ // spawn 4 drinkers for level 1
                     this.setPosition(x, y);
                 }
-                else if(level == 2 && spawnCount <= 8){ // spawn 8 drinkers for level 2
+                else if(level == 2 && drinkerCount <= 7){ // spawn 8 drinkers for level 2
+                    this.setPosition(x, y);
+                }
+                else if(level == 3 && drinkerCount <= 8){
+                    this.setPosition(x, y);
+                }
+                else if(level == 4 && drinkerCount <= 10){
+                    this.setPosition(x, y);
+                }
+                else if(level == 5 && drinkerCount <= 9){
+                    this.setPosition(x, y);
+                }
+                else if(level == 6 && drinkerCount <= 10){
+                    this.setPosition(x, y);
+                }
+                else if(level == 7 && drinkerCount <= 10){
+                    this.setPosition(x, y);
+                }
+                else if(level >= 8 && drinkerCount <= 12){
                     this.setPosition(x, y);
                 }
                 else{
@@ -813,43 +909,258 @@ class Playing extends Phaser.Scene{
 //Update Loop
     update (time)
     {
-        if(level == 1){ //spawn 4 drinkers for level 1
-            if(spawnCount <= 4){
-                spawnDrinker(0, position);
-                spawnCount++;
-                position += playerYVariance;
+        //spawn stuff at the beginning==================================================================================
+        if(level == 1){
+            if(drinkerCount <= 3){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
             }
-        }
-        else if(level == 2){ //spawn 8 drinkers for level 2
-            if(spawnCount <= 4){
-                spawnDrinker(0, position);
-                spawnCount++;
-                position += playerYVariance;
-            }
-            else if(spawnCount <= 8){
-                spawnDrinker(90, position2); // offset the x value for a row of drinkers
-                spawnCount++;
-                position2 += playerYVariance;
-            }
-        }
-        else
-        {
-            if(spawnCount <= 4){
-                spawnDrinker(0, position);
-                spawnCount++;
-                position += playerYVariance;
-            }
-        }
 
-        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + gameTime.toMMSS());
+            if(bearCount <= 1){
+                spawnBear(0, bearCol1);
+                bearCount++;
+                bearCol1 += playerYVariance;
+            }
+        }
+        else if(level == 2){
+            if(drinkerCount <= 3){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
+            }
+            else if(drinkerCount <= 7){
+                spawnDrinker(90, drinkerCol2);
+                drinkerCount++;
+                drinkerCol2 += playerYVariance;
+            }
+
+            if(bearCount <= 1){
+                spawnBear(0, bearCol1);
+                bearCount++;
+                bearCol1 += playerYVariance;
+            }
+        }
+        else if(level == 3){
+            if(drinkerCount <= 3){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
+            }
+            else if(drinkerCount <= 6){
+                spawnDrinker(90, drinkerCol2);
+                drinkerCount++;
+                drinkerCol2 += playerYVariance;
+            }
+            else if(drinkerCount <= 8){
+                spawnDrinker(180, drinkerCol3);
+                drinkerCount++;
+                drinkerCol3 += playerYVariance;
+            }
+
+            if(bearCount <= 1){
+                spawnBear(0, bearCol1);
+                bearCount++;
+                bearCol1 += playerYVariance;
+            }
+            else if(bearCount <= 2){
+                spawnBear(90, bearCol2);
+                bearCount++;
+                bearCol2 += playerYVariance;
+            }
+        }
+        else if(level == 4){
+            if(drinkerCount <= 4){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
+            }
+            else if(drinkerCount <= 6){
+                spawnDrinker(90, drinkerCol2);
+                drinkerCount++;
+                drinkerCol2 += playerYVariance;
+            }
+            else if(drinkerCount <= 10){
+                spawnDrinker(180, drinkerCol3);
+                drinkerCount++;
+                drinkerCol3 += playerYVariance;
+            }
+
+            if(bearCount <= 2){
+                spawnBear(90, bearCol2);
+                bearCount++;
+                bearCol2 += playerYVariance;
+            }
+        }
+        else if(level == 5){
+            if(drinkerCount <= 3){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
+            }
+            else if(drinkerCount <= 6){
+                spawnDrinker(90, drinkerCol2);
+                drinkerCount++;
+                drinkerCol2 += playerYVariance;
+            }
+            else if(drinkerCount <= 8){
+                spawnDrinker(180, drinkerCol3);
+                drinkerCount++;
+                drinkerCol3 += playerYVariance;
+            }
+            else if(drinkerCount <= 9){
+                spawnDrinker(270, drinkerCol4);
+                drinkerCount++;
+                drinkerCol4 += playerYVariance;
+            }
+
+            if(bearCount <= 1){
+                spawnBear(0, bearCol1);
+                bearCount++;
+                bearCol1 += playerYVariance;
+            }
+            else if(bearCount <= 2){
+                spawnBear(90, bearCol2);
+                bearCount++;
+                bearCol2 += playerYVariance;
+            }
+            else if(bearCount <= 3){
+                spawnBear(180, bearCol3);
+                bearCount++;
+                bearCol3 += playerYVariance;
+            }
+        }
+        else if(level == 6){
+            if(drinkerCount <= 3){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
+            }
+            else if(drinkerCount <= 7){
+                spawnDrinker(90, drinkerCol2);
+                drinkerCount++;
+                drinkerCol2 += playerYVariance;
+            }
+            else if(drinkerCount <= 9){
+                spawnDrinker(180, drinkerCol3);
+                drinkerCount++;
+                drinkerCol3 += playerYVariance;
+            }
+            else if(drinkerCount <= 10){
+                spawnDrinker(270, drinkerCol4);
+                drinkerCount++;
+                drinkerCol4 += playerYVariance;
+            }
+
+            if(bearCount <= 1){
+                spawnBear(0, bearCol1);
+                bearCount++;
+                bearCol1 += playerYVariance;
+            }
+            else if(bearCount <= 3){
+                spawnBear(180, bearCol3);
+                bearCount++;
+                bearCol3 += playerYVariance;
+            }
+        }
+        else if(level == 7){
+            if(drinkerCount <= 3){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
+            }
+            else if(drinkerCount <= 6){
+                spawnDrinker(90, drinkerCol2);
+                drinkerCount++;
+                drinkerCol2 += playerYVariance;
+            }
+            else if(drinkerCount <= 9){
+                spawnDrinker(180, drinkerCol3);
+                drinkerCount++;
+                drinkerCol3 += playerYVariance;
+            }
+            else if(drinkerCount <= 10){
+                spawnDrinker(270, drinkerCol4);
+                drinkerCount++;
+                drinkerCol4 += playerYVariance;
+            }
+
+            if(bearCount <= 1){
+                spawnBear(0, bearCol1);
+                bearCount++;
+                bearCol1 += playerYVariance;
+            }
+            else if(bearCount <= 2){
+                spawnBear(90, bearCol2);
+                bearCount++;
+                bearCol2 += playerYVariance;
+            }
+            else if(bearCount <= 3){
+                spawnBear(180, bearCol3);
+                bearCount++;
+                bearCol3 += playerYVariance;
+            }
+            else if(bearCount <= 4){
+                spawnBear(270, bearCol4);
+                bearCount++;
+                bearCol4 += playerYVariance;
+            }
+        }
+        else if(level >= 8){
+            if(drinkerCount <= 3){
+                spawnDrinker(0, drinkerCol1);
+                drinkerCount++;
+                drinkerCol1 += playerYVariance;
+            }
+            else if(drinkerCount <= 6){
+                spawnDrinker(90, drinkerCol2);
+                drinkerCount++;
+                drinkerCol2 += playerYVariance;
+            }
+            else if(drinkerCount <= 9){
+                spawnDrinker(180, drinkerCol3);
+                drinkerCount++;
+                drinkerCol3 += playerYVariance;
+            }
+            else if(drinkerCount <= 12){
+                spawnDrinker(270, drinkerCol4);
+                drinkerCount++;
+                drinkerCol4 += playerYVariance;
+            }
+
+            if(bearCount <= 1){
+                spawnBear(0, bearCol1);
+                bearCount++;
+                bearCol1 += playerYVariance;
+            }
+            else if(bearCount <= 2){
+                spawnBear(90, bearCol2);
+                bearCount++;
+                bearCol2 += playerYVariance;
+            }
+            else if(bearCount <= 3){
+                spawnBear(180, bearCol3);
+                bearCount++;
+                bearCol3 += playerYVariance;
+            }
+            else if(bearCount <= 4){
+                spawnBear(270, bearCol4);
+                bearCount++;
+                bearCol4 += playerYVariance;
+            }
+        }
+        //==============================================================================================================
+
+        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + gameTime.toMMSS() + '\nServed: ' + served);
 
         if(hp <= 0){ // reaches fail state
             sound.play('lose');
             sound.removeByKey(levelBgm);
             this.scene.start("FailScreen");
         }
-        //TODO: win state
-        else if(served >= maxServesPerLevel || served >= (servesRequiredPerLevel + additionalServesPerLevel * level)){
+        //TODO: add back win state
+        //else if(served >= maxServesPerLevel || served >= (servesRequiredPerLevel + additionalServesPerLevel * level)){
+        else if(served == 1){
             sound.play('win');
             sound.removeByKey(levelBgm);
             this.scene.start("WinScreen");

@@ -271,7 +271,7 @@ class Playing extends Phaser.Scene{
             levelBgm = 'bgm-level3';
         }
         sound.add(levelBgm);
-        //sound.play(levelBgm, bgm_config);
+        sound.play(levelBgm, bgm_config);
 
         //Animations here
         this.anims.create({
@@ -1159,8 +1159,8 @@ class Playing extends Phaser.Scene{
             this.scene.start("FailScreen");
         }
         //TODO: add back win state
-        //else if(served >= maxServesPerLevel || served >= (servesRequiredPerLevel + additionalServesPerLevel * level)){
-        else if(served == 1){
+        else if(served >= maxServesPerLevel || served >= (servesRequiredPerLevel + additionalServesPerLevel * level)){
+        //else if(served == 1){
             sound.play('win');
             sound.removeByKey(levelBgm);
             this.scene.start("WinScreen");

@@ -98,6 +98,7 @@ class Playing extends Phaser.Scene{
         this.load.image('arrow_key_icon', 'assets/arrow_key.png');
         this.load.image('sushi_icon', 'assets/sushi_icon.png');
         this.load.image('bomb_icon', 'assets/bomb_icon.png');
+		this.load.image('bell_icon', 'assets/bell_icon.png');
         //Load animation spriteSheets
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
         this.load.spritesheet('testing','assets/anim/testing.png',{frameWidth: 32, frameHeight: 48});
@@ -151,12 +152,13 @@ class Playing extends Phaser.Scene{
         served = 0;
         sound = this.sound;
 
-        var spawnDelay = Phaser.Math.Between(minSpawnDelay - 50 * level, maxSpawnDelay - 50 * level);
+        //var spawnDelay = Phaser.Math.Between(minSpawnDelay - 50 * level, maxSpawnDelay - 50 * level);
+		var spawnDelay = 3500 - (100 * level);
         drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
 
-        movementSpeedMod = 1 + (.1 * level);
+        movementSpeedMod = 1 + (.08 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
         hp = 30;
         usingBomb = false;
@@ -493,7 +495,7 @@ class Playing extends Phaser.Scene{
 				if(this.pushedBack == true)
 				{
 					this.x -= this.speed * delta * pushedBackMod;
-					if(this.x < this.pushedBackXLocation - pushBackXDistance)
+					if(this.x < this.pushedBackXLocation - pushBackXDistance * ((movementSpeedMod - 1) / 2 + 1))
 					{
 						this.pushedBack = false;
 						this.drinking = true;
@@ -780,7 +782,7 @@ class Playing extends Phaser.Scene{
             initialize:
                 function Bottle (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'boom'); //bottle
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bottle'); //bottle
                     this.speed = Phaser.Math.GetSpeed(returnedSushiSpeed * movementSpeedMod, 1); // Set the bottles' speed
                     this.inAnimation = false;
                     this.animTimer = 2000;

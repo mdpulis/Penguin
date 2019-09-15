@@ -7,13 +7,16 @@ var random;
 var drinkerTimer;
 var gameTimer;
 var ui;
+var meterUi;
 var hp, gameTime;
 var sound;
+var meterFill;
 var levelBgm;
 var drinkerAmount, drinkerCount, bearAmount, bearCount;
 var drinkerCol1, drinkerCol2, drinkerCol3, drinkerCol4;
 var bearCol1, bearCol2, bearCol3, bearCol4;
 var position, position2;
+var meterCurrentTime;
 var movementSpeedMod;
 var cursors;
 var served;
@@ -30,6 +33,7 @@ const screenWidth = 1920;
 const screenHeight = 1080;
 const playerXOffset = 500;
 const tableYOffset = 70;
+const meterWidth = 1028;
 
 const drinkerRange = 50;
 const bottleRange = 25;
@@ -37,6 +41,7 @@ const bottleRange = 25;
 const penguinSpeed = 125;
 const bearSpeed = 100;
 const fastBearSpeed = 400;
+const timeToFillMeter = 15000; //15 seconds
 
 const bombSpeed = 900;
 const sushiSpeed = 900;
@@ -99,6 +104,10 @@ class Playing extends Phaser.Scene{
         this.load.image('sushi_icon', 'assets/sushi_icon.png');
         this.load.image('bomb_icon', 'assets/bomb_icon.png');
 		this.load.image('bell_icon', 'assets/bell_icon.png');
+		
+		this.load.image('meter_outline', 'assets/meter_outline.png');
+		this.load.image('meter_backfill', 'assets/meter_backfill.png');
+		this.load.image('meter_topfill', 'assets/meter_topfill.png');
         //Load animation spriteSheets
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
         this.load.spritesheet('testing','assets/anim/testing.png',{frameWidth: 32, frameHeight: 48});
@@ -139,6 +148,15 @@ class Playing extends Phaser.Scene{
         arrow_key_icon = this.add.image(screenWidth - 128 * 2, screenHeight - 128, 'arrow_key_icon');
         sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
         bomb_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'bomb_icon');
+		
+		this.add.image(768, screenHeight - 128, 'meter_backfill');
+		meterFill = this.add.sprite(768, screenHeight - 128, 'meter_topfill');
+		meterFill.setCrop(0, 0, 512, 96);
+		this.add.image(768, screenHeight - 128, 'meter_outline');
+		//meterUi = this.add.bitmapText(768, screenHeight - 128, 10, 'frosty', '0', 32);
+		meterUi = this.add.bitmapText(512, screenHeight - 128 - 64, 'frosty', '0', 32);
+		meterUi.setText('HOLD RIGHT TO CLEAR ALL EMPTY PLATES!');
+		meterUi.setVisible(false);
 
         //var music = this.sound.add('bgm');
         //music.play();
@@ -150,6 +168,7 @@ class Playing extends Phaser.Scene{
         q = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
         cursors = this.input.keyboard.createCursorKeys();
         served = 0;
+		meterCurrentTime = 0;
         sound = this.sound;
 
         //var spawnDelay = Phaser.Math.Between(minSpawnDelay - 50 * level, maxSpawnDelay - 50 * level);
@@ -157,9 +176,9 @@ class Playing extends Phaser.Scene{
         drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
-
         movementSpeedMod = 1 + (.08 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
+		
         hp = 30;
         usingBomb = false;
         changeThrowableDisplay(); //set the bomb or sushi icon
@@ -264,11 +283,11 @@ class Playing extends Phaser.Scene{
         {
             levelBgm = 'bgm';
         }
-        else if(level == 2)
+        else if(level == 2 || level == 3)
         {
             levelBgm = 'bgm-level2';
         }
-        else if(level >= 3)
+        else if(level >= 4)
         {
             levelBgm = 'bgm-level3';
         }
@@ -908,8 +927,10 @@ class Playing extends Phaser.Scene{
         });
     }
 
+
+
 //Update Loop
-    update (time)
+    update (time, delta)
     {
         //spawn stuff at the beginning==================================================================================
         if(level == 1){
@@ -1167,7 +1188,20 @@ class Playing extends Phaser.Scene{
             sound.removeByKey(levelBgm);
             this.scene.start("WinScreen");
         }
+		
+		//Meter
+		meterCurrentTime += delta;
+		if(meterCurrentTime >= timeToFillMeter)
+		{
+			meterCurrentTime = timeToFillMeter;
+			meterUi.setVisible(true);
+			
+			//meterUi.x = Math.floor(meterFill.x + meterFill.width / 2);
+			//meterUi.y = Math.floor(meterFill.y + meterFill.height / 2);
+		}
+		meterFill.setCrop(0, 0, (meterCurrentTime / timeToFillMeter) * meterWidth, 96);
 
+		//Inputs
         if (Phaser.Input.Keyboard.JustDown(up) && row >= 1) //Prevent "holding down" actions
         {
             if(row == 1){
@@ -1228,8 +1262,12 @@ class Playing extends Phaser.Scene{
         }
 
         if(Phaser.Input.Keyboard.JustDown(q)){
-            //TODO: Remove the key press and change to picking up the fish or something
-            spawnBusboys();
+			if(meterCurrentTime >= timeToFillMeter)
+			{
+				spawnBusboys();
+				meterCurrentTime = 0;
+				meterUi.setVisible(false);
+			}
         }
 
         if(Phaser.Input.Keyboard.JustDown(right)){

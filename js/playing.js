@@ -1,7 +1,7 @@
 var player;
 var up, down, left, right, space, q;
 var row;
-var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, bombs, sushi, bombAnims;
+var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, bombs, fishes, bombAnims;
 
 var random;
 var penguinTimer;
@@ -23,6 +23,7 @@ var textScaleEnlarging;
 var movementSpeedMod;
 var cursors;
 var served;
+var bearsHitWithBombs;
 var visiblePenguin;
 var visibleBear;
 var usingBomb; //indicate whether the player is using sushi or bomb
@@ -93,10 +94,11 @@ class Playing extends Phaser.Scene{
         //Load images
         this.load.image('background', 'assets/Game_BG.png');
         this.load.image('player', 'assets/player.png');
-        this.load.image('sushi', 'assets/sushi.png');
+        //this.load.image('sushi', 'assets/sushi.png');
         this.load.image('penguin', 'assets/Customer_01.png');
         this.load.image('returned_plate', 'assets/EmptyPlate.png');
         this.load.image('bomb','assets/bomb.png');
+		this.load.image('fish','assets/bomb.png'); //TODO fix asset
         this.load.image('bear','assets/PolarBear.png');
         this.load.image('busboy','assets/penguin_round.png');
         this.load.image('chief','assets/tapper.png');
@@ -177,6 +179,7 @@ class Playing extends Phaser.Scene{
         q = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
         cursors = this.input.keyboard.createCursorKeys();
         served = 0;
+		bearsHitWithBombs = 0;
 		meterCurrentTime = 0;
         sound = this.sound;
 
@@ -726,7 +729,14 @@ class Playing extends Phaser.Scene{
                             score++;
                             addBoomAnim(this.x, this.y);
                             console.log("hit with bear" + this.x + " " + this.y);
-                            this.setActive(false);
+							
+							bearsHitWithBombs++;
+							if(bearsHitWithBombs % 3 == 0)
+							{
+								spawnFish(this.x, this.y);
+							}
+							
+							this.setActive(false);
                             this.setVisible(false);
                         }
                     }
@@ -952,6 +962,68 @@ class Playing extends Phaser.Scene{
         busboys = this.add.group({
             classType: Busboy,
             maxSize: 4,
+            runChildUpdate: true
+        });
+		
+		//Fish class
+        var Fish = new Phaser.Class({
+            Extends: Phaser.GameObjects.Sprite,
+            initialize:
+                function Fish (game)
+                {
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'fish');
+					this.timeAlive = 0;
+                },
+            fire: function (x, y) //Spawn fish based on bear's location
+            {
+                //sound.play('throw_mug');
+				this.timeAlive = 0;
+                this.setPosition(x, y);
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+				this.timeAlive += delta;
+				console.log('alive time:' + this.timeAlive);
+				
+				if(this.timeAlive >= 5000) //lasts for 5 seconds
+				{
+					this.setActive(false);
+					this.setVisible(false);
+				}
+				
+				
+				for(var i = 0; i < lane.length; i++){
+                    if (this.x > lane[i].length && this.y == lane[i].position)
+                    {
+                        if(this.y == player.y)
+                        {
+                            //score++;
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+                        else
+                        {
+                            this.setActive(false);
+                            this.setVisible(false);
+                        }
+
+                    }
+                }
+
+                if(this.x >= player.x && this.y == player.y){
+                    sound.play('get_mug');
+                    score += 3;
+					meterCurrentTime += 6500 * (1 / movementSpeedMod); //add about 1/3rd of a meter
+                    this.setActive(false);
+                    this.setVisible(false);
+                }
+            }
+        });
+        fishes = this.add.group({
+            classType: Fish,
+            maxSize: 5,
             runChildUpdate: true
         });
     }
@@ -1377,6 +1449,13 @@ function spawnReturnedPlate(x,y){
     if(returnedPlate){
         returnedPlate.fire(x, y);
     }
+}
+
+function spawnFish(x, y) {
+	var fish = fishes.get();
+	if(fish){
+		fish.fire(x, y);
+	}
 }
 
 function useMeter() {

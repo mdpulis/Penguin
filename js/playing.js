@@ -93,13 +93,14 @@ class Playing extends Phaser.Scene{
     {
         //Load images
         this.load.image('background', 'assets/Game_BG.png');
-        this.load.image('player', 'assets/player.png');
+        this.load.image('player', 'assets/PenguinWaiterSushi.png');
+        this.load.image('player_bomb','assets/PenguinWaiterBOMB.png');
         //this.load.image('sushi', 'assets/sushi.png');
-        this.load.image('penguin', 'assets/Customer_01.png');
-        this.load.image('returned_plate', 'assets/EmptyPlate.png');
-        this.load.image('bomb','assets/bomb.png');
-		this.load.image('fish','assets/bomb.png'); //TODO fix asset
-        this.load.image('bear','assets/PolarBear.png');
+        this.load.image('penguin', 'assets/PenguinCustomerFinal.png');
+        this.load.image('returned_plate', 'assets/EmptyPlateFinal.png');
+        this.load.image('bomb','assets/BombFinal.png');
+		this.load.image('fish','assets/Fish.png'); //TODO fix asset
+        this.load.image('bear','assets/PolarBearFinal.png');
         this.load.image('busboy','assets/penguin_round.png');
         this.load.image('chief','assets/tapper.png');
         this.load.image('table_284','assets/Table_284.png');
@@ -109,8 +110,8 @@ class Playing extends Phaser.Scene{
         this.load.image('table_1420','assets/Table_1420.png');
 
         this.load.image('arrow_key_icon', 'assets/arrow_key.png');
-        this.load.image('sushi_icon', 'assets/sushi_icon.png');
-        this.load.image('bomb_icon', 'assets/bomb_icon.png');
+        this.load.image('sushi_icon', 'assets/SushiOnly.png');
+        this.load.image('bomb_icon', 'assets/BombOnly.png');
 		this.load.image('bell_icon', 'assets/bell_icon.png');
 		
 		this.load.image('meter_outline', 'assets/meter_outline.png');
@@ -1487,12 +1488,14 @@ function changeThrowableDisplay()
     if(usingBomb)
     {
         //show bomb
+        player.setTexture('player_bomb');
         bomb_icon.setVisible(true);
         sushi_icon.setVisible(false);
     }
     else
     {
         //show sushi
+        player.setTexture('player');
         sushi_icon.setVisible(true);
         bomb_icon.setVisible(false);
     }

@@ -18,6 +18,8 @@ var bearCol1, bearCol2, bearCol3, bearCol4;
 var position, position2;
 var meterCurrentTime, holdRightCurrentTime;
 var justUsedMeter;
+var textScaleCurrentTime;
+var textScaleEnlarging;
 var movementSpeedMod;
 var cursors;
 var served;
@@ -44,6 +46,8 @@ const bearSpeed = 100;
 const fastBearSpeed = 400;
 const timeToFillMeter = 16000; //16 seconds, modded down at higher levels
 const timeToUseMeter = 300; //.3 seconds
+
+const timeToScaleText = 400; //.3 seconds
 
 const bombSpeed = 900;
 const sushiSpeed = 900;
@@ -156,10 +160,12 @@ class Playing extends Phaser.Scene{
 		meterFill.setCrop(0, 0, 512, 96);
 		this.add.image(768, screenHeight - 128, 'meter_outline');
 		//meterUi = this.add.bitmapText(768, screenHeight - 128, 10, 'frosty', '0', 32);
-		meterUi = this.add.bitmapText(512, screenHeight - 128 - 64, 'frosty', '0', 32);
+		meterUi = this.add.bitmapText(512 + 128, screenHeight - 128 - 8, 'frosty', '0', 32);
 		meterUi.setText('HOLD RIGHT TO CLEAR ALL EMPTY PLATES!');
 		meterUi.setVisible(false);
 		justUsedMeter = false;
+		textScaleCurrentTime = 0;
+		textScaleEnlarging = true;
 
         //var music = this.sound.add('bgm');
         //music.play();
@@ -1218,6 +1224,23 @@ class Playing extends Phaser.Scene{
 		{
 			meterCurrentTime = timeToFillMeter;
 			meterUi.setVisible(true);
+			
+			textScaleCurrentTime += delta;
+			if(textScaleCurrentTime >= timeToScaleText)
+			{
+				textScaleEnlarging = !textScaleEnlarging;
+				textScaleCurrentTime -= timeToScaleText;
+			}
+			
+			meterUi.setOrigin(0.25);
+			if(textScaleEnlarging == true)
+			{
+				meterUi.setScale((textScaleCurrentTime / timeToScaleText) * .5 + 1);
+			}
+			else
+			{
+				meterUi.setScale(1.5 - (textScaleCurrentTime / timeToScaleText) * .5);
+			}
 			
 			//meterUi.x = Math.floor(meterFill.x + meterFill.width / 2);
 			//meterUi.y = Math.floor(meterFill.y + meterFill.height / 2);

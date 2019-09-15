@@ -16,7 +16,8 @@ var drinkerAmount, drinkerCount, bearAmount, bearCount;
 var drinkerCol1, drinkerCol2, drinkerCol3, drinkerCol4;
 var bearCol1, bearCol2, bearCol3, bearCol4;
 var position, position2;
-var meterCurrentTime;
+var meterCurrentTime, holdRightCurrentTime;
+var justUsedMeter;
 var movementSpeedMod;
 var cursors;
 var served;
@@ -41,7 +42,8 @@ const bottleRange = 25;
 const penguinSpeed = 125;
 const bearSpeed = 100;
 const fastBearSpeed = 400;
-const timeToFillMeter = 15000; //15 seconds
+const timeToFillMeter = 16000; //16 seconds, modded down at higher levels
+const timeToUseMeter = 300; //.3 seconds
 
 const bombSpeed = 900;
 const sushiSpeed = 900;
@@ -157,6 +159,7 @@ class Playing extends Phaser.Scene{
 		meterUi = this.add.bitmapText(512, screenHeight - 128 - 64, 'frosty', '0', 32);
 		meterUi.setText('HOLD RIGHT TO CLEAR ALL EMPTY PLATES!');
 		meterUi.setVisible(false);
+		justUsedMeter = false;
 
         //var music = this.sound.add('bgm');
         //music.play();
@@ -176,7 +179,7 @@ class Playing extends Phaser.Scene{
         drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
-        movementSpeedMod = 1 + (.08 * level);
+        movementSpeedMod = 1 + (.06 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
 		
         hp = 30;
@@ -343,6 +346,7 @@ class Playing extends Phaser.Scene{
                     this.pushedBackXLocation = 0;
                     this.eating = false;
                     this.eating_Timer = 0;
+					this.fastSpeed = false;
                 },
             fire: function (x, y){
                 visibleBear ++;
@@ -1264,16 +1268,35 @@ class Playing extends Phaser.Scene{
         if(Phaser.Input.Keyboard.JustDown(q)){
 			if(meterCurrentTime >= timeToFillMeter)
 			{
-				spawnBusboys();
-				meterCurrentTime = 0;
-				meterUi.setVisible(false);
+				useMeter();
 			}
         }
+		
+		if(right.isDown)
+		{
+			if(meterCurrentTime >= timeToFillMeter)
+			{
+				holdRightCurrentTime += delta * movementSpeedMod;
+				if(holdRightCurrentTime >= timeToUseMeter)
+				{
+					useMeter();
+				}
+			}
+		}
+		else
+		{
+			holdRightCurrentTime = 0;
+		}
 
-        if(Phaser.Input.Keyboard.JustDown(right)){
-            //change the type of usingBomb here
-            usingBomb = !usingBomb;
-            changeThrowableDisplay();
+        if(Phaser.Input.Keyboard.JustUp(right)){
+            //change the type of usingBomb here if we didn't use meter
+			if(justUsedMeter == false)
+			{
+				usingBomb = !usingBomb;
+				changeThrowableDisplay();
+			}
+			
+			justUsedMeter = false;
         }
 
     }
@@ -1313,6 +1336,15 @@ function spawnBottle(x,y){
         bottle.fire(x, y);
     }
 }
+
+function useMeter() {
+	spawnBusboys();
+	meterCurrentTime = 0;
+	meterUi.setVisible(false);
+	justUsedMeter = true;
+	holdRightCurrentTime = 0;
+}
+
 
 function spawnBusboys() {
     if(busboys.children.entries <= 0)

@@ -1,10 +1,10 @@
 var player;
 var up, down, left, right, space, q;
 var row;
-var beers, drinkers, bottles, spawnDrinkers, bears, penguins, busboys, bombs, sushi, bombAnims;
+var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, bombs, sushi, bombAnims;
 
 var random;
-var drinkerTimer;
+var penguinTimer;
 var gameTimer;
 var ui;
 var meterUi;
@@ -12,8 +12,8 @@ var hp, gameTime;
 var sound;
 var meterFill;
 var levelBgm;
-var drinkerAmount, drinkerCount, bearAmount, bearCount;
-var drinkerCol1, drinkerCol2, drinkerCol3, drinkerCol4;
+var penguinAmount, penguinCount, bearAmount, bearCount;
+var penguinCol1, penguinCol2, penguinCol3, penguinCol4;
 var bearCol1, bearCol2, bearCol3, bearCol4;
 var position, position2;
 var meterCurrentTime, holdRightCurrentTime;
@@ -21,7 +21,7 @@ var justUsedMeter;
 var movementSpeedMod;
 var cursors;
 var served;
-var visibleDrinker;
+var visiblePenguin;
 var visibleBear;
 var usingBomb; //indicate whether the player is using sushi or bomb
 var busboyCounter;
@@ -36,8 +36,8 @@ const playerXOffset = 500;
 const tableYOffset = 70;
 const meterWidth = 1028;
 
-const drinkerRange = 50;
-const bottleRange = 25;
+const penguinRange = 50;
+const returnedPlateRange = 25;
 
 const penguinSpeed = 125;
 const bearSpeed = 100;
@@ -47,7 +47,7 @@ const timeToUseMeter = 300; //.3 seconds
 
 const bombSpeed = 900;
 const sushiSpeed = 900;
-const returnedSushiSpeed = 250;
+const returnedPlateSpeed = 250;
 const busboySpeed = 1200;
 
 const servesRequiredPerLevel = 3;
@@ -89,9 +89,9 @@ class Playing extends Phaser.Scene{
         //Load images
         this.load.image('background', 'assets/Game_BG.png');
         this.load.image('player', 'assets/player.png');
-        this.load.image('beer', 'assets/sushi.png');
-        this.load.image('drinker', 'assets/Customer_01.png');
-        this.load.image('bottle', 'assets/EmptyPlate.png');
+        this.load.image('sushi', 'assets/sushi.png');
+        this.load.image('penguin', 'assets/Customer_01.png');
+        this.load.image('returned_plate', 'assets/EmptyPlate.png');
         this.load.image('bomb','assets/bomb.png');
         this.load.image('bear','assets/PolarBear.png');
         this.load.image('busboy','assets/penguin_round.png');
@@ -126,8 +126,8 @@ class Playing extends Phaser.Scene{
         this.load.audio('up','assets/audio/up.wav');
         this.load.audio('down','assets/audio/down.wav');
         this.load.audio('get_mug','assets/audio/get_mug.wav');
-        this.load.audio('drinker_out','assets/audio/out_customer.wav');
-        this.load.audio('drinker_in','assets/audio/popup.wav');
+        this.load.audio('penguin_out','assets/audio/out_customer.wav');
+        this.load.audio('penguin_in','assets/audio/popup.wav');
         this.load.audio('win','assets/audio/win.wav');
 
         //this.load.bitmapFont('frostbitten-wanker', 'assets/fonts/frostbitten-wanker.png', 'assets/fonts/frostbitten-wanker.fnt');
@@ -176,17 +176,17 @@ class Playing extends Phaser.Scene{
 
         //var spawnDelay = Phaser.Math.Between(minSpawnDelay - 50 * level, maxSpawnDelay - 50 * level);
 		var spawnDelay = 3500 - (100 * level);
-        drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: true }); //Spawn drinkers based on a time delay
+        penguinTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: true }); //Spawn penguins based on a time delay
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
         movementSpeedMod = 1 + (.06 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
 		
-        hp = 30;
+        hp = 5;
         usingBomb = false;
         changeThrowableDisplay(); //set the bomb or sushi icon
 		gameTime = 0;
-        drinkerCount = 1;
+        penguinCount = 1;
         bearCount = 1;
         busboyCounter = 0;
 
@@ -197,74 +197,74 @@ class Playing extends Phaser.Scene{
 
         //variables that change based on levels
 		if(level == 1){
-            drinkerAmount = 5;
-            drinkerCol1 = row1Position;
+            penguinAmount = 5;
+            penguinCol1 = row1Position;
             bearCol1 = row4Position;
         }
 		else if(level == 2){
-            drinkerAmount = 9;
-            drinkerCol1 = row2Position;
+            penguinAmount = 9;
+            penguinCol1 = row2Position;
             bearCol1 = row1Position;
-            drinkerCol2 = row1Position;
+            penguinCol2 = row1Position;
         }
 		else if(level == 3){
-            drinkerAmount = 10;
-            drinkerCol1 = row2Position;
+            penguinAmount = 10;
+            penguinCol1 = row2Position;
             bearCol1 = row1Position;
-            drinkerCol2 = row1Position;
+            penguinCol2 = row1Position;
             bearCol2 = row4Position;
-            drinkerCol3 = row1Position;
+            penguinCol3 = row1Position;
         }
 		else if(level == 4){
-            drinkerAmount = 11;
-            drinkerCol1 = row1Position;
-            drinkerCol2 = row1Position;
+            penguinAmount = 11;
+            penguinCol1 = row1Position;
+            penguinCol2 = row1Position;
             bearCol2 = row3Position;
-            drinkerCol3 = row1Position;
+            penguinCol3 = row1Position;
         }
 		else if(level == 5){
-            drinkerAmount = 12;
-            drinkerCol1 = row2Position;
+            penguinAmount = 12;
+            penguinCol1 = row2Position;
             bearCol1 = row1Position;
-            drinkerCol2 = row1Position;
+            penguinCol2 = row1Position;
             bearCol2 = row4Position;
-            drinkerCol3 = row2Position;
+            penguinCol3 = row2Position;
             bearCol3 = row1Position;
-            drinkerCol4 = row1Position;
+            penguinCol4 = row1Position;
         }
 		else if(level == 6){
-            drinkerAmount = 13;
-            drinkerCol1 = row1Position;
+            penguinAmount = 13;
+            penguinCol1 = row1Position;
             bearCol1 = row4Position;
-            drinkerCol2 = row1Position;
-            drinkerCol3 = row3Position;
+            penguinCol2 = row1Position;
+            penguinCol3 = row3Position;
             bearCol3 = row1Position;
-            drinkerCol4 = row1Position;
+            penguinCol4 = row1Position;
         }
         else if(level == 7){
-            drinkerAmount = 14;
-            drinkerCol1 = row1Position;
+            penguinAmount = 14;
+            penguinCol1 = row1Position;
             bearCol1 = row4Position;
-            drinkerCol2 = row1Position;
+            penguinCol2 = row1Position;
             bearCol2 = row4Position;
-            drinkerCol3 = row2Position;
+            penguinCol3 = row2Position;
             bearCol3 = row1Position;
-            drinkerCol4 = row2Position;
+            penguinCol4 = row2Position;
             bearCol4 = row1Position;
         }
         else if(level >= 8){
-            drinkerAmount = 16;
-            drinkerCol1 = row2Position;
+            penguinAmount = 16;
+            penguinCol1 = row2Position;
             bearCol1 = row1Position;
-            drinkerCol2 = row1Position;
+            penguinCol2 = row1Position;
             bearCol2 = row4Position;
-            drinkerCol3 = row2Position;
+            penguinCol3 = row2Position;
             bearCol3 = row1Position;
-            drinkerCol4 = row1Position;
+            penguinCol4 = row1Position;
             bearCol4 = row4Position;
         }
 
-        visibleDrinker = 0;
+        visiblePenguin = 0;
         //Add audio files to the game
         var bgm_config = {
             mute: false,
@@ -280,8 +280,8 @@ class Playing extends Phaser.Scene{
         sound.add('break');
         sound.add('throw_mug');
         sound.add('get_mug');
-        sound.add('drinker_out');
-        sound.add('drinker_in');
+        sound.add('penguin_out');
+        sound.add('penguin_in');
         if(level == 1)
         {
             levelBgm = 'bgm';
@@ -341,17 +341,17 @@ class Playing extends Phaser.Scene{
                 {
                     Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bear')
                     this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
+					this.fastSpeed = Phaser.Math.GetSpeed(fastBearSpeed * movementSpeedMod, 1);
                     this.pushedBack = false;
-                    this.sushi = 0; //how much sushi the bear has got
                     this.pushedBackXLocation = 0;
                     this.eating = false;
                     this.eating_Timer = 0;
-					this.fastSpeed = false;
+					this.spedUp = false;
                 },
             fire: function (x, y){
                 visibleBear ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
-                //sound.play('drinker_in');
+                //sound.play('penguin_in');
                 if(level == 1 && bearCount <= 1){ // spawn 4 bears for level 1
                     this.setPosition(x, y);
                 }
@@ -397,21 +397,37 @@ class Playing extends Phaser.Scene{
             {
                 if(this.pushedBack == true) //once the bear got a boom, it will be pushed out the screen
                 {
-                    this.x -= this.speed * delta * pushedBackMod;
+					if(this.spedUp == false)
+					{
+						this.x -= this.speed * delta * pushedBackMod;
+					}
+					else
+					{
+						this.x -= this.fastSpeed * delta * pushedBackMod;
+					}
+                    
                 }
-                else if (this.eating == true)
-                {
-                    this.eating_Timer += delta;
-                    if(this.eating_Timer > 3000)
-                    {
-                        this.eating = false;
-                        this.eating_Timer = 0;
-                        beerOnHit(this.x, this.y); //send off the plate after drinking TODO: =================================Need change later
-                    }
-                }
+                //else if (this.eating == true)
+                //{
+                    //this.eating_Timer += delta;
+                    //if(this.eating_Timer > 3000)
+                    //{
+                        //this.eating = false;
+                        //this.eating_Timer = 0;
+                        //sushiOnHit(this.x, this.y); //send off the plate after drinking TODO: =================================Need change later
+                    //}
+                //}
                 else
                 {
-                    this.x += this.speed * delta;
+					if(this.spedUp == false)
+					{
+						this.x += this.speed * delta;
+					}
+					else
+					{
+						this.x += this.fastSpeed * delta;
+					}
+                    
                 }
 
                 for(var i = 0; i < lane.length; i++){ //if reaching end of lane
@@ -420,29 +436,31 @@ class Playing extends Phaser.Scene{
                         //Reached player fail state
                         visibleBear --;
                         this.y = -50;
-                        this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
+                        //this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                         this.setActive(false);
                         this.setVisible(false);
                         this.pushedBack = false;
                         this.pushedBackXLocation = 0;
                         this.eating = false;
                         this.eating_Timer = 0;
+						this.spedUp = false;
                         hp--;
                     }
                 }
                 //The bear may need time for eating sushi
                 if (this.x < 0) //if pushed back off the screen
                 {
-                    sound.play('drinker_out');
-                    visibleDrinker --;
+                    sound.play('penguin_out');
+                    visiblePenguin --;
                     this.y = -50;
-                    this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
+                    //this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                     this.setActive(false);
                     this.setVisible(false);
                     this.pushedBack = false;
                     this.pushedBackXLocation = 0;
                     this.eating = false;
                     this.eating_Timer = 0;
+					this.spedUp = false;
                     served++;
                 }
             }
@@ -455,45 +473,45 @@ class Playing extends Phaser.Scene{
         });
 
 
-        //Drinker Class
-        var Drinker = new Phaser.Class({
+        //Penguin Class
+        var Penguin = new Phaser.Class({
             Extends: Phaser.GameObjects.Sprite,
             initialize:
-                function Drinker (game)
+                function Penguin (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'drinker')
-                    this.speed = Phaser.Math.GetSpeed(penguinSpeed * movementSpeedMod, 1); // Set the drinkers' speed
-					this.pushedBack = false; //If the drinker is pushed back
-					this.drinking = false; //If the drinker is drinking
-					this.pushedBackXLocation = 0; //the location where the drinker was pushed back
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'penguin')
+                    this.speed = Phaser.Math.GetSpeed(penguinSpeed * movementSpeedMod, 1); // Set the penguins' speed
+					this.pushedBack = false; //If the penguin is pushed back
+					this.drinking = false; //If the penguin is drinking
+					this.pushedBackXLocation = 0; //the location where the penguin was pushed back
 					this.drinkTimer = 0; //the time for drinking
                 },
             fire: function (x, y){
-                visibleDrinker ++;
-                random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects drinkers' spawn locations
-                //sound.play('drinker_in');
-                if(level == 1 && drinkerCount <= 3){ // spawn 4 drinkers for level 1
+                visiblePenguin ++;
+                random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects penguins' spawn locations
+                //sound.play('penguin_in');
+                if(level == 1 && penguinCount <= 3){ // spawn 4 penguins for level 1
                     this.setPosition(x, y);
                 }
-                else if(level == 2 && drinkerCount <= 7){ // spawn 8 drinkers for level 2
+                else if(level == 2 && penguinCount <= 7){ // spawn 8 penguins for level 2
                     this.setPosition(x, y);
                 }
-                else if(level == 3 && drinkerCount <= 8){
+                else if(level == 3 && penguinCount <= 8){
                     this.setPosition(x, y);
                 }
-                else if(level == 4 && drinkerCount <= 10){
+                else if(level == 4 && penguinCount <= 10){
                     this.setPosition(x, y);
                 }
-                else if(level == 5 && drinkerCount <= 9){
+                else if(level == 5 && penguinCount <= 9){
                     this.setPosition(x, y);
                 }
-                else if(level == 6 && drinkerCount <= 10){
+                else if(level == 6 && penguinCount <= 10){
                     this.setPosition(x, y);
                 }
-                else if(level == 7 && drinkerCount <= 10){
+                else if(level == 7 && penguinCount <= 10){
                     this.setPosition(x, y);
                 }
-                else if(level >= 8 && drinkerCount <= 12){
+                else if(level >= 8 && penguinCount <= 12){
                     this.setPosition(x, y);
                 }
                 else{
@@ -531,7 +549,7 @@ class Playing extends Phaser.Scene{
 					{
 						this.drinking = false;
 						this.drinkTimer = 0;
-						beerOnHit(this.x, this.y); //send off the beer after drinking
+						sushiOnHit(this.x, this.y); //send off the sushi after eating
 					}
 				}
 				else
@@ -543,7 +561,7 @@ class Playing extends Phaser.Scene{
                     if (this.x > lane[i].length && this.y == lane[i].position) //if reaching end of lane
                     {
                         //Reached player fail state
-                        visibleDrinker --;
+                        visiblePenguin --;
                         this.y = -50;
                         this.setActive(false);
                         this.setVisible(false);
@@ -556,8 +574,8 @@ class Playing extends Phaser.Scene{
                 }
                 if (this.x < 0) //if pushed back off the screen
                 {
-                    sound.play('drinker_out');
-                    visibleDrinker --;
+                    sound.play('penguin_out');
+                    visiblePenguin --;
                     this.y = -50;
                     this.setActive(false);
                     this.setVisible(false);
@@ -570,9 +588,9 @@ class Playing extends Phaser.Scene{
             }
 
         });
-        drinkers = this.add.group({
-            classType: Drinker,
-            maxSize: drinkerAmount,
+        penguins = this.add.group({
+            classType: Penguin,
+            maxSize: penguinAmount,
             runChildUpdate: true
         });
 
@@ -596,81 +614,81 @@ class Playing extends Phaser.Scene{
             {
                 this.x -= this.speed * delta;
 
-                for (var elem in drinkers.children.entries) {
-                    if(this.y == drinkers.children.entries[elem].y)
+                for (var elem in penguins.children.entries) {
+                    if(this.y == penguins.children.entries[elem].y)
                     {
-                        if (this.x < drinkers.children.entries[elem].x + drinkerRange && this.x > drinkers.children.entries[elem].x - drinkerRange
-                            && drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
+                        if (this.x < penguins.children.entries[elem].x + penguinRange && this.x > penguins.children.entries[elem].x - penguinRange
+                            && penguins.children.entries[elem].pushedBack == false && penguins.children.entries[elem].drinking == false)
                         {
                             //bomb & lane logic
-                            if(drinkers.children.entries[elem].x > barLength4 && drinkers.children.entries[elem].x <= barLength5){
-                                if(drinkers.children.entries[elem].y == row1Position){
+                            if(penguins.children.entries[elem].x > barLength4 && penguins.children.entries[elem].x <= barLength5){
+                                if(penguins.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength4;
                                     lane1.setTexture('table_1136');
                                 }
-                                else if(drinkers.children.entries[elem].y == row2Position){
+                                else if(penguins.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength4;
                                     lane2.setTexture('table_1136');
                                 }
-                                else if(drinkers.children.entries[elem].y == row3Position){
+                                else if(penguins.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength4;
                                     lane3.setTexture('table_1136');
                                 }
-                                else if(drinkers.children.entries[elem].y == row4Position){
+                                else if(penguins.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength4;
                                     lane4.setTexture('table_1136');
                                 }
                             }
-                            else if(drinkers.children.entries[elem].x > barLength3 && drinkers.children.entries[elem].x <= barLength4){
-                                if(drinkers.children.entries[elem].y == row1Position){
+                            else if(penguins.children.entries[elem].x > barLength3 && penguins.children.entries[elem].x <= barLength4){
+                                if(penguins.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength3;
                                     lane1.setTexture('table_852');
                                 }
-                                else if(drinkers.children.entries[elem].y == row2Position){
+                                else if(penguins.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength3;
                                     lane2.setTexture('table_852');
                                 }
-                                else if(drinkers.children.entries[elem].y == row3Position){
+                                else if(penguins.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength3;
                                     lane3.setTexture('table_852');
                                 }
-                                else if(drinkers.children.entries[elem].y == row4Position){
+                                else if(penguins.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength3;
                                     lane4.setTexture('table_852');
                                 }
                             }
-                            else if(drinkers.children.entries[elem].x > barLength2 && drinkers.children.entries[elem].x <= barLength3){
-                                if(drinkers.children.entries[elem].y == row1Position){
+                            else if(penguins.children.entries[elem].x > barLength2 && penguins.children.entries[elem].x <= barLength3){
+                                if(penguins.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength2;
                                     lane1.setTexture('table_568');
                                 }
-                                else if(drinkers.children.entries[elem].y == row2Position){
+                                else if(penguins.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength2;
                                     lane2.setTexture('table_568');
                                 }
-                                else if(drinkers.children.entries[elem].y == row3Position){
+                                else if(penguins.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength2;
                                     lane3.setTexture('table_568');
                                 }
-                                else if(drinkers.children.entries[elem].y == row4Position){
+                                else if(penguins.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength2;
                                     lane4.setTexture('table_568');
                                 }
                             }
-                            else if(drinkers.children.entries[elem].x > 0 && drinkers.children.entries[elem].x <= barLength2){
-                                if(drinkers.children.entries[elem].y == row1Position){
+                            else if(penguins.children.entries[elem].x > 0 && penguins.children.entries[elem].x <= barLength2){
+                                if(penguins.children.entries[elem].y == row1Position){
                                     lane[0].length = barLength1;
                                     lane1.setTexture('table_284');
                                 }
-                                else if(drinkers.children.entries[elem].y == row2Position){
+                                else if(penguins.children.entries[elem].y == row2Position){
                                     lane[1].length = barLength1;
                                     lane2.setTexture('table_284');
                                 }
-                                else if(drinkers.children.entries[elem].y == row3Position){
+                                else if(penguins.children.entries[elem].y == row3Position){
                                     lane[2].length = barLength1;
                                     lane3.setTexture('table_284');
                                 }
-                                else if(drinkers.children.entries[elem].y == row4Position){
+                                else if(penguins.children.entries[elem].y == row4Position){
                                     lane[3].length = barLength1;
                                     lane4.setTexture('table_284');
                                 }
@@ -678,13 +696,13 @@ class Playing extends Phaser.Scene{
 
                             //score++;
                             sound.play('explosion');
-                            drinkers.children.entries[elem].y = -50;
+                            penguins.children.entries[elem].y = -50;
                             addBoomAnim(this.x, this.y);
                             console.log("hit with penguin"+ this.x + " " + this.y);
                             this.setActive(false);
                             this.setVisible(false);
-                            drinkers.children.entries[elem].setActive(false);
-                            drinkers.children.entries[elem].setVisible(false);
+                            penguins.children.entries[elem].setActive(false);
+                            penguins.children.entries[elem].setVisible(false);
                         }
                     }
                 }
@@ -692,7 +710,7 @@ class Playing extends Phaser.Scene{
                 for (var elem in bears.children.entries) {
                     if(this.y == bears.children.entries[elem].y)
                     {
-                        if (this.x < bears.children.entries[elem].x + drinkerRange && this.x > bears.children.entries[elem].x - drinkerRange
+                        if (this.x < bears.children.entries[elem].x + penguinRange && this.x > bears.children.entries[elem].x - penguinRange
                             && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
                         {
                             //sound.play('get_mug');
@@ -725,16 +743,16 @@ class Playing extends Phaser.Scene{
             runChildUpdate: true
         });
 
-        //Beer Class
-        var Beer = new Phaser.Class({
+        //Sushi Class
+        var Sushi = new Phaser.Class({
             Extends: Phaser.GameObjects.Sprite,//Image
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'beer');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi');
                     this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
                 },
-            fire: function (x, y) //Spawn beer based on player's location
+            fire: function (x, y) //Spawn sushi based on player's location
             {
                 sound.play('throw_mug');
                 this.setPosition(x, y);
@@ -744,16 +762,16 @@ class Playing extends Phaser.Scene{
             update: function (time, delta)
             {
                 this.x -= this.speed * delta;
-                //drinker receives beer
-                for (var elem in drinkers.children.entries) {
-                    if(this.y == drinkers.children.entries[elem].y)
+                //penguin receives sushi
+                for (var elem in penguins.children.entries) {
+                    if(this.y == penguins.children.entries[elem].y)
                     {
-                        if (this.x < drinkers.children.entries[elem].x + bottleRange && this.x > drinkers.children.entries[elem].x - bottleRange
-                            && drinkers.children.entries[elem].pushedBack == false && drinkers.children.entries[elem].drinking == false)
+                        if (this.x < penguins.children.entries[elem].x + returnedPlateRange && this.x > penguins.children.entries[elem].x - returnedPlateRange
+                            && penguins.children.entries[elem].pushedBack == false && penguins.children.entries[elem].drinking == false)
                         {
                             sound.play('get_mug');
-                            drinkers.children.entries[elem].pushedBack = true;
-                            drinkers.children.entries[elem].pushedBackXLocation = this.x;
+                            penguins.children.entries[elem].pushedBack = true;
+                            penguins.children.entries[elem].pushedBackXLocation = this.x;
 
                             score++;
 
@@ -763,17 +781,18 @@ class Playing extends Phaser.Scene{
                     }
                 }
 
-                //TODO: bear receives beer
+                //TODO: bear receives sushi
                 for (var elem in bears.children.entries) {
                     if(this.y == bears.children.entries[elem].y)
                     {
-                        if (this.x < bears.children.entries[elem].x + bottleRange && this.x > bears.children.entries[elem].x - bottleRange
+                        if (this.x < bears.children.entries[elem].x + returnedPlateRange && this.x > bears.children.entries[elem].x - returnedPlateRange
                             && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
                         {
                             sound.play('get_mug');
                             //bears.children.entries[elem].pushedBack = true;
                             //bears.children.entries[elem].pushedBackXLocation = this.x;
-                            bears.children.entries[elem].speed = Phaser.Math.GetSpeed(fastBearSpeed * movementSpeedMod, 1);
+							bears.children.entries[elem].spedUp = true;
+                            //bears.children.entries[elem].speed = Phaser.Math.GetSpeed(fastBearSpeed * movementSpeedMod, 1);
                             //score++;
 
                             this.setActive(false);
@@ -784,7 +803,7 @@ class Playing extends Phaser.Scene{
 
                 if (this.x < 0)
                 {
-                    //Thrown beer doesn't hit anyone fail state
+                    //Thrown sushi doesn't hit anyone fail state
                     sound.play('plate_crash');
                     this.setActive(false);
                     this.setVisible(false);
@@ -793,20 +812,20 @@ class Playing extends Phaser.Scene{
 
             }
         });
-        beers = this.add.group({
-            classType: Beer,
+        sushis = this.add.group({
+            classType: Sushi,
             maxSize: 30,
             runChildUpdate: true
         });
 
-        //Bottle Class
-        var Bottle = new Phaser.Class({
+        //Returned Plate Class
+        var ReturnedPlate = new Phaser.Class({
             Extends: Phaser.GameObjects.Sprite,
             initialize:
-                function Bottle (game)
+                function ReturnedPlate (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bottle'); //bottle
-                    this.speed = Phaser.Math.GetSpeed(returnedSushiSpeed * movementSpeedMod, 1); // Set the bottles' speed
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'returned_plate'); //returnedPlate
+                    this.speed = Phaser.Math.GetSpeed(returnedPlateSpeed * movementSpeedMod, 1); // Set the returnedPlates' speed
                     this.inAnimation = false;
                     this.animTimer = 2000;
                 },
@@ -830,7 +849,7 @@ class Playing extends Phaser.Scene{
                         }
                         else
                         {
-                            //didn't catch bottle fail state
+                            //didn't catch returnedPlate fail state
                             /*
                             this.speed = 0;
                             if(!this.inAnimation)
@@ -869,8 +888,8 @@ class Playing extends Phaser.Scene{
             }
 
         });
-        bottles = this.add.group({
-            classType: Bottle,
+        returnedPlates = this.add.group({
+            classType: ReturnedPlate,
             maxSize: 10,
             runChildUpdate: true
         });
@@ -908,11 +927,11 @@ class Playing extends Phaser.Scene{
             {
                 this.x -= this.speed * delta;
 
-                for (var elem in bottles.children.entries) {
-                    if (this.y == bottles.children.entries[elem].y &&
-                        this.x < bottles.children.entries[elem].x + drinkerRange && this.x > bottles.children.entries[elem].x - drinkerRange) {
-                        bottles.children.entries[elem].setActive(false);
-                        bottles.children.entries[elem].setVisible(false);
+                for (var elem in returnedPlates.children.entries) {
+                    if (this.y == returnedPlates.children.entries[elem].y &&
+                        this.x < returnedPlates.children.entries[elem].x + penguinRange && this.x > returnedPlates.children.entries[elem].x - penguinRange) {
+                        returnedPlates.children.entries[elem].setActive(false);
+                        returnedPlates.children.entries[elem].setVisible(false);
                     }
                 }
 
@@ -938,10 +957,10 @@ class Playing extends Phaser.Scene{
     {
         //spawn stuff at the beginning==================================================================================
         if(level == 1){
-            if(drinkerCount <= 3){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 3){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
 
             if(bearCount <= 1){
@@ -951,15 +970,15 @@ class Playing extends Phaser.Scene{
             }
         }
         else if(level == 2){
-            if(drinkerCount <= 3){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 3){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
-            else if(drinkerCount <= 7){
-                spawnDrinker(90, drinkerCol2);
-                drinkerCount++;
-                drinkerCol2 += playerYVariance;
+            else if(penguinCount <= 7){
+                spawnPenguin(90, penguinCol2);
+                penguinCount++;
+                penguinCol2 += playerYVariance;
             }
 
             if(bearCount <= 1){
@@ -969,20 +988,20 @@ class Playing extends Phaser.Scene{
             }
         }
         else if(level == 3){
-            if(drinkerCount <= 3){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 3){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
-            else if(drinkerCount <= 6){
-                spawnDrinker(90, drinkerCol2);
-                drinkerCount++;
-                drinkerCol2 += playerYVariance;
+            else if(penguinCount <= 6){
+                spawnPenguin(90, penguinCol2);
+                penguinCount++;
+                penguinCol2 += playerYVariance;
             }
-            else if(drinkerCount <= 8){
-                spawnDrinker(180, drinkerCol3);
-                drinkerCount++;
-                drinkerCol3 += playerYVariance;
+            else if(penguinCount <= 8){
+                spawnPenguin(180, penguinCol3);
+                penguinCount++;
+                penguinCol3 += playerYVariance;
             }
 
             if(bearCount <= 1){
@@ -997,20 +1016,20 @@ class Playing extends Phaser.Scene{
             }
         }
         else if(level == 4){
-            if(drinkerCount <= 4){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 4){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
-            else if(drinkerCount <= 6){
-                spawnDrinker(90, drinkerCol2);
-                drinkerCount++;
-                drinkerCol2 += playerYVariance;
+            else if(penguinCount <= 6){
+                spawnPenguin(90, penguinCol2);
+                penguinCount++;
+                penguinCol2 += playerYVariance;
             }
-            else if(drinkerCount <= 10){
-                spawnDrinker(180, drinkerCol3);
-                drinkerCount++;
-                drinkerCol3 += playerYVariance;
+            else if(penguinCount <= 10){
+                spawnPenguin(180, penguinCol3);
+                penguinCount++;
+                penguinCol3 += playerYVariance;
             }
 
             if(bearCount <= 2){
@@ -1020,25 +1039,25 @@ class Playing extends Phaser.Scene{
             }
         }
         else if(level == 5){
-            if(drinkerCount <= 3){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 3){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
-            else if(drinkerCount <= 6){
-                spawnDrinker(90, drinkerCol2);
-                drinkerCount++;
-                drinkerCol2 += playerYVariance;
+            else if(penguinCount <= 6){
+                spawnPenguin(90, penguinCol2);
+                penguinCount++;
+                penguinCol2 += playerYVariance;
             }
-            else if(drinkerCount <= 8){
-                spawnDrinker(180, drinkerCol3);
-                drinkerCount++;
-                drinkerCol3 += playerYVariance;
+            else if(penguinCount <= 8){
+                spawnPenguin(180, penguinCol3);
+                penguinCount++;
+                penguinCol3 += playerYVariance;
             }
-            else if(drinkerCount <= 9){
-                spawnDrinker(270, drinkerCol4);
-                drinkerCount++;
-                drinkerCol4 += playerYVariance;
+            else if(penguinCount <= 9){
+                spawnPenguin(270, penguinCol4);
+                penguinCount++;
+                penguinCol4 += playerYVariance;
             }
 
             if(bearCount <= 1){
@@ -1058,25 +1077,25 @@ class Playing extends Phaser.Scene{
             }
         }
         else if(level == 6){
-            if(drinkerCount <= 3){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 3){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
-            else if(drinkerCount <= 7){
-                spawnDrinker(90, drinkerCol2);
-                drinkerCount++;
-                drinkerCol2 += playerYVariance;
+            else if(penguinCount <= 7){
+                spawnPenguin(90, penguinCol2);
+                penguinCount++;
+                penguinCol2 += playerYVariance;
             }
-            else if(drinkerCount <= 9){
-                spawnDrinker(180, drinkerCol3);
-                drinkerCount++;
-                drinkerCol3 += playerYVariance;
+            else if(penguinCount <= 9){
+                spawnPenguin(180, penguinCol3);
+                penguinCount++;
+                penguinCol3 += playerYVariance;
             }
-            else if(drinkerCount <= 10){
-                spawnDrinker(270, drinkerCol4);
-                drinkerCount++;
-                drinkerCol4 += playerYVariance;
+            else if(penguinCount <= 10){
+                spawnPenguin(270, penguinCol4);
+                penguinCount++;
+                penguinCol4 += playerYVariance;
             }
 
             if(bearCount <= 1){
@@ -1091,25 +1110,25 @@ class Playing extends Phaser.Scene{
             }
         }
         else if(level == 7){
-            if(drinkerCount <= 3){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 3){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
-            else if(drinkerCount <= 6){
-                spawnDrinker(90, drinkerCol2);
-                drinkerCount++;
-                drinkerCol2 += playerYVariance;
+            else if(penguinCount <= 6){
+                spawnPenguin(90, penguinCol2);
+                penguinCount++;
+                penguinCol2 += playerYVariance;
             }
-            else if(drinkerCount <= 9){
-                spawnDrinker(180, drinkerCol3);
-                drinkerCount++;
-                drinkerCol3 += playerYVariance;
+            else if(penguinCount <= 9){
+                spawnPenguin(180, penguinCol3);
+                penguinCount++;
+                penguinCol3 += playerYVariance;
             }
-            else if(drinkerCount <= 10){
-                spawnDrinker(270, drinkerCol4);
-                drinkerCount++;
-                drinkerCol4 += playerYVariance;
+            else if(penguinCount <= 10){
+                spawnPenguin(270, penguinCol4);
+                penguinCount++;
+                penguinCol4 += playerYVariance;
             }
 
             if(bearCount <= 1){
@@ -1134,25 +1153,25 @@ class Playing extends Phaser.Scene{
             }
         }
         else if(level >= 8){
-            if(drinkerCount <= 3){
-                spawnDrinker(0, drinkerCol1);
-                drinkerCount++;
-                drinkerCol1 += playerYVariance;
+            if(penguinCount <= 3){
+                spawnPenguin(0, penguinCol1);
+                penguinCount++;
+                penguinCol1 += playerYVariance;
             }
-            else if(drinkerCount <= 6){
-                spawnDrinker(90, drinkerCol2);
-                drinkerCount++;
-                drinkerCol2 += playerYVariance;
+            else if(penguinCount <= 6){
+                spawnPenguin(90, penguinCol2);
+                penguinCount++;
+                penguinCol2 += playerYVariance;
             }
-            else if(drinkerCount <= 9){
-                spawnDrinker(180, drinkerCol3);
-                drinkerCount++;
-                drinkerCol3 += playerYVariance;
+            else if(penguinCount <= 9){
+                spawnPenguin(180, penguinCol3);
+                penguinCount++;
+                penguinCol3 += playerYVariance;
             }
-            else if(drinkerCount <= 12){
-                spawnDrinker(270, drinkerCol4);
-                drinkerCount++;
-                drinkerCol4 += playerYVariance;
+            else if(penguinCount <= 12){
+                spawnPenguin(270, penguinCol4);
+                penguinCount++;
+                penguinCol4 += playerYVariance;
             }
 
             if(bearCount <= 1){
@@ -1248,10 +1267,10 @@ class Playing extends Phaser.Scene{
             player.x = lane[row - 1].length;
             if(!usingBomb)
             {
-                var beer = beers.get();
-                if (beer)
+                var sushi = sushis.get();
+                if (sushi)
                 {
-                    beer.fire(player.x, player.y);
+                    sushi.fire(player.x, player.y);
                 }
             }
             else
@@ -1302,10 +1321,10 @@ class Playing extends Phaser.Scene{
     }
 }
 
-function spawnDrinker(x, y) {
-    var drinker = drinkers.get();
-    if (drinker) {
-        drinker.fire(x, y)
+function spawnPenguin(x, y) {
+    var penguin = penguins.get();
+    if (penguin) {
+        penguin.fire(x, y)
     }
 }
 
@@ -1319,7 +1338,7 @@ function spawnBear(x, y) {
 function spawnCustomer(){
     random = Math.floor(Math.random() * Math.floor(3));
     if(random == 0 || random == 1){
-        spawnDrinker();
+        spawnPenguin();
     }
     else{
         spawnBear();
@@ -1327,13 +1346,13 @@ function spawnCustomer(){
 
     //let spawnDelay = Phaser.Math.Between(minSpawnDelay - 50 * level, maxSpawnDelay - 50 * level);
     //var timer = this.time.delayedCall(spawnDelay, spawnCustomer);
-    //drinkerTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: false }); //Spawn drinkers based on a time delay
+    //penguinTimer = this.time.addEvent({ delay: spawnDelay, callback: spawnCustomer, loop: false }); //Spawn penguins based on a time delay
 }
 
-function spawnBottle(x,y){
-    var bottle = bottles.get();
-    if(bottle){
-        bottle.fire(x, y);
+function spawnReturnedPlate(x,y){
+    var returnedPlate = returnedPlates.get();
+    if(returnedPlate){
+        returnedPlate.fire(x, y);
     }
 }
 
@@ -1381,8 +1400,8 @@ function addGameTime(){
 	gameTime += Math.floor(1);
 }
 
-function beerOnHit(x, y) {
-    spawnBottle(x,y)
+function sushiOnHit(x, y) {
+    spawnReturnedPlate(x,y)
 }
 
 Number.prototype.toMMSS = function () {

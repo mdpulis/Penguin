@@ -852,7 +852,7 @@ class Playing extends Phaser.Scene{
                     Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'falling_plate'); //returnedPlate  returned_plate
                     this.speed = Phaser.Math.GetSpeed(returnedPlateSpeed * movementSpeedMod, 1); // Set the returnedPlates' speed
                     this.inAnimation = false;
-                    this.animTimer = 3000;
+                    this.animTimer = 820;
                 },
             fire: function (x, y){
                 this.setTexture('falling_plate');

@@ -120,6 +120,7 @@ class Playing extends Phaser.Scene{
         //Load animation spriteSheets
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
         this.load.spritesheet('testing','assets/anim/testing.png',{frameWidth: 32, frameHeight: 48});
+        this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
         this.load.spritesheet('sushi','assets/sushi.png', {frameWidth: 96, frameHeight: 96});
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
@@ -320,6 +321,12 @@ class Playing extends Phaser.Scene{
             frameRate: 1,
             repeat: 1
         });
+        this.anims.create({
+            key: 'falling',
+            frames: this.anims.generateFrameNumbers('falling_plate', { start: 0, end: 4 }),
+            frameRate: 10,
+            repeat: 0
+        });
         bombAnims = this.add.group({
             classType: Phaser.GameObjects.Sprite,
             maxSize: 30,
@@ -339,7 +346,7 @@ class Playing extends Phaser.Scene{
                     boomAnim.setActive(false);
                     boomAnim.setVisible(false);
                     //console.log("animation complete");
-                })
+                });
             }
         }
 
@@ -560,6 +567,7 @@ class Playing extends Phaser.Scene{
 						this.drinking = false;
 						this.drinkTimer = 0;
 						sushiOnHit(this.x, this.y); //send off the sushi after eating
+                        console.log("spawn plate 1")
 					}
 				}
 				else
@@ -841,12 +849,15 @@ class Playing extends Phaser.Scene{
             initialize:
                 function ReturnedPlate (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'returned_plate'); //returnedPlate
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'falling_plate'); //returnedPlate  returned_plate
                     this.speed = Phaser.Math.GetSpeed(returnedPlateSpeed * movementSpeedMod, 1); // Set the returnedPlates' speed
                     this.inAnimation = false;
-                    this.animTimer = 2000;
+                    this.animTimer = 3000;
                 },
             fire: function (x, y){
+                this.setTexture('falling_plate');
+                this.inAnimation = false;
+                this.speed = Phaser.Math.GetSpeed(returnedPlateSpeed * movementSpeedMod, 1);
                 sound.play('throw_mug');
                 this.setPosition(x, y);
                 this.setActive(true);
@@ -867,11 +878,10 @@ class Playing extends Phaser.Scene{
                         else
                         {
                             //didn't catch returnedPlate fail state
-                            /*
                             this.speed = 0;
                             if(!this.inAnimation)
                             {
-                                this.anims.play('boom1',false);
+                                this.anims.play('falling', false, 0);
                                 this.inAnimation = true;
                             }
                             else
@@ -879,18 +889,19 @@ class Playing extends Phaser.Scene{
                                 this.animTimer -= delta;
                                 if(this.animTimer <= 0)
                                 {
-                                    console.log("animation complete");
+                                    this.animTimer = 1000;
+                                    this.anims.nextFrame();
                                     sound.play('break');
-                                    this.setActive(false);
                                     this.setVisible(false);
+                                    this.setActive(false);
                                     hp--;
                                 }
-                            }*/
+                            }
 
-                            sound.play('break');
+                            /*sound.play('break');
                             this.setActive(false);
                             this.setVisible(false);
-                            hp--;
+                            hp--;*/
                         }
 
                     }
@@ -1446,6 +1457,7 @@ function spawnCustomer(){
 }
 
 function spawnReturnedPlate(x,y){
+    console.log("spawn plate 3");
     var returnedPlate = returnedPlates.get();
     if(returnedPlate){
         returnedPlate.fire(x, y);
@@ -1506,6 +1518,7 @@ function addGameTime(){
 }
 
 function sushiOnHit(x, y) {
+    console.log("spawn plate 2")
     spawnReturnedPlate(x,y)
 }
 

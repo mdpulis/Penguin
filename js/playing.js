@@ -121,7 +121,7 @@ class Playing extends Phaser.Scene{
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
         this.load.spritesheet('testing','assets/anim/testing.png',{frameWidth: 32, frameHeight: 48});
         this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
-        this.load.spritesheet('sushi','assets/sushi.png', {frameWidth: 96, frameHeight: 96});
+        this.load.spritesheet('sushi','assets/SushiFinal.png', {frameWidth: 196, frameHeight: 218});//{frameWidth: 96, frameHeight: 96});
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('bgm-level2','assets/audio/vivaldis-winter.mp3');
@@ -137,6 +137,9 @@ class Playing extends Phaser.Scene{
         this.load.audio('penguin_out','assets/audio/out_customer.wav');
         this.load.audio('penguin_in','assets/audio/popup.wav');
         this.load.audio('win','assets/audio/win.wav');
+		this.load.audio('bell_ring', 'assets/audio/bell_ring.mp3');
+		this.load.audio('slurp', 'assets/audio/slurp.mp3');
+		this.load.audio('sizzle', 'assets/audio/sizzle.mp3');
 
         //this.load.bitmapFont('frostbitten-wanker', 'assets/fonts/frostbitten-wanker.png', 'assets/fonts/frostbitten-wanker.fnt');
         this.load.bitmapFont('frosty', 'assets/fonts/frosty.png', 'assets/fonts/frosty.fnt');
@@ -195,7 +198,7 @@ class Playing extends Phaser.Scene{
 
         hp = 5;
         usingBomb = false;
-        changeThrowableDisplay(); //set the bomb or sushi icon
+        changeThrowableDisplay(false); //set the bomb or sushi icon
 		gameTime = 0;
         penguinCount = 1;
         bearCount = 1;
@@ -293,6 +296,9 @@ class Playing extends Phaser.Scene{
         sound.add('get_mug');
         sound.add('penguin_out');
         sound.add('penguin_in');
+		sound.add('bell_ring');
+		sound.add('slurp');
+		sound.add('sizzle');
         if(level == 1)
         {
             levelBgm = 'bgm';
@@ -964,7 +970,7 @@ class Playing extends Phaser.Scene{
                     }
                 }
 
-                if (this.x < 0) //if they reach the end of the screen
+                if (this.x < 0 - 300) //if they reach the end of the screen
                 {
                     this.setActive(false);
                     this.setVisible(false);
@@ -1420,7 +1426,7 @@ class Playing extends Phaser.Scene{
 			if(justUsedMeter == false)
 			{
 				usingBomb = !usingBomb;
-				changeThrowableDisplay();
+				changeThrowableDisplay(true);
 			}
 
 			justUsedMeter = false;
@@ -1474,6 +1480,7 @@ function spawnFish(x, y) {
 
 function useMeter() {
 	spawnBusboys();
+	sound.play('bell_ring');
 	meterCurrentTime = 0;
 	meterUi.setVisible(false);
 	justUsedMeter = true;
@@ -1496,7 +1503,7 @@ function spawnBusboys() {
     }
 }
 
-function changeThrowableDisplay()
+function changeThrowableDisplay(playSfx)
 {
     if(usingBomb)
     {
@@ -1504,6 +1511,10 @@ function changeThrowableDisplay()
         player.setTexture('player_bomb');
         bomb_icon.setVisible(true);
         sushi_icon.setVisible(false);
+		if(playSfx == true)
+		{
+			sound.play('sizzle');
+		}
     }
     else
     {
@@ -1511,6 +1522,10 @@ function changeThrowableDisplay()
         player.setTexture('player');
         sushi_icon.setVisible(true);
         bomb_icon.setVisible(false);
+		if(playSfx == true)
+		{
+			sound.play('slurp');
+		}
     }
 }
 

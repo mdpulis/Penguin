@@ -735,7 +735,7 @@ class Playing extends Phaser.Scene{
                             sound.play('explosion');
                             bears.children.entries[elem].pushedBack = true;
                             bears.children.entries[elem].pushedBackXLocation = this.x;
-                            score++;
+                            score += 2;
                             addBoomAnim(this.x, this.y);
                             console.log("hit with bear" + this.x + " " + this.y);
 							
@@ -798,7 +798,7 @@ class Playing extends Phaser.Scene{
                             penguins.children.entries[elem].pushedBack = true;
                             penguins.children.entries[elem].pushedBackXLocation = this.x;
 
-                            score++;
+                            score += 2;
 
                             this.setActive(false);
                             this.setVisible(false);
@@ -871,7 +871,7 @@ class Playing extends Phaser.Scene{
                     {
                         if(this.y == player.y)
                         {
-                            score++;
+                            score += 1;
                             this.setActive(false);
                             this.setVisible(false);
                         }
@@ -958,6 +958,7 @@ class Playing extends Phaser.Scene{
                 for (var elem in returnedPlates.children.entries) {
                     if (this.y == returnedPlates.children.entries[elem].y &&
                         this.x < returnedPlates.children.entries[elem].x + penguinRange && this.x > returnedPlates.children.entries[elem].x - penguinRange) {
+                        score += 1;
                         returnedPlates.children.entries[elem].setActive(false);
                         returnedPlates.children.entries[elem].setVisible(false);
                     }
@@ -1026,7 +1027,7 @@ class Playing extends Phaser.Scene{
 
                 if(this.x >= player.x && this.y == player.y){
                     sound.play('get_mug');
-                    score += 3;
+                    score += 5;
 					meterCurrentTime += 6500 * (1 / movementSpeedMod); //add about 1/3rd of a meter
                     this.setActive(false);
                     this.setVisible(false);

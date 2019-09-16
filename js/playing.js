@@ -101,7 +101,7 @@ class Playing extends Phaser.Scene{
         this.load.image('bomb','assets/BombFinal.png');
 		this.load.image('fish','assets/Fish.png'); //TODO fix asset
         this.load.image('bear','assets/PolarBearFinal.png');
-        this.load.image('busboy','assets/penguin_round.png');
+        this.load.image('busboy','assets/PenguinBusBoy2.png');
         this.load.image('chief','assets/tapper.png');
         this.load.image('table_284','assets/Table_284.png');
         this.load.image('table_568','assets/Table_568.png');
@@ -113,7 +113,7 @@ class Playing extends Phaser.Scene{
         this.load.image('sushi_icon', 'assets/SushiOnly.png');
         this.load.image('bomb_icon', 'assets/BombOnly.png');
 		this.load.image('bell_icon', 'assets/bell_icon.png');
-		
+
 		this.load.image('meter_outline', 'assets/meter_outline.png');
 		this.load.image('meter_backfill', 'assets/meter_backfill.png');
 		this.load.image('meter_topfill', 'assets/meter_topfill.png');
@@ -158,7 +158,7 @@ class Playing extends Phaser.Scene{
         arrow_key_icon = this.add.image(screenWidth - 128 * 2, screenHeight - 128, 'arrow_key_icon');
         sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
         bomb_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'bomb_icon');
-		
+
 		this.add.image(768, screenHeight - 128, 'meter_backfill');
 		meterFill = this.add.sprite(768, screenHeight - 128, 'meter_topfill');
 		meterFill.setCrop(0, 0, 512, 96);
@@ -192,7 +192,7 @@ class Playing extends Phaser.Scene{
         row = 1; //Limits the number of rows
         movementSpeedMod = 1 + (.06 * level);
         ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'frosty', '0', 32);
-		
+
         hp = 5;
         usingBomb = false;
         changeThrowableDisplay(); //set the bomb or sushi icon
@@ -422,7 +422,7 @@ class Playing extends Phaser.Scene{
 					{
 						this.x -= this.fastSpeed * delta * pushedBackMod;
 					}
-                    
+
                 }
                 //else if (this.eating == true)
                 //{
@@ -444,7 +444,7 @@ class Playing extends Phaser.Scene{
 					{
 						this.x += this.fastSpeed * delta;
 					}
-                    
+
                 }
 
                 for(var i = 0; i < lane.length; i++){ //if reaching end of lane
@@ -738,13 +738,13 @@ class Playing extends Phaser.Scene{
                             score += 2;
                             addBoomAnim(this.x, this.y);
                             console.log("hit with bear" + this.x + " " + this.y);
-							
+
 							bearsHitWithBombs++;
 							if(bearsHitWithBombs % 3 == 0)
 							{
 								spawnFish(this.x, this.y);
 							}
-							
+
 							this.setActive(false);
                             this.setVisible(false);
                         }
@@ -977,7 +977,7 @@ class Playing extends Phaser.Scene{
             maxSize: 4,
             runChildUpdate: true
         });
-		
+
 		//Fish class
         var Fish = new Phaser.Class({
             Extends: Phaser.GameObjects.Sprite,
@@ -999,14 +999,14 @@ class Playing extends Phaser.Scene{
             {
 				this.timeAlive += delta;
 				console.log('alive time:' + this.timeAlive);
-				
+
 				if(this.timeAlive >= 5000) //lasts for 5 seconds
 				{
 					this.setActive(false);
 					this.setVisible(false);
 				}
-				
-				
+
+
 				for(var i = 0; i < lane.length; i++){
                     if (this.x > lane[i].length && this.y == lane[i].position)
                     {
@@ -1302,21 +1302,21 @@ class Playing extends Phaser.Scene{
             sound.removeByKey(levelBgm);
             this.scene.start("WinScreen");
         }
-		
+
 		//Meter
 		meterCurrentTime += delta;
 		if(meterCurrentTime >= timeToFillMeter)
 		{
 			meterCurrentTime = timeToFillMeter;
 			meterUi.setVisible(true);
-			
+
 			textScaleCurrentTime += delta;
 			if(textScaleCurrentTime >= timeToScaleText)
 			{
 				textScaleEnlarging = !textScaleEnlarging;
 				textScaleCurrentTime -= timeToScaleText;
 			}
-			
+
 			meterUi.setOrigin(0.25);
 			if(textScaleEnlarging == true)
 			{
@@ -1326,7 +1326,7 @@ class Playing extends Phaser.Scene{
 			{
 				meterUi.setScale(1.5 - (textScaleCurrentTime / timeToScaleText) * .5);
 			}
-			
+
 			//meterUi.x = Math.floor(meterFill.x + meterFill.width / 2);
 			//meterUi.y = Math.floor(meterFill.y + meterFill.height / 2);
 		}
@@ -1398,7 +1398,7 @@ class Playing extends Phaser.Scene{
 				useMeter();
 			}
         }
-		
+
 		if(right.isDown)
 		{
 			if(meterCurrentTime >= timeToFillMeter)
@@ -1422,7 +1422,7 @@ class Playing extends Phaser.Scene{
 				usingBomb = !usingBomb;
 				changeThrowableDisplay();
 			}
-			
+
 			justUsedMeter = false;
         }
 

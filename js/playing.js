@@ -859,9 +859,11 @@ class Playing extends Phaser.Scene{
                     this.speed = Phaser.Math.GetSpeed(returnedPlateSpeed * movementSpeedMod, 1); // Set the returnedPlates' speed
                     this.inAnimation = false;
                     this.animTimer = 820;
+                    this.collectable = true;
                 },
             fire: function (x, y){
                 this.setTexture('falling_plate');
+                this.collectable = true;
                 this.inAnimation = false;
                 this.speed = Phaser.Math.GetSpeed(returnedPlateSpeed * movementSpeedMod, 1);
                 sound.play('throw_mug');
@@ -875,7 +877,7 @@ class Playing extends Phaser.Scene{
                 for(var i = 0; i < lane.length; i++){
                     if (this.x > lane[i].length && this.y == lane[i].position)
                     {
-                        if(this.y == player.y)
+                        if(this.y == player.y && this.collectable)
                         {
                             score += 1;
                             this.setActive(false);
@@ -887,6 +889,7 @@ class Playing extends Phaser.Scene{
                             this.speed = 0;
                             if(!this.inAnimation)
                             {
+                                this.collectable = false;
                                 this.anims.play('falling', false, 0);
                                 this.inAnimation = true;
                             }

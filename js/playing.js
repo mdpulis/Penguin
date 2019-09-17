@@ -159,6 +159,8 @@ class Playing extends Phaser.Scene{
 		this.load.audio('bell_ring', 'assets/audio/bell_ring.mp3');
 		this.load.audio('slurp', 'assets/audio/slurp.mp3');
 		this.load.audio('sizzle', 'assets/audio/sizzle.mp3');
+        this.load.audio('penguin_scream', 'assets/audio/penguin_scream.mp3');
+        this.load.audio('bear_groan', 'assets/audio/bear_groan.mp3');
 
         //this.load.bitmapFont('frostbitten-wanker', 'assets/fonts/frostbitten-wanker.png', 'assets/fonts/frostbitten-wanker.fnt');
         this.load.bitmapFont('frosty', 'assets/fonts/frosty.png', 'assets/fonts/frosty.fnt');
@@ -323,6 +325,8 @@ class Playing extends Phaser.Scene{
 		sound.add('bell_ring');
 		sound.add('slurp');
 		sound.add('sizzle');
+        sound.add('penguin_scream');
+        sound.add('bear_groan');
         if(level == 1)
         {
             levelBgm = 'bgm';
@@ -572,6 +576,7 @@ class Playing extends Phaser.Scene{
                     if (this.x > lane[i].length && this.y == lane[i].position)
                     {
                         //Reached player fail state
+                        sound.play('bear_groan');
                         visibleBears --;
                         this.y = -50;
                         //this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
@@ -709,6 +714,7 @@ class Playing extends Phaser.Scene{
                     if (this.x > lane[i].length && this.y == lane[i].position) //if reaching end of lane
                     {
                         //Reached player fail state
+                        sound.play('penguin_scream');
                         visiblePenguins --;
                         this.y = -50;
                         this.setActive(false);
@@ -1249,7 +1255,7 @@ class Playing extends Phaser.Scene{
 				this.timeAlive += delta;
 				console.log('alive time:' + this.timeAlive);
 
-				if(this.timeAlive >= 5000) //lasts for 5 seconds
+				if(this.timeAlive >= 10000) //lasts for 10 seconds
 				{
 					this.setActive(false);
 					this.setVisible(false);

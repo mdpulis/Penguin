@@ -2,7 +2,7 @@ var player;
 var up, down, left, right, space, q;
 var row;
 var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, winboys, bombs, fishes, bombAnims, plateAnims;
-
+var bombFallingAnims, sushiFallingAnims;
 var random;
 var penguinTimer;
 var gameTimer;
@@ -127,6 +127,20 @@ class Playing extends Phaser.Scene{
         this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
         this.load.spritesheet('sushi','assets/SushiFinal.png', {frameWidth: 196, frameHeight: 218});//{frameWidth: 96, frameHeight: 96});
         this.load.spritesheet('penguin_eating','assets/anim/PenguinEating_Animation.png', {frameWidth: 182, frameHeight: 346});
+        this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
+        this.load.spritesheet('bomb_falling','assets/anim/BombPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
+        this.load.spritesheet('Table_1420-1136','assets/anim/Table_1420-1136.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1420-852','assets/anim/Table_1420-852.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1420-568','assets/anim/Table_1420-568.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1420-284','assets/anim/Table_1420-284.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1136-852','assets/anim/Table_1136-852.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1136-568','assets/anim/Table_1136-568.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1136-284','assets/anim/Table_1136-284.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_852-568','assets/anim/Table_852-568.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_852-284','assets/anim/Table_852-284.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_568-284','assets/anim/Table_568-284.png', {frameWidth: 1420, frameHeight: 130});
+
+
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('bgm-level2','assets/audio/vivaldis-winter.mp3');
@@ -349,6 +363,20 @@ class Playing extends Phaser.Scene{
             frameRate: 3,
             repeat: 0
         });
+        this.anims.create({
+            key: 'sushi_fallingAnim',
+            frames: this.anims.generateFrameNumbers('sushi_falling',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'bomb_fallingAnim',
+            frames: this.anims.generateFrameNumbers('bomb_falling',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+
+        //================================
         bombAnims = this.add.group({
             classType: Phaser.GameObjects.Sprite,
             maxSize: 30,
@@ -357,6 +385,16 @@ class Playing extends Phaser.Scene{
         plateAnims = this.add.group({
             classType: Phaser.GameObjects.Sprite,
             maxSize: 10,
+            runChildUpdate: true,
+        });
+        sushiFallingAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 30,
+            runChildUpdate: true,
+        });
+        bombFallingAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 30,
             runChildUpdate: true,
         });
 
@@ -393,6 +431,40 @@ class Playing extends Phaser.Scene{
                     plateAnim.setVisible(false);
                     //console.log("animation complete");
                 });
+            }
+        }
+        function addSushiFalingAnim(x,y) {
+            var anim = sushiFallingAnims.get();
+            anim.setActive(true);
+            anim.setVisible(true);
+            if(anim)
+            {
+                anim.x = x;
+                anim.y = y;
+                anim.anims.play('sushi_fallingAnim',false);
+                anim.once('animationcomplete',()=>{
+                    sound.play('plate_crash');
+                    hp--;
+                    anim.setActive(false);
+                    anim.setVisible(false);
+                })
+            }
+        }
+        function addBombFalingAnim(x,y) {
+            var anim = bombFallingAnims.get();
+            anim.setActive(true);
+            anim.setVisible(true);
+            if(anim)
+            {
+                anim.x = x;
+                anim.y = y;
+                anim.anims.play('bomb_fallingAnim',false);
+                anim.once('animationcomplete',()=>{
+                    sound.play('plate_crash');
+                    hp--;
+                    anim.setActive(false);
+                    anim.setVisible(false);
+                })
             }
         }
 
@@ -813,10 +885,11 @@ class Playing extends Phaser.Scene{
                     }
                 }
 
-                if (this.x < 0)
+                if (this.x < 90)
                 {
                     //Thrown bomb doesn't hit anyone fail state
                     console.log("hit with bound");
+                    addBombFalingAnim(this.x, this.y);
                     this.setActive(false);
                     this.setVisible(false);
                     hp--; //Need discussion whether decrese hp or not
@@ -894,10 +967,11 @@ class Playing extends Phaser.Scene{
                     }
                 }
 
-                if (this.x < 0)
+                if (this.x < 90)
                 {
                     //Thrown sushi doesn't hit anyone fail state
-                    sound.play('plate_crash');
+                    //sound.play('plate_crash');
+                    addSushiFalingAnim(this.x, this.y);
                     this.setActive(false);
                     this.setVisible(false);
                     hp--;

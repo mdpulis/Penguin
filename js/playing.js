@@ -123,6 +123,7 @@ class Playing extends Phaser.Scene{
         this.load.spritesheet('testing','assets/anim/testing.png',{frameWidth: 32, frameHeight: 48});
         this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
         this.load.spritesheet('sushi','assets/SushiFinal.png', {frameWidth: 196, frameHeight: 218});//{frameWidth: 96, frameHeight: 96});
+        this.load.spritesheet('penguin_eating','assets/anim/PenguinEating_Animation.png', {frameWidth: 182, frameHeight: 346});
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
         this.load.audio('bgm-level2','assets/audio/vivaldis-winter.mp3');
@@ -336,6 +337,12 @@ class Playing extends Phaser.Scene{
             frameRate: 10,
             repeat: 0
         });
+        this.anims.create({
+            key: 'eating',
+            frames: this.anims.generateFrameNumbers('penguin_eating',{ start: 1, end: 3}),
+            frameRate: 2,
+            repeat: 0
+        });
         bombAnims = this.add.group({
             classType: Phaser.GameObjects.Sprite,
             maxSize: 30,
@@ -399,7 +406,8 @@ class Playing extends Phaser.Scene{
 					this.spedUp = false;
                 },
             fire: function (x, y){
-                visibleBears ++;
+                visibleBear ++;
+                this.setTexture('bear');
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
                 //sound.play('penguin_in');
                 if(level == 1 && bearCount <= 1){ // spawn 4 bears for level 1
@@ -532,7 +540,7 @@ class Playing extends Phaser.Scene{
             initialize:
                 function Penguin (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'penguin')
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'penguin_eating')
                     this.speed = Phaser.Math.GetSpeed(penguinSpeed * movementSpeedMod, 1); // Set the penguins' speed
 					this.pushedBack = false; //If the penguin is pushed back
 					this.drinking = false; //If the penguin is drinking
@@ -540,7 +548,8 @@ class Playing extends Phaser.Scene{
 					this.drinkTimer = 0; //the time for drinking
                 },
             fire: function (x, y){
-                visiblePenguins ++;
+                visiblePenguin ++;
+                this.setTexture('penguin_eating', 0);
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects penguins' spawn locations
                 //sound.play('penguin_in');
                 if(level == 1 && penguinCount <= 3){ // spawn 4 penguins for level 1
@@ -588,20 +597,24 @@ class Playing extends Phaser.Scene{
             {
 				if(this.pushedBack == true)
 				{
+				    this.setTexture('penguin_eating', 1);
 					this.x -= this.speed * delta * pushedBackMod;
 					if(this.x < this.pushedBackXLocation - pushBackXDistance * ((movementSpeedMod - 1) / 2 + 1))
 					{
 						this.pushedBack = false;
 						this.drinking = true;
+                        this.anims.play('eating');
 					}
 				}
 				else if (this.drinking == true)
 				{
+
 					this.drinkTimer += delta;
 					if(this.drinkTimer > 3000)
 					{
 						this.drinking = false;
 						this.drinkTimer = 0;
+						this.setTexture('penguin_eating', 0);
 						sushiOnHit(this.x, this.y); //send off the sushi after eating
                         //console.log("spawn plate 1")
 					}

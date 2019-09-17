@@ -782,6 +782,7 @@ class Playing extends Phaser.Scene{
                 {
                     Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi');
                     this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
+					this.taken = false;
                 },
             fire: function (x, y) //Spawn sushi based on player's location
             {
@@ -789,13 +790,14 @@ class Playing extends Phaser.Scene{
                 this.setPosition(x, y);
                 this.setActive(true);
                 this.setVisible(true);
+				this.taken = false;
             },
             update: function (time, delta)
             {
                 this.x -= this.speed * delta;
                 //penguin receives sushi
                 for (var elem in penguins.children.entries) {
-                    if(this.y == penguins.children.entries[elem].y)
+                    if(this.taken == false && this.y == penguins.children.entries[elem].y)
                     {
                         if (this.x < penguins.children.entries[elem].x + returnedPlateRange && this.x > penguins.children.entries[elem].x - returnedPlateRange
                             && penguins.children.entries[elem].pushedBack == false && penguins.children.entries[elem].drinking == false)
@@ -805,7 +807,8 @@ class Playing extends Phaser.Scene{
                             penguins.children.entries[elem].pushedBackXLocation = this.x;
 
                             score += 2;
-
+							
+							this.taken = true;
                             this.setActive(false);
                             this.setVisible(false);
                         }
@@ -814,7 +817,7 @@ class Playing extends Phaser.Scene{
 
                 //TODO: bear receives sushi
                 for (var elem in bears.children.entries) {
-                    if(this.y == bears.children.entries[elem].y)
+                    if(this.taken == false && this.y == bears.children.entries[elem].y)
                     {
                         if (this.x < bears.children.entries[elem].x + returnedPlateRange && this.x > bears.children.entries[elem].x - returnedPlateRange
                             && bears.children.entries[elem].pushedBack == false && bears.children.entries[elem].eating == false)
@@ -826,6 +829,7 @@ class Playing extends Phaser.Scene{
                             //bears.children.entries[elem].speed = Phaser.Math.GetSpeed(fastBearSpeed * movementSpeedMod, 1);
                             //score++;
 
+							this.taken = true;
                             this.setActive(false);
                             this.setVisible(false);
                         }

@@ -9,6 +9,7 @@ var gameTimer;
 var ui;
 var meterUi;
 var hp, gameTime;
+var hpIcon1, hpIcon2, hpIcon3, hpIcon4, hpIcon5;
 var sound;
 var meterFill;
 var levelBgm;
@@ -113,6 +114,8 @@ class Playing extends Phaser.Scene{
         this.load.image('table_1136','assets/Table_1136.png');
         this.load.image('table_1420','assets/Table_1420.png');
 
+        this.load.image('penguin_head', 'assets/penguin_head.png');
+
         this.load.image('arrow_key_icon', 'assets/arrow_key.png');
         this.load.image('sushi_icon', 'assets/SushiOnly.png');
         this.load.image('bomb_icon', 'assets/BombOnly.png');
@@ -177,6 +180,13 @@ class Playing extends Phaser.Scene{
         var lane2 = this.add.sprite(laneImgX, row2Position + tableYOffset, 'table_1420');
         var lane3 = this.add.sprite(laneImgX, row3Position + tableYOffset, 'table_1420');
         var lane4 = this.add.sprite(laneImgX, row4Position + tableYOffset, 'table_1420');
+
+        hpIcon1 = this.add.image(screenWidth - 128 * 2 + 32 * 4, 32, 'penguin_head');
+        hpIcon2 = this.add.image(screenWidth - 128 * 2 + 32 * 3, 32, 'penguin_head');
+        hpIcon3 = this.add.image(screenWidth - 128 * 2 + 32 * 2, 32, 'penguin_head');
+        hpIcon4 = this.add.image(screenWidth - 128 * 2 + 32 * 1, 32, 'penguin_head');
+        hpIcon5 = this.add.image(screenWidth - 128 * 2 + 32 * 0, 32, 'penguin_head');
+
 
         player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0);
 
@@ -499,7 +509,7 @@ class Playing extends Phaser.Scene{
                 plateAnim.anims.play('falling',false);
                 plateAnim.once('animationcomplete',()=>{
                     sound.play('break');
-                    hp--;
+                    lowerHealth();
                     plateAnim.setActive(false);
                     plateAnim.setVisible(false);
                     //console.log("animation complete");
@@ -517,7 +527,7 @@ class Playing extends Phaser.Scene{
                 anim.anims.play('sushi_fallingAnim',false);
                 anim.once('animationcomplete',()=>{
                     sound.play('plate_crash');
-                    hp--;
+                    //lowerHealth();
                     anim.setActive(false);
                     anim.setVisible(false);
                 })
@@ -534,7 +544,7 @@ class Playing extends Phaser.Scene{
                 anim.anims.play('bomb_fallingAnim',false);
                 anim.once('animationcomplete',()=>{
                     sound.play('plate_crash');
-                    hp--;
+                    //lowerHealth();
                     anim.setActive(false);
                     anim.setVisible(false);
                 })
@@ -656,7 +666,7 @@ class Playing extends Phaser.Scene{
                         this.eating = false;
                         this.eating_Timer = 0;
 						this.spedUp = false;
-                        hp--;
+                        lowerHealth();
 						checkForMinCustomers();
                     }
                 }
@@ -792,7 +802,7 @@ class Playing extends Phaser.Scene{
                         this.pushedBackXLocation = 0;
                         this.drinking = false;
                         this.drinkTimer = 0;
-                        hp--;
+                        lowerHealth();
 						checkForMinCustomers();
                     }
                 }
@@ -1155,7 +1165,7 @@ class Playing extends Phaser.Scene{
                     addBombFalingAnim(this.x, this.y);
                     this.setActive(false);
                     this.setVisible(false);
-                    hp--; //Need discussion whether decrese hp or not
+                    lowerHealth(); //Need discussion whether decrese hp or not
                 }
 
             }
@@ -1237,7 +1247,7 @@ class Playing extends Phaser.Scene{
                     addSushiFalingAnim(this.x, this.y);
                     this.setActive(false);
                     this.setVisible(false);
-                    hp--;
+                    lowerHealth();
                 }
 
             }
@@ -1950,6 +1960,56 @@ class Playing extends Phaser.Scene{
         }
 
     }
+}
+
+function lowerHealth()
+{
+    hp--;
+    if(hp >= 5)
+    {
+        hpIcon5.setVisible(true);
+    }
+    else
+    {
+        hpIcon5.setVisible(false);
+    }
+
+    if(hp >= 4)
+    {
+        hpIcon4.setVisible(true);
+    }
+    else
+    {
+        hpIcon4.setVisible(false);
+    }
+
+    if(hp >= 3)
+    {
+        hpIcon3.setVisible(true);
+    }
+    else
+    {
+        hpIcon3.setVisible(false);
+    }
+
+    if(hp >= 2)
+    {
+        hpIcon2.setVisible(true);
+    }
+    else
+    {
+        hpIcon2.setVisible(false);
+    }
+
+    if(hp >= 1)
+    {
+        hpIcon1.setVisible(true);
+    }
+    else
+    {
+        hpIcon1.setVisible(false);
+    }
+
 }
 
 function checkForMinCustomers() {

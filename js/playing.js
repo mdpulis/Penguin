@@ -172,10 +172,10 @@ class Playing extends Phaser.Scene{
         this.add.image(screenWidth - 80, screenHeight / 2, 'chief');
 
         //Lane pictures
-        var lane1 = this.add.image(laneImgX, row1Position + tableYOffset, 'table_1420');
-        var lane2 = this.add.image(laneImgX, row2Position + tableYOffset, 'table_1420');
-        var lane3 = this.add.image(laneImgX, row3Position + tableYOffset, 'table_1420');
-        var lane4 = this.add.image(laneImgX, row4Position + tableYOffset, 'table_1420');
+        var lane1 = this.add.sprite(laneImgX, row1Position + tableYOffset, 'table_1420');
+        var lane2 = this.add.sprite(laneImgX, row2Position + tableYOffset, 'table_1420');
+        var lane3 = this.add.sprite(laneImgX, row3Position + tableYOffset, 'table_1420');
+        var lane4 = this.add.sprite(laneImgX, row4Position + tableYOffset, 'table_1420');
 
         player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0);
 
@@ -379,8 +379,75 @@ class Playing extends Phaser.Scene{
             frameRate: 10,
             repeat: 0
         });
+        //lane breaking animations here =======================================
+        this.anims.create({
+            key: 'Table_1420-1136_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1420-1136',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1420-852_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1420-852',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1420-568_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1420-568',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1420-284_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1420-284',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1420-284_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1420-284',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1136-852_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1136-852',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1136-568_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1136-568',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1136-284_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1136-284',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_852-568_Anim',
+            frames: this.anims.generateFrameNumbers('Table_852-568',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_852-284_Anim',
+            frames: this.anims.generateFrameNumbers('Table_852-284',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_568-284_Anim',
+            frames: this.anims.generateFrameNumbers('Table_568-284',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
 
-        //================================
+        //=====================================================================
         bombAnims = this.add.group({
             classType: Phaser.GameObjects.Sprite,
             maxSize: 30,
@@ -781,74 +848,262 @@ class Playing extends Phaser.Scene{
                             //bomb & lane logic
                             if(penguins.children.entries[elem].x > barLength4 && penguins.children.entries[elem].x <= barLength5){
                                 if(penguins.children.entries[elem].y == row1Position){
+                                    if(lane[0].length == barLength5)
+                                    {
+                                        lane1.setTexture('Table_1420-1136');
+                                        lane1.anims.play('Table_1420-1136_Anim',true);
+                                    }
                                     lane[0].length = barLength4;
-                                    lane1.setTexture('table_1136');
                                 }
                                 else if(penguins.children.entries[elem].y == row2Position){
+                                    if(lane[1].length == barLength5)
+                                    {
+                                        lane2.setTexture('Table_1420-1136');
+                                        lane2.anims.play('Table_1420-1136_Anim',true);
+                                    }
                                     lane[1].length = barLength4;
-                                    lane2.setTexture('table_1136');
+
                                 }
                                 else if(penguins.children.entries[elem].y == row3Position){
+                                    if(lane[2].length == barLength5)
+                                    {
+                                        lane3.setTexture('Table_1420-1136');
+                                        lane3.anims.play('Table_1420-1136_Anim',true);
+                                    }
                                     lane[2].length = barLength4;
-                                    lane3.setTexture('table_1136');
+
                                 }
                                 else if(penguins.children.entries[elem].y == row4Position){
+                                    if(lane[3].length == barLength5)
+                                    {
+                                        lane4.setTexture('Table_1420-1136');
+                                        lane4.anims.play('Table_1420-1136_Anim',true);
+                                    }
                                     lane[3].length = barLength4;
-                                    lane4.setTexture('table_1136');
                                 }
                             }
                             else if(penguins.children.entries[elem].x > barLength3 && penguins.children.entries[elem].x <= barLength4){
                                 if(penguins.children.entries[elem].y == row1Position){
+                                    if(lane[0].length == barLength5)
+                                    {
+                                        lane1.setTexture('Table_1420-852');
+                                        lane1.anims.play('Table_1420-852_Anim',true);
+                                    }
+                                    else if(lane[0].length == barLength4)
+                                    {
+                                        lane1.setTexture('Table_1136-852');
+                                        lane1.anims.play('Table_1136-852_Anim',true);
+                                    }
                                     lane[0].length = barLength3;
-                                    lane1.setTexture('table_852');
                                 }
                                 else if(penguins.children.entries[elem].y == row2Position){
+                                    if(lane[1].length == barLength5)
+                                    {
+                                        lane2.setTexture('Table_1420-852');
+                                        lane2.anims.play('Table_1420-852_Anim',true);
+                                    }
+                                    else if(lane[1].length == barLength4)
+                                    {
+                                        lane2.setTexture('Table_1136-852');
+                                        lane2.anims.play('Table_1136-852_Anim',true);
+                                    }
                                     lane[1].length = barLength3;
-                                    lane2.setTexture('table_852');
                                 }
                                 else if(penguins.children.entries[elem].y == row3Position){
+                                    if(lane[2].length == barLength5)
+                                    {
+                                        lane3.setTexture('Table_1420-852');
+                                        lane3.anims.play('Table_1420-852_Anim',true);
+                                    }
+                                    else if(lane[2].length == barLength4)
+                                    {
+                                        lane3.setTexture('Table_1136-852');
+                                        lane3.anims.play('Table_1136-852_Anim',true);
+                                    }
                                     lane[2].length = barLength3;
-                                    lane3.setTexture('table_852');
                                 }
                                 else if(penguins.children.entries[elem].y == row4Position){
+                                    if(lane[3].length == barLength5)
+                                    {
+                                        lane4.setTexture('Table_1420-852');
+                                        lane4.anims.play('Table_1420-852_Anim',true);
+                                    }
+                                    else if(lane[3].length == barLength4)
+                                    {
+                                        lane4.setTexture('Table_1136-852');
+                                        lane4.anims.play('Table_1136-852_Anim',true);
+                                    }
                                     lane[3].length = barLength3;
-                                    lane4.setTexture('table_852');
                                 }
                             }
                             else if(penguins.children.entries[elem].x > barLength2 && penguins.children.entries[elem].x <= barLength3){
                                 if(penguins.children.entries[elem].y == row1Position){
+
+                                    if(lane[0].length == barLength5)
+                                    {
+                                        lane1.setTexture('Table_1420-568');
+                                        lane1.anims.play('Table_1420-568_Anim',true);
+                                    }
+                                    else if(lane[0].length == barLength4)
+                                    {
+                                        lane1.setTexture('Table_1136-568');
+                                        lane1.anims.play('Table_1136-568_Anim',true);
+                                    }
+                                    else if(lane[0].length == barLength3)
+                                    {
+                                        lane1.setTexture('Table_852-568');
+                                        lane1.anims.play('Table_852-568_Anim',true);
+                                    }
                                     lane[0].length = barLength2;
                                     lane1.setTexture('table_568');
                                 }
                                 else if(penguins.children.entries[elem].y == row2Position){
+                                    if(lane[1].length == barLength5)
+                                    {
+                                        lane2.setTexture('Table_1420-568');
+                                        lane2.anims.play('Table_1420-568_Anim',true);
+                                    }
+                                    else if(lane[1].length == barLength4)
+                                    {
+                                        lane2.setTexture('Table_1136-568');
+                                        lane2.anims.play('Table_1136-568_Anim',true);
+                                    }
+                                    else if(lane[1].length == barLength3)
+                                    {
+                                        lane2.setTexture('Table_852-568');
+                                        lane2.anims.play('Table_852-568_Anim',true);
+                                    }
                                     lane[1].length = barLength2;
-                                    lane2.setTexture('table_568');
                                 }
                                 else if(penguins.children.entries[elem].y == row3Position){
+                                    if(lane[2].length == barLength5)
+                                    {
+                                        lane3.setTexture('Table_1420-568');
+                                        lane3.anims.play('Table_1420-568_Anim',true);
+                                    }
+                                    else if(lane[2].length == barLength4)
+                                    {
+                                        lane3.setTexture('Table_1136-568');
+                                        lane3.anims.play('Table_1136-568_Anim',true);
+                                    }
+                                    else if(lane[2].length == barLength3)
+                                    {
+                                        lane3.setTexture('Table_852-568');
+                                        lane3.anims.play('Table_852-568_Anim',true);
+                                    }
                                     lane[2].length = barLength2;
-                                    lane3.setTexture('table_568');
                                 }
                                 else if(penguins.children.entries[elem].y == row4Position){
+                                    if(lane[3].length == barLength5)
+                                    {
+                                        lane4.setTexture('Table_1420-568');
+                                        lane4.anims.play('Table_1420-568_Anim',true);
+                                    }
+                                    else if(lane[3].length == barLength4)
+                                    {
+                                        lane4.setTexture('Table_1136-568');
+                                        lane4.anims.play('Table_1136-568_Anim',true);
+                                    }
+                                    else if(lane[3].length == barLength3)
+                                    {
+                                        lane4.setTexture('Table_852-568');
+                                        lane4.anims.play('Table_852-568_Anim',true);
+                                    }
                                     lane[3].length = barLength2;
-                                    lane4.setTexture('table_568');
                                 }
                             }
                             else if(penguins.children.entries[elem].x > 0 && penguins.children.entries[elem].x <= barLength2){
                                 if(penguins.children.entries[elem].y == row1Position){
+                                    if(lane[0].length == barLength5)
+                                    {
+                                        lane1.setTexture('Table_1420-284');
+                                        lane1.anims.play('Table_1420-284_Anim',true);
+                                    }
+                                    else if(lane[0].length == barLength4)
+                                    {
+                                        lane1.setTexture('Table_1136-284');
+                                        lane1.anims.play('Table_1136-284_Anim',true);
+                                    }
+                                    else if(lane[0].length == barLength3)
+                                    {
+                                        lane1.setTexture('Table_852-284');
+                                        lane1.anims.play('Table_852-284_Anim',true);
+                                    }
+                                    else if(lane[0].length == barLength2)
+                                    {
+                                        lane1.setTexture('Table_568-284');
+                                        lane1.anims.play('Table_568-284_Anim',true);
+                                    }
                                     lane[0].length = barLength1;
-                                    lane1.setTexture('table_284');
                                 }
                                 else if(penguins.children.entries[elem].y == row2Position){
+                                    if(lane[1].length == barLength5)
+                                    {
+                                        lane2.setTexture('Table_1420-284');
+                                        lane2.anims.play('Table_1420-284_Anim',true);
+                                    }
+                                    else if(lane[1].length == barLength4)
+                                    {
+                                        lane2.setTexture('Table_1136-284');
+                                        lane2.anims.play('Table_1136-284_Anim',true);
+                                    }
+                                    else if(lane[1].length == barLength3)
+                                    {
+                                        lane2.setTexture('Table_852-284');
+                                        lane2.anims.play('Table_852-284_Anim',true);
+                                    }
+                                    else if(lane[1].length == barLength2)
+                                    {
+                                        lane2.setTexture('Table_568-284');
+                                        lane2.anims.play('Table_568-284_Anim',true);
+                                    }
                                     lane[1].length = barLength1;
-                                    lane2.setTexture('table_284');
                                 }
                                 else if(penguins.children.entries[elem].y == row3Position){
+                                    if(lane[2].length == barLength5)
+                                    {
+                                        lane3.setTexture('Table_1420-284');
+                                        lane3.anims.play('Table_1420-284_Anim',true);
+                                    }
+                                    else if(lane[2].length == barLength4)
+                                    {
+                                        lane3.setTexture('Table_1136-284');
+                                        lane3.anims.play('Table_1136-284_Anim',true);
+                                    }
+                                    else if(lane[2].length == barLength3)
+                                    {
+                                        lane3.setTexture('Table_852-284');
+                                        lane3.anims.play('Table_852-284_Anim',true);
+                                    }
+                                    else if(lane[2].length == barLength2)
+                                    {
+                                        lane3.setTexture('Table_568-284');
+                                        lane3.anims.play('Table_568-284_Anim',true);
+                                    }
                                     lane[2].length = barLength1;
-                                    lane3.setTexture('table_284');
                                 }
                                 else if(penguins.children.entries[elem].y == row4Position){
+                                    if(lane[3].length == barLength5)
+                                    {
+                                        lane4.setTexture('Table_1420-284');
+                                        lane4.anims.play('Table_1420-284_Anim',true);
+                                    }
+                                    else if(lane[3].length == barLength4)
+                                    {
+                                        lane4.setTexture('Table_1136-284');
+                                        lane4.anims.play('Table_1136-284_Anim',true);
+                                    }
+                                    else if(lane[3].length == barLength3)
+                                    {
+                                        lane4.setTexture('Table_852-284');
+                                        lane4.anims.play('Table_852-284_Anim',true);
+                                    }
+                                    else if(lane[3].length == barLength2)
+                                    {
+                                        lane4.setTexture('Table_568-284');
+                                        lane4.anims.play('Table_568-284_Anim',true);
+                                    }
                                     lane[3].length = barLength1;
-                                    lane4.setTexture('table_284');
                                 }
                             }
 

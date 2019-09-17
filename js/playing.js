@@ -10,6 +10,7 @@ var ui;
 var meterUi;
 var hp, gameTime;
 var hpIcon1, hpIcon2, hpIcon3, hpIcon4, hpIcon5;
+var justLostHealth;
 var sound;
 var meterFill;
 var levelBgm;
@@ -167,7 +168,7 @@ class Playing extends Phaser.Scene{
         this.load.audio('item_pickup', 'assets/audio/item_pickup.mp3');
 
         //this.load.bitmapFont('frosty', 'assets/fonts/frosty.png', 'assets/fonts/frosty.fnt');
-        this.load.bitmapFont('snowtop-caps-orange-yellow', 'assets/fonts/snowtop-caps-orange-yellow.png', 'assets/fonts/snowtop-caps-orange-yellow.fnt');
+        this.load.bitmapFont('snowtop-caps-orange-white', 'assets/fonts/snowtop-caps-orange-white.png', 'assets/fonts/snowtop-caps-orange-white.fnt');
     }
 //Create Objects
     create ()
@@ -198,8 +199,8 @@ class Playing extends Phaser.Scene{
 		meterFill = this.add.sprite(768, screenHeight - 128, 'meter_topfill');
 		meterFill.setCrop(0, 0, 512, 96);
 		this.add.image(768, screenHeight - 128, 'meter_outline');
-		//meterUi = this.add.bitmapText(768, screenHeight - 128, 10, 'snowtop-caps-orange-yellow', '0', 32);
-		meterUi = this.add.bitmapText(512 + 128, screenHeight - 128 - 8, 'snowtop-caps-orange-yellow', '0', 32);
+		//meterUi = this.add.bitmapText(768, screenHeight - 128, 10, 'snowtop-caps-orange-white', '0', 32);
+		meterUi = this.add.bitmapText(512 + 128, screenHeight - 128 - 8, 'snowtop-caps-orange-white', '0', 32);
 		meterUi.setText('HOLD RIGHT TO CLEAR ALL EMPTY PLATES!');
 		meterUi.setVisible(false);
 		justUsedMeter = false;
@@ -228,9 +229,10 @@ class Playing extends Phaser.Scene{
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
         movementSpeedMod = 1 + (.06 * level);
-        ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'snowtop-caps-orange-yellow', '0', 32);
+        ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'snowtop-caps-orange-white', '0', 32);
 
         hp = 5;
+        justLostHealth = false;
         usingBomb = false;
         changeThrowableDisplay(false); //set the bomb or sushi icon
 		gameTime = 0;

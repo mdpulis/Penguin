@@ -16,7 +16,7 @@ class Fail extends Phaser.Scene {
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         timer = this.time.addEvent({ delay: 10000, callback: Quit});
         timerText = this.time.addEvent({ delay: 1000, callback: Count, callbackScope: this, repeat: 10});
-        failText = this.add.bitmapText(screenWidth / 2, screenHeight / 2, 'frosty', '0', 32);
+        failText = this.add.bitmapText(screenWidth / 2, screenHeight / 2, 'snowtop-caps-orange-white', '0', 32);
     }
 
     update(){

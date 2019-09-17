@@ -700,7 +700,7 @@ class Playing extends Phaser.Scene{
                 },
             fire: function (x, y){
                 visiblePenguins ++;
-                this.setTexture('penguin_eating', 0);
+                this.setTexture('penguin', 0);
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects penguins' spawn locations
                 //sound.play('penguin_in');
                 if(level == 1 && penguinCount <= 3){ // spawn 4 penguins for level 1

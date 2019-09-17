@@ -101,6 +101,7 @@ class Playing extends Phaser.Scene{
         this.load.image('bomb','assets/BombFinal.png');
 		this.load.image('fish','assets/Fish.png'); //TODO fix asset
         this.load.image('bear','assets/PolarBearFinal.png');
+        this.load.image('Bear_blasted','assets/Bear_blasted.png');
         this.load.image('busboy','assets/PenguinBusBoy2.png');
         this.load.image('chief','assets/tapper.png');
         this.load.image('table_284','assets/Table_284.png');
@@ -444,6 +445,7 @@ class Playing extends Phaser.Scene{
             {
                 if(this.pushedBack == true) //once the bear got a boom, it will be pushed out the screen
                 {
+                    this.setTexture('Bear_blasted');
 					if(this.spedUp == false)
 					{
 						this.x -= this.speed * delta * pushedBackMod;

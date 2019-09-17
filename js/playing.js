@@ -406,7 +406,7 @@ class Playing extends Phaser.Scene{
 					this.spedUp = false;
                 },
             fire: function (x, y){
-                visibleBear ++;
+                visibleBears ++;
                 this.setTexture('bear');
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
                 //sound.play('penguin_in');
@@ -548,7 +548,7 @@ class Playing extends Phaser.Scene{
 					this.drinkTimer = 0; //the time for drinking
                 },
             fire: function (x, y){
-                visiblePenguin ++;
+                visiblePenguins ++;
                 this.setTexture('penguin_eating', 0);
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects penguins' spawn locations
                 //sound.play('penguin_in');

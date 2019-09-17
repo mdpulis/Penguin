@@ -24,8 +24,8 @@ var movementSpeedMod;
 var cursors;
 var served;
 var bearsHitWithBombs;
-var visiblePenguin;
-var visibleBear;
+var visiblePenguins;
+var visibleBears;
 var usingBomb; //indicate whether the player is using sushi or bomb
 var busboyCounter;
 let lane;
@@ -186,6 +186,8 @@ class Playing extends Phaser.Scene{
         cursors = this.input.keyboard.createCursorKeys();
         served = 0;
 		bearsHitWithBombs = 0;
+		visiblePenguins = 0;
+		visibleBears = 0;
 		meterCurrentTime = 0;
         sound = this.sound;
 
@@ -279,7 +281,7 @@ class Playing extends Phaser.Scene{
             bearCol4 = row4Position;
         }
 
-        visiblePenguin = 0;
+        visiblePenguins = 0;
         //Add audio files to the game
         var bgm_config = {
             mute: false,
@@ -397,7 +399,7 @@ class Playing extends Phaser.Scene{
 					this.spedUp = false;
                 },
             fire: function (x, y){
-                visibleBear ++;
+                visibleBears ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects bears' spawn locations
                 //sound.play('penguin_in');
                 if(level == 1 && bearCount <= 1){ // spawn 4 bears for level 1
@@ -483,7 +485,7 @@ class Playing extends Phaser.Scene{
                     if (this.x > lane[i].length && this.y == lane[i].position)
                     {
                         //Reached player fail state
-                        visibleBear --;
+                        visibleBears --;
                         this.y = -50;
                         //this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                         this.setActive(false);
@@ -494,13 +496,14 @@ class Playing extends Phaser.Scene{
                         this.eating_Timer = 0;
 						this.spedUp = false;
                         hp--;
+						checkForMinCustomers();
                     }
                 }
                 //The bear may need time for eating sushi
                 if (this.x < 0) //if pushed back off the screen
                 {
                     sound.play('penguin_out');
-                    visiblePenguin --;
+                    visibleBears --;
                     this.y = -50;
                     //this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
                     this.setActive(false);
@@ -511,6 +514,7 @@ class Playing extends Phaser.Scene{
                     this.eating_Timer = 0;
 					this.spedUp = false;
                     served++;
+					checkForMinCustomers();
                 }
             }
 
@@ -536,7 +540,7 @@ class Playing extends Phaser.Scene{
 					this.drinkTimer = 0; //the time for drinking
                 },
             fire: function (x, y){
-                visiblePenguin ++;
+                visiblePenguins ++;
                 random = Math.floor(Math.random() * Math.floor(4)); //Randomly selects penguins' spawn locations
                 //sound.play('penguin_in');
                 if(level == 1 && penguinCount <= 3){ // spawn 4 penguins for level 1
@@ -611,7 +615,7 @@ class Playing extends Phaser.Scene{
                     if (this.x > lane[i].length && this.y == lane[i].position) //if reaching end of lane
                     {
                         //Reached player fail state
-                        visiblePenguin --;
+                        visiblePenguins --;
                         this.y = -50;
                         this.setActive(false);
                         this.setVisible(false);
@@ -620,12 +624,13 @@ class Playing extends Phaser.Scene{
                         this.drinking = false;
                         this.drinkTimer = 0;
                         hp--;
+						checkForMinCustomers();
                     }
                 }
                 if (this.x < 0) //if pushed back off the screen
                 {
                     sound.play('penguin_out');
-                    visiblePenguin --;
+                    visiblePenguins --;
                     this.y = -50;
                     this.setActive(false);
                     this.setVisible(false);
@@ -634,6 +639,7 @@ class Playing extends Phaser.Scene{
 					this.drinking = false;
 					this.drinkTimer = 0;
 					served++;
+					checkForMinCustomers();
                 }
             }
 
@@ -1473,6 +1479,14 @@ class Playing extends Phaser.Scene{
         }
 
     }
+}
+
+function checkForMinCustomers() {
+	//spawn more penguins or bears if we have too few on screen
+	if(visiblePenguins + visibleBears < 1 + (level / 2))
+	{
+		spawnCustomer();
+	}
 }
 
 function spawnPenguin(x, y) {

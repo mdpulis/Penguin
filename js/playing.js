@@ -11,6 +11,8 @@ var meterUi;
 var hp, gameTime;
 var hpIcon1, hpIcon2, hpIcon3, hpIcon4, hpIcon5;
 var justLostHealth;
+var flashingCurrentTime;
+var totalFlashingCurrentTime;
 var sound;
 var meterFill;
 var levelBgm;
@@ -66,6 +68,9 @@ const maxServesPerLevel = 50;
 
 const playerYVariance = 220;
 const playerMoveSpeed = -400;
+
+const timeToNextFlash = 75;
+const timeToEndFlashing = 750;
 
 const minSpawnDelay = 2500;
 const maxSpawnDelay = 5000;
@@ -229,10 +234,12 @@ class Playing extends Phaser.Scene{
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
         movementSpeedMod = 1 + (.06 * level);
-        ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 10, 'snowtop-caps-orange-white', '0', 32);
+        ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 48, 'snowtop-caps-orange-white', '0', 32);
 
         hp = 5;
         justLostHealth = false;
+        flashingCurrentTime = 0;
+        totalFlashingCurrentTime = 0;
         usingBomb = false;
         changeThrowableDisplay(false); //set the bomb or sushi icon
 		gameTime = 0;
@@ -1812,7 +1819,7 @@ class Playing extends Phaser.Scene{
         }
         //==============================================================================================================
 
-        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + gameTime.toMMSS() + '\nServed: ' + served + ' / ' + (servesRequiredPerLevel + additionalServesPerLevel * level));
+        ui.setText('Score: ' + score + '\nTime: ' + gameTime.toMMSS() + '\nServed: ' + served + ' / ' + (servesRequiredPerLevel + additionalServesPerLevel * level));
 
         if(hp <= 0){ // reaches fail state
             sound.play('lose');
@@ -1831,6 +1838,35 @@ class Playing extends Phaser.Scene{
 
         if(winboyCount == 4){
             this.scene.start("WinScreen");
+        }
+
+        if (justLostHealth)
+        {
+            flashingCurrentTime += delta;
+            totalFlashingCurrentTime += delta;
+
+            if(flashingCurrentTime >= timeToNextFlash)
+            {
+                flashingCurrentTime -= timeToNextFlash;
+                if(player.visible == true)
+                {
+                    player.setVisible(false);
+                }
+                else
+                {
+                    player.setVisible(true);
+                }
+            }
+
+            if(totalFlashingCurrentTime >= timeToEndFlashing)
+            {
+                player.setVisible(true);
+                justLostHealth = false;
+                flashingCurrentTime = 0;
+                totalFlashingCurrentTime = 0;
+            }
+
+
         }
 
 		//Meter
@@ -2012,6 +2048,10 @@ function lowerHealth()
         hpIcon1.setVisible(false);
     }
 
+    player.setVisible(false);
+    justLostHealth = true;
+    flashingCurrentTime = 0;
+    totalFlashingCurrentTime = 0;
 }
 
 function checkForMinCustomers() {

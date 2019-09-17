@@ -7,7 +7,7 @@ class Win extends Phaser.Scene {
     preload(){
     }
     create(){
-        winText = this.add.bitmapText(screenWidth / 2, screenHeight / 2, 'frosty', '0', 32);
+        winText = this.add.bitmapText(screenWidth / 2, screenHeight / 2, 'snowtop-caps-orange-yellow', '0', 32);
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         level++;
     }

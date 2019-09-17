@@ -384,67 +384,67 @@ class Playing extends Phaser.Scene{
         //lane breaking animations here =======================================
         this.anims.create({
             key: 'Table_1420-1136_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1420-1136',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1420-1136',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_1420-852_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1420-852',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1420-852',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_1420-568_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1420-568',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1420-568',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_1420-284_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1420-284',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1420-284',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_1420-284_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1420-284',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1420-284',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_1136-852_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1136-852',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1136-852',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_1136-568_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1136-568',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1136-568',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_1136-284_Anim',
-            frames: this.anims.generateFrameNumbers('Table_1136-284',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_1136-284',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_852-568_Anim',
-            frames: this.anims.generateFrameNumbers('Table_852-568',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_852-568',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_852-284_Anim',
-            frames: this.anims.generateFrameNumbers('Table_852-284',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_852-284',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
         this.anims.create({
             key: 'Table_568-284_Anim',
-            frames: this.anims.generateFrameNumbers('Table_568-284',{ start: 0, end: 4}),
+            frames: this.anims.generateFrameNumbers('Table_568-284',{ start: 0, end: 5}),
             frameRate: 10,
             repeat: 0
         });
@@ -1172,7 +1172,7 @@ class Playing extends Phaser.Scene{
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi_falling');
                     this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
 					this.taken = false;
                 },

@@ -34,6 +34,7 @@ var usingBomb; //indicate whether the player is using sushi or bomb
 var busboyCounter;
 var winning;
 var winboyCount;
+var laneHP, maxLaneHP;
 let lane;
 //var bear;
 
@@ -249,6 +250,9 @@ class Playing extends Phaser.Scene{
 
         winboyCount = 0;
         winning = false;
+
+        maxLaneHP = 2;  //change the initial lane health points here
+        laneHP = [maxLaneHP, maxLaneHP, maxLaneHP, maxLaneHP];
 
         lane = [{length : barLength5, position: row1Position},
                 {length : barLength5, position: row2Position},
@@ -867,6 +871,73 @@ class Playing extends Phaser.Scene{
                             && penguins.children.entries[elem].pushedBack == false && penguins.children.entries[elem].drinking == false)
                         {
                             //bomb & lane logic
+                            if(penguins.children.entries[elem].y == row1Position && laneHP[0] >= 1)
+                            {
+                                if(laneHP[0] >= 2)
+                                {
+                                    lane1.setTexture('Table_1420-852');
+                                    lane1.anims.play('Table_1420-852_Anim', true);
+                                    lane[0].length = barLength3;
+                                }
+                                else if(laneHP[0] >= 1)
+                                {
+                                    lane1.setTexture('Table_852-284');
+                                    lane1.anims.play('Table_852-284_Anim', true);
+                                    lane[0].length = barLength1;
+                                }
+                                laneHP[0]--;
+
+                            }
+                            else if(penguins.children.entries[elem].y == row2Position && laneHP[1] >= 1)
+                            {
+                                if(laneHP[1] >= 2)
+                                {
+                                    lane2.setTexture('Table_1420-852');
+                                    lane2.anims.play('Table_1420-852_Anim', true);
+                                    lane[1].length = barLength3;
+                                }
+                                else if(laneHP[1] >= 1)
+                                {
+                                    lane2.setTexture('Table_852-284');
+                                    lane2.anims.play('Table_852-284_Anim', true);
+                                    lane[1].length = barLength1;
+                                }
+                                laneHP[1]--;
+                            }
+                            else if(penguins.children.entries[elem].y == row3Position && laneHP[2] >= 1)
+                            {
+                                if(laneHP[2] >= 2)
+                                {
+                                    lane3.setTexture('Table_1420-852');
+                                    lane3.anims.play('Table_1420-852_Anim', true);
+                                    lane[2].length = barLength3;
+                                }
+                                else if(laneHP[2] >= 1)
+                                {
+                                    lane3.setTexture('Table_852-284');
+                                    lane3.anims.play('Table_852-284_Anim', true);
+                                    lane[2].length = barLength1;
+                                }
+                                laneHP[2]--;
+                            }
+                            else if(penguins.children.entries[elem].y == row4Position && laneHP[3] >= 1)
+                            {
+                                if(laneHP[3] >= 2)
+                                {
+                                    lane4.setTexture('Table_1420-852');
+                                    lane4.anims.play('Table_1420-852_Anim', true);
+                                    lane[3].length = barLength3;
+                                }
+                                else if(laneHP[3] >= 1)
+                                {
+                                    lane4.setTexture('Table_852-284');
+                                    lane4.anims.play('Table_852-284_Anim', true);
+                                    lane[3].length = barLength1;
+                                }
+                                laneHP[3]--;
+                            }
+
+                        /*
                             if(penguins.children.entries[elem].x > barLength4 && penguins.children.entries[elem].x <= barLength5){
                                 if(penguins.children.entries[elem].y == row1Position){
                                     if(lane[0].length == barLength5)
@@ -1127,7 +1198,7 @@ class Playing extends Phaser.Scene{
                                     lane[3].length = barLength1;
                                 }
                             }
-
+                            */
                             //score++;
                             sound.play('explosion');
                             penguins.children.entries[elem].y = -50;

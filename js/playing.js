@@ -161,6 +161,7 @@ class Playing extends Phaser.Scene{
 		this.load.audio('sizzle', 'assets/audio/sizzle.mp3');
         this.load.audio('penguin_scream', 'assets/audio/penguin_scream.mp3');
         this.load.audio('bear_groan', 'assets/audio/bear_groan.mp3');
+        this.load.audio('item_pickup', 'assets/audio/item_pickup.mp3');
 
         //this.load.bitmapFont('frostbitten-wanker', 'assets/fonts/frostbitten-wanker.png', 'assets/fonts/frostbitten-wanker.fnt');
         this.load.bitmapFont('frosty', 'assets/fonts/frosty.png', 'assets/fonts/frosty.fnt');
@@ -327,6 +328,7 @@ class Playing extends Phaser.Scene{
 		sound.add('sizzle');
         sound.add('penguin_scream');
         sound.add('bear_groan');
+        sound.add('item_pickup');
         if(level == 1)
         {
             levelBgm = 'bgm';
@@ -1536,7 +1538,7 @@ class Playing extends Phaser.Scene{
                 }
 
                 if(this.x >= player.x && this.y == player.y){
-                    sound.play('get_mug');
+                    sound.play('item_pickup');
                     score += 5;
 					meterCurrentTime += 6500 * (1 / movementSpeedMod); //add about 1/3rd of a meter
                     this.setActive(false);

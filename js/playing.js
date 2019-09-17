@@ -1,7 +1,7 @@
 var player;
 var up, down, left, right, space, q;
 var row;
-var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, bombs, fishes, bombAnims, plateAnims;
+var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, winboys, bombs, fishes, bombAnims, plateAnims;
 
 var random;
 var penguinTimer;
@@ -28,6 +28,8 @@ var visiblePenguins;
 var visibleBears;
 var usingBomb; //indicate whether the player is using sushi or bomb
 var busboyCounter;
+var winning;
+var winboyCount;
 let lane;
 //var bear;
 
@@ -54,6 +56,7 @@ const bombSpeed = 900;
 const sushiSpeed = 900;
 const returnedPlateSpeed = 250;
 const busboySpeed = 1200;
+const winboySpeed = 900;
 
 const servesRequiredPerLevel = 3;
 const additionalServesPerLevel = 4;
@@ -207,6 +210,9 @@ class Playing extends Phaser.Scene{
         penguinCount = 1;
         bearCount = 1;
         busboyCounter = 0;
+
+        winboyCount = 0;
+        winning = false;
 
         lane = [{length : barLength5, position: row1Position},
                 {length : barLength5, position: row2Position},
@@ -453,7 +459,7 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
-                if(this.pushedBack == true) //once the bear got a boom, it will be pushed out the screen
+                if(this.pushedBack == true && winning == false) //once the bear got a boom, it will be pushed out the screen
                 {
                     this.setTexture('Bear_blasted');
 					if(this.spedUp == false)
@@ -478,15 +484,16 @@ class Playing extends Phaser.Scene{
                 //}
                 else
                 {
-					if(this.spedUp == false)
-					{
-						this.x += this.speed * delta;
-					}
-					else
-					{
-						this.x += this.fastSpeed * delta;
-					}
-
+                    if(winning == false){
+                        if(this.spedUp == false)
+                        {
+                            this.x += this.speed * delta;
+                        }
+                        else
+                        {
+                            this.x += this.fastSpeed * delta;
+                        }
+                    }
                 }
 
                 for(var i = 0; i < lane.length; i++){ //if reaching end of lane
@@ -595,7 +602,7 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
-				if(this.pushedBack == true)
+				if(this.pushedBack == true && winning == false)
 				{
 				    this.setTexture('penguin_eating', 1);
 					this.x -= this.speed * delta * pushedBackMod;
@@ -606,7 +613,7 @@ class Playing extends Phaser.Scene{
                         this.anims.play('eating');
 					}
 				}
-				else if (this.drinking == true)
+				else if (this.drinking == true && winning == false)
 				{
 
 					this.drinkTimer += delta;
@@ -621,7 +628,9 @@ class Playing extends Phaser.Scene{
 				}
 				else
 				{
-					this.x += this.speed * delta;
+                    if(winning == false){
+                        this.x += this.speed * delta;
+                    }
 				}
 
                 for(var i = 0; i < lane.length; i++){
@@ -681,7 +690,9 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
-                this.x -= this.speed * delta;
+                if(winning == false){
+                    this.x -= this.speed * delta;
+                }
 
                 for (var elem in penguins.children.entries) {
                     if(this.y == penguins.children.entries[elem].y)
@@ -839,7 +850,9 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
-                this.x -= this.speed * delta;
+                if(winning == false){
+                    this.x -= this.speed * delta;
+                }
                 //penguin receives sushi
                 for (var elem in penguins.children.entries) {
                     if(this.taken == false && this.y == penguins.children.entries[elem].y)
@@ -923,7 +936,9 @@ class Playing extends Phaser.Scene{
             },
             update: function (time, delta)
             {
-                this.x += this.speed * delta;
+                if(winning == false){
+                    this.x += this.speed * delta;
+                }
                 for(var i = 0; i < lane.length; i++){
                     if (this.x > lane[i].length && this.y == lane[i].position)
                     {
@@ -1039,6 +1054,101 @@ class Playing extends Phaser.Scene{
         });
         busboys = this.add.group({
             classType: Busboy,
+            maxSize: 4,
+            runChildUpdate: true
+        });
+
+        //winboy class
+        var Winboy = new Phaser.Class({
+            Extends: Phaser.GameObjects.Sprite,
+            initialize:
+                function Busboy (game)
+                {
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'busboy')
+                    this.speed = Phaser.Math.GetSpeed(winboySpeed * movementSpeedMod, 1); // Set the busboy's speed
+                    this.row = busboyCounter;
+                    busboyCounter++;
+                },
+            fire: function (x, y){
+                if(this.row == 0){
+                    this.setPosition(screenWidth - playerXOffset, row1Position);
+                }
+                else if(this.row == 1){
+                    this.setPosition(screenWidth - playerXOffset, row2Position);
+                }
+                else if(this.row == 2){
+                    this.setPosition(screenWidth - playerXOffset, row3Position);
+                }
+                else if(this.row == 3){
+                    this.setPosition(screenWidth - playerXOffset, row4Position);
+                }
+
+                this.setActive(true);
+                this.setVisible(true);
+            },
+            update: function (time, delta)
+            {
+                this.x -= this.speed * delta;
+
+                for (var elem in returnedPlates.children.entries) {
+                    if (this.y == returnedPlates.children.entries[elem].y &&
+                        this.x < returnedPlates.children.entries[elem].x + penguinRange && this.x > returnedPlates.children.entries[elem].x - penguinRange) {
+                        returnedPlates.children.entries[elem].setActive(false);
+                        returnedPlates.children.entries[elem].setVisible(false);
+                    }
+                }
+
+                for (var elem in sushis.children.entries) {
+                    if (this.y == sushis.children.entries[elem].y &&
+                        this.x < sushis.children.entries[elem].x + penguinRange && this.x > sushis.children.entries[elem].x - penguinRange) {
+                        sushis.children.entries[elem].setActive(false);
+                        sushis.children.entries[elem].setVisible(false);
+                    }
+                }
+
+                for (var elem in bombs.children.entries) {
+                    if (this.y == bombs.children.entries[elem].y &&
+                        this.x < bombs.children.entries[elem].x + penguinRange && this.x > bombs.children.entries[elem].x - penguinRange) {
+                        bombs.children.entries[elem].setActive(false);
+                        bombs.children.entries[elem].setVisible(false);
+                    }
+                }
+
+                for (var elem in penguins.children.entries) {
+                    if (this.y == penguins.children.entries[elem].y &&
+                        this.x < penguins.children.entries[elem].x + penguinRange && this.x > penguins.children.entries[elem].x - penguinRange) {
+                        penguins.children.entries[elem].setActive(false);
+                        penguins.children.entries[elem].setVisible(false);
+                    }
+                }
+
+                for (var elem in bears.children.entries) {
+                    if (this.y == bears.children.entries[elem].y &&
+                        this.x < bears.children.entries[elem].x + penguinRange && this.x > bears.children.entries[elem].x - penguinRange) {
+                        bears.children.entries[elem].setActive(false);
+                        bears.children.entries[elem].setVisible(false);
+                    }
+                }
+
+                for (var elem in fishes.children.entries) {
+                    if (this.y == fishes.children.entries[elem].y &&
+                        this.x < fishes.children.entries[elem].x + penguinRange && this.x > fishes.children.entries[elem].x - penguinRange) {
+                        fishes.children.entries[elem].setActive(false);
+                        fishes.children.entries[elem].setVisible(false);
+                    }
+                }
+
+                if (this.x < 0 - 300) //if they reach the end of the screen
+                {
+                    this.setActive(false);
+                    this.setVisible(false);
+                    winboyCount++;
+                }
+            }
+
+        });
+        winboys = this.add.group({
+            classType: Winboy,
             maxSize: 4,
             runChildUpdate: true
         });
@@ -1353,7 +1463,7 @@ class Playing extends Phaser.Scene{
         }
         //==============================================================================================================
 
-        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + gameTime.toMMSS() + '\nServed: ' + served);
+        ui.setText('HP: ' + hp + '\nScore: ' + score + '\nTime: ' + gameTime.toMMSS() + '\nServed: ' + served + ' / ' + (servesRequiredPerLevel + additionalServesPerLevel * level));
 
         if(hp <= 0){ // reaches fail state
             sound.play('lose');
@@ -1361,10 +1471,16 @@ class Playing extends Phaser.Scene{
             this.scene.start("FailScreen");
         }
         //TODO: add back win state
-        else if(served >= maxServesPerLevel || served >= (servesRequiredPerLevel + additionalServesPerLevel * level)){
+        else if((served >= maxServesPerLevel || served >= (servesRequiredPerLevel + additionalServesPerLevel * level)) && winning == false){
         //else if(served == 1){
             sound.play('win');
             sound.removeByKey(levelBgm);
+            //this.scene.start("WinScreen");
+            winning = true;
+            spawnWinboys();
+        }
+
+        if(winboyCount == 4){
             this.scene.start("WinScreen");
         }
 
@@ -1398,97 +1514,102 @@ class Playing extends Phaser.Scene{
 		meterFill.setCrop(0, 0, (meterCurrentTime / timeToFillMeter) * meterWidth, 96);
 
 		//Inputs
-        if (Phaser.Input.Keyboard.JustDown(up) && row >= 1) //Prevent "holding down" actions
-        {
-            if(row == 1){
-                sound.play('up');
-                player.y = row4Position;
-                row = 4;
-                player.x = lane[row - 1].length;
-            }
-            else{
-                sound.play('up');
-                player.y -= playerYVariance;
-                row --;
-                player.x = lane[row - 1].length;
-            }
-        }
-        if (Phaser.Input.Keyboard.JustDown(down) && row <= 4)
-        {
-            if(row == 4){
-                sound.play('down');
-                player.y = row1Position;
-                row = 1;
-                player.x = lane[row - 1].length;
-            }
-            else{
-                sound.play('down');
-                player.y += playerYVariance;
-                row ++;
-                player.x = lane[row - 1].length;
-            }
-        }
-
-        if(cursors.left.isDown){
-            player.setVelocityX(playerMoveSpeed * movementSpeedMod);
-        }
-        else{
-            player.setVelocityX(0);
-        }
-
-        if(Phaser.Input.Keyboard.JustDown(space)){
-            player.x = lane[row - 1].length;
-            if(!usingBomb)
+        if(winning == false){
+            if (Phaser.Input.Keyboard.JustDown(up) && row >= 1) //Prevent "holding down" actions
             {
-                var sushi = sushis.get();
-                if (sushi)
+                if(row == 1){
+                    sound.play('up');
+                    player.y = row4Position;
+                    row = 4;
+                    player.x = lane[row - 1].length;
+                }
+                else{
+                    sound.play('up');
+                    player.y -= playerYVariance;
+                    row --;
+                    player.x = lane[row - 1].length;
+                }
+            }
+            if (Phaser.Input.Keyboard.JustDown(down) && row <= 4)
+            {
+                if(row == 4){
+                    sound.play('down');
+                    player.y = row1Position;
+                    row = 1;
+                    player.x = lane[row - 1].length;
+                }
+                else{
+                    sound.play('down');
+                    player.y += playerYVariance;
+                    row ++;
+                    player.x = lane[row - 1].length;
+                }
+            }
+
+            if(cursors.left.isDown){
+                player.setVelocityX(playerMoveSpeed * movementSpeedMod);
+            }
+            else{
+                player.setVelocityX(0);
+            }
+
+            if(Phaser.Input.Keyboard.JustDown(space)){
+                player.x = lane[row - 1].length;
+                if(!usingBomb)
                 {
-                    sushi.fire(player.x, player.y);
+                    var sushi = sushis.get();
+                    if (sushi)
+                    {
+                        sushi.fire(player.x, player.y);
+                    }
+                }
+                else
+                {
+                    var bomb = bombs.get();
+                    if (bomb)
+                    {
+                        bomb.fire(player.x, player.y);
+                    }
+                }
+
+            }
+
+            if(Phaser.Input.Keyboard.JustDown(q)){
+                if(meterCurrentTime >= timeToFillMeter)
+                {
+                    useMeter();
+                }
+            }
+
+            if(right.isDown)
+            {
+                if(meterCurrentTime >= timeToFillMeter)
+                {
+                    holdRightCurrentTime += delta * movementSpeedMod;
+                    if(holdRightCurrentTime >= timeToUseMeter)
+                    {
+                        useMeter();
+                    }
                 }
             }
             else
             {
-                var bomb = bombs.get();
-                if (bomb)
-                {
-                    bomb.fire(player.x, player.y);
-                }
+                holdRightCurrentTime = 0;
             }
 
+            if(Phaser.Input.Keyboard.JustUp(right)){
+                //change the type of usingBomb here if we didn't use meter
+                if(justUsedMeter == false)
+                {
+                    usingBomb = !usingBomb;
+                    changeThrowableDisplay(true);
+                }
+
+                justUsedMeter = false;
+            }
         }
-
-        if(Phaser.Input.Keyboard.JustDown(q)){
-			if(meterCurrentTime >= timeToFillMeter)
-			{
-				useMeter();
-			}
-        }
-
-		if(right.isDown)
-		{
-			if(meterCurrentTime >= timeToFillMeter)
-			{
-				holdRightCurrentTime += delta * movementSpeedMod;
-				if(holdRightCurrentTime >= timeToUseMeter)
-				{
-					useMeter();
-				}
-			}
-		}
-		else
-		{
-			holdRightCurrentTime = 0;
-		}
-
-        if(Phaser.Input.Keyboard.JustUp(right)){
-            //change the type of usingBomb here if we didn't use meter
-			if(justUsedMeter == false)
-			{
-				usingBomb = !usingBomb;
-				changeThrowableDisplay(true);
-			}
-
-			justUsedMeter = false;
+        else{
+            player.setVelocityX(0);
         }
 
     }
@@ -1567,6 +1688,21 @@ function spawnBusboys() {
 
     for (var elem in busboys.children.entries) {
         busboys.children.entries[elem].fire();
+    }
+}
+
+function spawnWinboys() {
+    if(winboys.children.entries <= 0)
+    {
+        //initialize 4 busboys
+        winboys.get();
+        winboys.get();
+        winboys.get();
+        winboys.get();
+    }
+
+    for (var elem in winboys.children.entries) {
+        winboys.children.entries[elem].fire();
     }
 }
 

@@ -1,7 +1,7 @@
 var player;
 var up, down, left, right, space, q;
 var row;
-var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, bombs, fishes, bombAnims;
+var sushis, returnedPlates, spawnPenguins, bears, penguins, busboys, bombs, fishes, bombAnims, plateAnims;
 
 var random;
 var penguinTimer;
@@ -338,6 +338,11 @@ class Playing extends Phaser.Scene{
             maxSize: 30,
             runChildUpdate: true,
         });
+        plateAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 10,
+            runChildUpdate: true,
+        });
 
         function addBoomAnim(x,y) {
             var boomAnim = bombAnims.get();
@@ -351,6 +356,25 @@ class Playing extends Phaser.Scene{
                 boomAnim.once('animationcomplete',()=>{
                     boomAnim.setActive(false);
                     boomAnim.setVisible(false);
+                    //console.log("animation complete");
+                });
+            }
+        }
+
+        function addPlateAnim(x,y) {
+            var plateAnim = plateAnims.get();
+            plateAnim.setActive(true);
+            plateAnim.setVisible(true);
+            if (plateAnim) {
+                //boomAnim.setScale(4);
+                plateAnim.x = x;
+                plateAnim.y = y;
+                plateAnim.anims.play('falling',false);
+                plateAnim.once('animationcomplete',()=>{
+                    sound.play('break');
+                    hp--;
+                    plateAnim.setActive(false);
+                    plateAnim.setVisible(false);
                     //console.log("animation complete");
                 });
             }
@@ -573,7 +597,7 @@ class Playing extends Phaser.Scene{
 						this.drinking = false;
 						this.drinkTimer = 0;
 						sushiOnHit(this.x, this.y); //send off the sushi after eating
-                        console.log("spawn plate 1")
+                        //console.log("spawn plate 1")
 					}
 				}
 				else
@@ -863,7 +887,8 @@ class Playing extends Phaser.Scene{
                     this.speed = Phaser.Math.GetSpeed(returnedPlateSpeed * movementSpeedMod, 1); // Set the returnedPlates' speed
                     this.inAnimation = false;
                     this.animTimer = 820;
-                    this.collectable = true;
+                    //this.collectable = true;
+                    //console.log("initialize plate. Collectable: "+ this.collectable);
                 },
             fire: function (x, y){
                 this.setTexture('falling_plate');
@@ -883,6 +908,7 @@ class Playing extends Phaser.Scene{
                     {
                         if(this.y == player.y && this.collectable)
                         {
+                            //console.log("get plate. timer = "+this.animTimer + ", collectable: "+this.collectable);
                             score += 1;
                             this.setActive(false);
                             this.setVisible(false);
@@ -890,19 +916,23 @@ class Playing extends Phaser.Scene{
                         else
                         {
                             //didn't catch returnedPlate fail state
-                            this.speed = 0;
+                            //this.speed = 0;
+                            //this.collectable = false;
+                            //console.log("State change - collectable: "+this.collectable);
+                            /*
                             if(!this.inAnimation)
                             {
-                                this.collectable = false;
-                                this.anims.play('falling', false, 0);
+                                //this.collectable = false;
+                                //this.anims.play('falling', false, 0);
                                 this.inAnimation = true;
                             }
                             else
                             {
                                 this.animTimer -= delta;
+                                this.anims.play('falling', true, 0);
                                 if(this.animTimer <= 0)
                                 {
-                                    this.animTimer = 1000;
+                                    this.animTimer = 820;
                                     this.anims.nextFrame();
                                     sound.play('break');
                                     this.setVisible(false);
@@ -910,11 +940,12 @@ class Playing extends Phaser.Scene{
                                     hp--;
                                 }
                             }
-
-                            /*sound.play('break');
+                            */
+                            //sound.play('break');
+                            addPlateAnim(this.x, this.y)
                             this.setActive(false);
                             this.setVisible(false);
-                            hp--;*/
+                            //hp--;
                         }
 
                     }
@@ -1471,7 +1502,7 @@ function spawnCustomer(){
 }
 
 function spawnReturnedPlate(x,y){
-    console.log("spawn plate 3");
+    //console.log("spawn plate 3");
     var returnedPlate = returnedPlates.get();
     if(returnedPlate){
         returnedPlate.fire(x, y);
@@ -1541,7 +1572,7 @@ function addGameTime(){
 }
 
 function sushiOnHit(x, y) {
-    console.log("spawn plate 2")
+    //console.log("spawn plate 2")
     spawnReturnedPlate(x,y)
 }
 

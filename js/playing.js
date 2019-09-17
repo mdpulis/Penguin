@@ -339,8 +339,8 @@ class Playing extends Phaser.Scene{
         });
         this.anims.create({
             key: 'eating',
-            frames: this.anims.generateFrameNumbers('penguin_eating',{ start: 1, end: 3}),
-            frameRate: 2,
+            frames: this.anims.generateFrameNumbers('penguin_eating',{ start: 1, end: 6}),
+            frameRate: 3,
             repeat: 0
         });
         bombAnims = this.add.group({

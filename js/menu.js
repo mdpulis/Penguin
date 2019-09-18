@@ -24,13 +24,21 @@ class Menu extends Phaser.Scene {
         this.load.image('title', 'assets/Flipper.png');
         this.load.image('table_1136','assets/Table_852.png');
         this.load.image('player', 'assets/PenguinWaiterSushi.png');
+        this.load.image('player_bomb','assets/PenguinWaiterBOMB.png');
         this.load.image('penguin', 'assets/PenguinCustomerFinal.png');
         this.load.image('bear','assets/PolarBearFinal.png');
         this.load.image('bomb','assets/BombFinal.png');
+        this.load.image('sushi_icon', 'assets/SushiOnly.png');
+        this.load.image('bomb_icon', 'assets/BombOnly.png');
+        this.load.image('Bear_blasted','assets/Bear_blasted.png');
 
         this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
+        this.load.spritesheet('bomb_falling','assets/anim/BombPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
         this.load.spritesheet('penguin_eating','assets/anim/PenguinEating_Animation.png', {frameWidth: 182, frameHeight: 346});
         this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
+        this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
+        this.load.spritesheet('Table_1136-568','assets/anim/Table_1136-568.png', {frameWidth: 1420, frameHeight: 130});
+
 
         this.load.audio('break','assets/audio/mug_break.mp3');
         this.load.audio('plate_crash','assets/audio/plate-crash.mp3');
@@ -41,6 +49,10 @@ class Menu extends Phaser.Scene {
         this.load.audio('get_mug','assets/audio/get_mug.wav');
         this.load.audio('penguin_out','assets/audio/out_customer.wav');
         this.load.audio('penguin_in','assets/audio/popup.wav');
+        this.load.audio('bear_groan', 'assets/audio/bear_groan.mp3');
+        this.load.audio('sizzle', 'assets/audio/sizzle.mp3');
+        this.load.audio('slurp', 'assets/audio/slurp.mp3');
+        this.load.audio('penguin_scream', 'assets/audio/penguin_scream.mp3');
     }
     create(){
         this.add.image(screenWidth/2, screenHeight/2, 'background');
@@ -55,7 +67,19 @@ class Menu extends Phaser.Scene {
         level = 1;
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
 
+        sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
+        bomb_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'bomb_icon');
+
         sound = this.sound;
+        sound.add('break');
+        sound.add('throw_mug');
+        sound.add('get_mug');
+        sound.add('penguin_out');
+        sound.add('penguin_in');
+        sound.add('slurp');
+        sound.add('sizzle');
+        sound.add('penguin_scream');
+        sound.add('bear_groan');
 
         up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.UP); //Assign key actions
         down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.DOWN);
@@ -88,6 +112,45 @@ class Menu extends Phaser.Scene {
             frames: this.anims.generateFrameNumbers('falling_plate', { start: 0, end: 4 }),
             frameRate: 10,
             repeat: 0
+        });
+        this.anims.create({
+            key: 'boom1',
+            frames: this.anims.generateFrameNumbers('boom',{start: 0, end: 6}),
+            frameRate: 10,
+            repeat: 1,
+        });
+        this.anims.create({
+            key: 'bomb_fallingAnim',
+            frames: this.anims.generateFrameNumbers('bomb_falling',{ start: 0, end: 4}),
+            frameRate: 10,
+            repeat: 0
+        });
+        this.anims.create({
+            key: 'Table_1136-568_Anim',
+            frames: this.anims.generateFrameNumbers('Table_1136-568',{ start: 0, end: 5}),
+            frameRate: 10,
+            repeat: 0
+        });
+
+        bombAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 30,
+            runChildUpdate: true,
+        });
+        plateAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 10,
+            runChildUpdate: true,
+        });
+        sushiFallingAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 30,
+            runChildUpdate: true,
+        });
+        bombFallingAnims = this.add.group({
+            classType: Phaser.GameObjects.Sprite,
+            maxSize: 30,
+            runChildUpdate: true,
         });
 
         //Polar bear class
@@ -358,6 +421,7 @@ class Menu extends Phaser.Scene {
                             sound.play('explosion');
                             penguins.children.entries[elem].y = -50;
                             addBoomAnim(this.x, this.y);
+                            
                             console.log("hit with penguin"+ this.x + " " + this.y);
                             this.setActive(false);
                             this.setVisible(false);
@@ -457,75 +521,7 @@ class Menu extends Phaser.Scene {
             runChildUpdate: true
         });
 
-        function addBoomAnim(x,y) {
-            var boomAnim = bombAnims.get();
-            boomAnim.setActive(true);
-            boomAnim.setVisible(true);
-            if (boomAnim) {
-                boomAnim.setScale(4);
-                boomAnim.x = x;
-                boomAnim.y = y - 150;
-                boomAnim.anims.play('boom1',false);
-                boomAnim.once('animationcomplete',()=>{
-                    boomAnim.setActive(false);
-                    boomAnim.setVisible(false);
-                    //console.log("animation complete");
-                });
-            }
-        }
 
-        function addPlateAnim(x,y) {
-            var plateAnim = plateAnims.get();
-            plateAnim.setActive(true);
-            plateAnim.setVisible(true);
-            if (plateAnim) {
-                //boomAnim.setScale(4);
-                plateAnim.x = x;
-                plateAnim.y = y;
-                plateAnim.anims.play('falling',false);
-                plateAnim.once('animationcomplete',()=>{
-                    sound.play('break');
-                    lowerHealth();
-                    plateAnim.setActive(false);
-                    plateAnim.setVisible(false);
-                    //console.log("animation complete");
-                });
-            }
-        }
-        function addSushiFalingAnim(x,y) {
-            var anim = sushiFallingAnims.get();
-            anim.setActive(true);
-            anim.setVisible(true);
-            if(anim)
-            {
-                anim.x = x;
-                anim.y = y;
-                anim.anims.play('sushi_fallingAnim',false);
-                anim.once('animationcomplete',()=>{
-                    sound.play('plate_crash');
-                    //lowerHealth();
-                    anim.setActive(false);
-                    anim.setVisible(false);
-                })
-            }
-        }
-        function addBombFalingAnim(x,y) {
-            var anim = bombFallingAnims.get();
-            anim.setActive(true);
-            anim.setVisible(true);
-            if(anim)
-            {
-                anim.x = x;
-                anim.y = y;
-                anim.anims.play('bomb_fallingAnim',false);
-                anim.once('animationcomplete',()=>{
-                    sound.play('plate_crash');
-                    //lowerHealth();
-                    anim.setActive(false);
-                    anim.setVisible(false);
-                })
-            }
-        }
 
     }
 
@@ -622,4 +618,72 @@ function spawnBear() {
         bear.fire()
     }
 }
+function addBoomAnim(x,y) {
+    var boomAnim = bombAnims.get();
+    boomAnim.setActive(true);
+    boomAnim.setVisible(true);
+    if (boomAnim) {
+        boomAnim.setScale(4);
+        boomAnim.x = x;
+        boomAnim.y = y - 150;
+        boomAnim.anims.play('boom1',false);
+        boomAnim.once('animationcomplete',()=>{
+            boomAnim.setActive(false);
+            boomAnim.setVisible(false);
+            //console.log("animation complete");
+        });
+    }
+}
 
+function addPlateAnim(x,y) {
+    var plateAnim = plateAnims.get();
+    plateAnim.setActive(true);
+    plateAnim.setVisible(true);
+    if (plateAnim) {
+        //boomAnim.setScale(4);
+        plateAnim.x = x;
+        plateAnim.y = y;
+        plateAnim.anims.play('falling',false);
+        plateAnim.once('animationcomplete',()=>{
+            sound.play('break');
+            lowerHealth();
+            plateAnim.setActive(false);
+            plateAnim.setVisible(false);
+            //console.log("animation complete");
+        });
+    }
+}
+function addSushiFalingAnim(x,y) {
+    var anim = sushiFallingAnims.get();
+    anim.setActive(true);
+    anim.setVisible(true);
+    if(anim)
+    {
+        anim.x = x;
+        anim.y = y;
+        anim.anims.play('sushi_fallingAnim',false);
+        anim.once('animationcomplete',()=>{
+            sound.play('plate_crash');
+            //lowerHealth();
+            anim.setActive(false);
+            anim.setVisible(false);
+        })
+    }
+}
+function addBombFalingAnim(x,y) {
+    var anim = bombFallingAnims.get();
+    anim.setActive(true);
+    anim.setVisible(true);
+    if(anim)
+    {
+        anim.x = x;
+        anim.y = y;
+        anim.anims.play('bomb_fallingAnim',false);
+        anim.once('animationcomplete',()=>{
+            sound.play('plate_crash');
+            //lowerHealth();
+            anim.setActive(false);
+            anim.setVisible(false);
+        })
+    }
+}

@@ -421,7 +421,7 @@ class Menu extends Phaser.Scene {
                             sound.play('explosion');
                             penguins.children.entries[elem].y = -50;
                             addBoomAnim(this.x, this.y);
-                            
+
                             console.log("hit with penguin"+ this.x + " " + this.y);
                             this.setActive(false);
                             this.setVisible(false);
@@ -526,6 +526,8 @@ class Menu extends Phaser.Scene {
     }
 
     update(){
+        changeThrowableDisplay(false);
+
         if(Phaser.Input.Keyboard.JustDown(s)){
             this.scene.start("PlayingScreen");
         }

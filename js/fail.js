@@ -3,13 +3,14 @@ var timer, timerText;
 var failText;
 var quit;
 var second;
-var gameOverAnim;
+var gameOverAnim, gameOverTitle;
 class Fail extends Phaser.Scene {
     constructor(){
         super("FailScreen");
     }
     preload(){
         this.load.spritesheet('GameOver','assets/anim/GameOver_Animation.png', {frameWidth: 270, frameHeight: 346});
+        this.load.image('GameOver_title', 'assets/GameOver.png');
     }
     create(){
         //backgroundImage = this.add.image(960, 540, 'background');
@@ -26,7 +27,9 @@ class Fail extends Phaser.Scene {
             frameRate: 3,
             repeat: -1
         });
-        gameOverAnim = this.add.sprite(screenWidth/2 - 400, screenHeight/2, 'GameOver');
+        gameOverTitle = this.add.image(screenWidth/2, screenHeight/2 - 300, 'GameOver_title');
+        gameOverTitle.setScale(0.7)
+        gameOverAnim = this.add.sprite(screenWidth/2 - 400, screenHeight/2 + 100, 'GameOver');
         gameOverAnim.anims.play('GameOver_anim', true);
 
     }

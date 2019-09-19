@@ -28,8 +28,8 @@ class Menu extends Phaser.Scene {
         this.load.image('penguin', 'assets/PenguinCustomerFinal.png');
         this.load.image('bear','assets/PolarBearFinal.png');
         this.load.image('bomb','assets/BombFinal.png');
-        this.load.image('sushi_icon', 'assets/SushiOnly.png');
-        this.load.image('bomb_icon', 'assets/BombOnly.png');
+        this.load.image('sushi_icon', 'assets/sushi_icon.png');
+        this.load.image('bomb_icon', 'assets/bomb_icon.png');
         this.load.image('Bear_blasted','assets/Bear_blasted.png');
 
         this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 218});

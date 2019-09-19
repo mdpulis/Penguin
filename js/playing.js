@@ -124,8 +124,8 @@ class Playing extends Phaser.Scene{
         this.load.image('penguin_head', 'assets/penguin_head.png');
 
         this.load.image('arrow_key_icon', 'assets/arrow_key.png');
-        this.load.image('sushi_icon', 'assets/SushiOnly.png');
-        this.load.image('bomb_icon', 'assets/BombOnly.png');
+        this.load.image('sushi_icon', 'assets/sushi_icon.png');
+        this.load.image('bomb_icon', 'assets/bomb_icon.png');
 		this.load.image('bell_icon', 'assets/bell_icon.png');
 
 		this.load.image('meter_outline', 'assets/meter_outline.png');
@@ -197,7 +197,7 @@ class Playing extends Phaser.Scene{
 
         player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0);
 
-        arrow_key_icon = this.add.image(screenWidth - 128 * 2, screenHeight - 128, 'arrow_key_icon');
+        arrow_key_icon = this.add.image(screenWidth - 128 * 2 - 16, screenHeight - 128, 'arrow_key_icon');
         sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
         bomb_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'bomb_icon');
 

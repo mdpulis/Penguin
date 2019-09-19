@@ -35,7 +35,7 @@ var busboyCounter;
 var winning;
 var winboyCount;
 var laneHP, maxLaneHP;
-var backgroundImage;
+var backgroundImage, chalkboard;
 let lane;
 //var bear;
 
@@ -121,6 +121,7 @@ class Playing extends Phaser.Scene{
         this.load.image('table_852','assets/Table_852.png');
         this.load.image('table_1136','assets/Table_1136.png');
         this.load.image('table_1420','assets/Table_1420.png');
+        this.load.image('board','assets/chalkboard.png');
 
         this.load.image('penguin_head', 'assets/waitress_life.png');
 
@@ -194,7 +195,6 @@ class Playing extends Phaser.Scene{
         hpIcon3 = this.add.image(screenWidth - 128 * 2 + 32 * 2, 32, 'penguin_head');
         hpIcon4 = this.add.image(screenWidth - 128 * 2 + 32 * 1, 32, 'penguin_head');
         hpIcon5 = this.add.image(screenWidth - 128 * 2 + 32 * 0, 32, 'penguin_head');
-
 
         player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0);
 

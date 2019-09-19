@@ -122,7 +122,6 @@ class Playing extends Phaser.Scene{
         this.load.image('table_852','assets/Table_852.png');
         this.load.image('table_1136','assets/Table_1136.png');
         this.load.image('table_1420','assets/Table_1420.png');
-        this.load.image('board','assets/chalkboard.png');
 
         this.load.image('penguin_head', 'assets/waitress_life.png');
 

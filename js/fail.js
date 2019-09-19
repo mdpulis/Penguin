@@ -9,9 +9,10 @@ class Fail extends Phaser.Scene {
         super("FailScreen");
     }
     preload(){
-        this.load.spritesheet('GameOver','assets/anim/GameOver_Animation', {frameWidth: 270, frameHeight: 346});
+        this.load.spritesheet('GameOver','assets/anim/GameOver_Animation.png', {frameWidth: 270, frameHeight: 346});
     }
     create(){
+        //backgroundImage = this.add.image(960, 540, 'background');
         second = 10;
         quit = false;
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
@@ -22,11 +23,11 @@ class Fail extends Phaser.Scene {
         this.anims.create({
             key: 'GameOver_anim',
             frames: this.anims.generateFrameNumbers('GameOver',{ start: 0, end: 3}),
-            frameRate: 5,
-            repeat: 0
+            frameRate: 3,
+            repeat: -1
         });
-        //gameOverAnim = this.add.sprite(screenWidth/2, screenHeight/2, 'GameOver');
-        //gameOverAnim.anims.play('GameOver_anim', true);
+        gameOverAnim = this.add.sprite(screenWidth/2 - 400, screenHeight/2, 'GameOver');
+        gameOverAnim.anims.play('GameOver_anim', true);
 
     }
 
@@ -40,7 +41,7 @@ class Fail extends Phaser.Scene {
             this.scene.start("MenuScreen");
         }
         failText.setText("Game Over" + "\n\nPress Space to Retry" + "\n\nYour Total Score is: " + score + "\n\nQuit in " + second);
-        gameOverAnim.anims.play('GameOver_anim', true);
+        //gameOverAnim.anims.play('GameOver_anim', true);
     }
 }
 function Quit(){

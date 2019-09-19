@@ -58,6 +58,8 @@ class Menu extends Phaser.Scene {
         backgroundImage = this.add.image(screenWidth/2, screenHeight/2, 'Menu_background');
         this.add.image(screenWidth/2, screenHeight/2 - 250, 'title');
 
+
+
         var lane1 = this.add.sprite(laneImgX, menuRow1Y + tableYOffset, 'table_1136');
         var lane2 = this.add.sprite(laneImgX, menuRow2Y + tableYOffset, 'table_1136');
 
@@ -94,6 +96,7 @@ class Menu extends Phaser.Scene {
                 {length : barLength3, position: menuRow2Y}]
 
         this.add.text(960, 540, "Menu" + "\n\nPress S to Begin")
+
 
         this.anims.create({
             key: 'sushi_fallingAnim',
@@ -160,7 +163,7 @@ class Menu extends Phaser.Scene {
                 function Bear (game)
                 {
                     Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bear')
-                    this.speed = Phaser.Math.GetSpeed(0, 1);
+                    this.speed = Phaser.Math.GetSpeed(bearSpeed, 1);
                     this.fastSpeed = Phaser.Math.GetSpeed(fastBearSpeed, 1);
                     this.pushedBack = false;
                     this.pushedBackXLocation = 0;
@@ -181,6 +184,7 @@ class Menu extends Phaser.Scene {
                     this.setTexture('Bear_blasted');
                     if(this.spedUp == false)
                     {
+                        this.speed = bearSpeed;
                         this.x -= this.speed * delta * pushedBackMod;
                     }
                     else
@@ -219,6 +223,7 @@ class Menu extends Phaser.Scene {
                 //The bear may need time for eating sushi
                 if (this.x < 0) //if pushed back off the screen
                 {
+                    console.log('pushed out of screen');
                     sound.play('penguin_out');
                     this.y = -50;
                     //this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
@@ -519,8 +524,6 @@ class Menu extends Phaser.Scene {
             maxSize: 10,
             runChildUpdate: true
         });
-
-
 
     }
 

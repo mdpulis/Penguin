@@ -101,7 +101,7 @@ class Menu extends Phaser.Scene {
         this.load.audio('explosion','assets/audio/explosion.mp3');
         this.load.audio('throw_mug','assets/audio/throw_mug.wav')
         this.load.audio('up','assets/audio/up.wav');
-        this.load.audio('down','assets/audio/down.wav');
+        this.load.audio('down','assets/audio/down_loud.mp3');
         this.load.audio('get_mug','assets/audio/get_mug.wav');
         this.load.audio('penguin_out','assets/audio/out_customer.wav');
         this.load.audio('penguin_in','assets/audio/popup.wav');

@@ -5,13 +5,21 @@ var up, down, left, right, space, q, s;
 var cursors;
 var row;
 var sound;
+var step;
+var menuUsedMeter;
+var menuText;
+var menuBoy1, menuBoy2;
+var round, round2;
+var liteUp, liteDown, liteLeft, liteRight, liteSpace;
+var darkUp, darkDown, darkLeft, darkRight, darkSpace;
+
+var buttonFlashTimer;
 
 const playerMenuOffSetX = 1080;
 const menuRow1Y = 640;
 const menuRow2Y = 860;
 
-const menuPenguinSpeed = 0;
-const menuBearSpeed = 0;
+const menuBoySpeed = 500;
 
 let menuLane;
 
@@ -20,26 +28,74 @@ class Menu extends Phaser.Scene {
         super("MenuScreen");
     }
     preload(){
-        this.load.image('Menu_background', 'assets/menuBG.png');
+        this.load.image('menuBackground', 'assets/menuBG.png');
         this.load.image('title', 'assets/Flipper.png');
-        this.load.image('table_1136','assets/Table_852.png');
+        //Load images
+        this.load.image('background', 'assets/Game_BG.png');
         this.load.image('player', 'assets/PenguinWaiterSushi.png');
         this.load.image('player_bomb','assets/PenguinWaiterBOMB.png');
+        this.load.image('sushi', 'assets/sushiFinal.png');
         this.load.image('penguin', 'assets/PenguinCustomerFinal.png');
-        this.load.image('bear','assets/PolarBearFinal.png');
+        this.load.image('returned_plate', 'assets/EmptyPlateFinal.png');
         this.load.image('bomb','assets/BombFinal.png');
+        this.load.image('fish','assets/Fish.png'); //TODO fix asset
+        this.load.image('bear','assets/PolarBearFinal.png');
+        this.load.image('Bear_blasted','assets/Bear_blasted.png');
+        this.load.image('busboy','assets/PenguinBusBoy2.png');
+        this.load.image('busboy2','assets/PenguinBusBoy3.png');
+        this.load.image('chief','assets/tapper.png');
+        this.load.image('table_284','assets/Table_284.png');
+        this.load.image('table_568','assets/Table_568.png');
+        this.load.image('table_852','assets/Table_852.png');
+        this.load.image('table_1136','assets/Table_1136.png');
+        this.load.image('table_1420','assets/Table_1420.png');
+
+        this.load.image('penguin_head', 'assets/waitress_life.png');
+
+        this.load.image('arrow_key_icon', 'assets/arrow_key.png');
         this.load.image('sushi_icon', 'assets/sushi_icon.png');
         this.load.image('bomb_icon', 'assets/bomb_icon.png');
-        this.load.image('Bear_blasted','assets/Bear_blasted.png');
+        this.load.image('bell_icon', 'assets/bell_icon.png');
 
+        this.load.image('meter_outline', 'assets/meter_outline.png');
+        this.load.image('meter_backfill', 'assets/meter_backfill.png');
+        this.load.image('meter_topfill', 'assets/meter_topfill.png');
+
+        this.load.image('up','assets/up.png');
+        this.load.image('down','assets/down.png');
+        this.load.image('left','assets/left.png');
+        this.load.image('right','assets/right.png');
+        this.load.image('space','assets/space.png');
+        this.load.image('darkUp','assets/darkUp.png');
+        this.load.image('darkDown','assets/darkDown.png');
+        this.load.image('darkLeft','assets/darkLeft.png');
+        this.load.image('darkRight','assets/darkRight.png');
+        this.load.image('darkSpace','assets/darkSpace.png');
+
+        this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
+        this.load.spritesheet('testing','assets/anim/testing.png',{frameWidth: 32, frameHeight: 48});
+        this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
+        this.load.spritesheet('sushi','assets/SushiFinal.png', {frameWidth: 196, frameHeight: 218});//{frameWidth: 96, frameHeight: 96});
+        this.load.spritesheet('penguin_eating','assets/anim/PenguinEating_Animation.png', {frameWidth: 182, frameHeight: 346});
         this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 278});
         this.load.spritesheet('bomb_falling','assets/anim/BombPlate_Animation.png', {frameWidth: 186, frameHeight: 278});
-        this.load.spritesheet('penguin_eating','assets/anim/PenguinEating_Animation.png', {frameWidth: 182, frameHeight: 346});
-        this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
-        this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
+        this.load.spritesheet('Table_1420-1136','assets/anim/Table_1420-1136.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1420-852','assets/anim/Table_1420-852.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1420-568','assets/anim/Table_1420-568.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1420-284','assets/anim/Table_1420-284.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1136-852','assets/anim/Table_1136-852.png', {frameWidth: 1420, frameHeight: 130});
         this.load.spritesheet('Table_1136-568','assets/anim/Table_1136-568.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_1136-284','assets/anim/Table_1136-284.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_852-568','assets/anim/Table_852-568.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_852-284','assets/anim/Table_852-284.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('Table_568-284','assets/anim/Table_568-284.png', {frameWidth: 1420, frameHeight: 130});
+        this.load.spritesheet('tapper_Animation','assets/anim/tapper_Animation.png', {frameWidth: 250, frameHeight: 700});
 
-
+        //Load audio
+        this.load.audio('bgm','assets/audio/level1_bgm.mp3');
+        this.load.audio('bgm-level2','assets/audio/vivaldis-winter.mp3');
+        this.load.audio('bgm-level3','assets/audio/snow-skirell.mp3');
+        this.load.audio('lose','assets/audio/tune_lose.mp3');
         this.load.audio('break','assets/audio/mug_break.mp3');
         this.load.audio('plate_crash','assets/audio/plate-crash.mp3');
         this.load.audio('explosion','assets/audio/explosion.mp3');
@@ -49,25 +105,57 @@ class Menu extends Phaser.Scene {
         this.load.audio('get_mug','assets/audio/get_mug.wav');
         this.load.audio('penguin_out','assets/audio/out_customer.wav');
         this.load.audio('penguin_in','assets/audio/popup.wav');
-        this.load.audio('bear_groan', 'assets/audio/bear_groan.mp3');
-        this.load.audio('sizzle', 'assets/audio/sizzle.mp3');
+        this.load.audio('win','assets/audio/win.wav');
+        this.load.audio('bell_ring', 'assets/audio/bell_ring.mp3');
         this.load.audio('slurp', 'assets/audio/slurp.mp3');
+        this.load.audio('sizzle', 'assets/audio/sizzle.mp3');
         this.load.audio('penguin_scream', 'assets/audio/penguin_scream.mp3');
+        this.load.audio('bear_groan', 'assets/audio/bear_groan.mp3');
+        this.load.audio('item_pickup', 'assets/audio/item_pickup.mp3');
+
+        this.load.bitmapFont('snowtop-caps-orange-white', 'assets/fonts/snowtop-caps-orange-white.png', 'assets/fonts/snowtop-caps-orange-white.fnt');
     }
     create(){
-        backgroundImage = this.add.image(screenWidth/2, screenHeight/2, 'Menu_background');
+        this.add.image(screenWidth/2, screenHeight/2, 'menuBackground');
+        menuBoy1 = this.add.image(screenWidth/2, screenHeight/2 - 350, 'busboy');
+        menuBoy2 = this.add.image(screenWidth/2, screenHeight/2 - 50, 'busboy2');
         this.add.image(screenWidth/2, screenHeight/2 - 250, 'title');
 
+        darkLeft = this.add.image(screenWidth - 650, screenHeight/2 + 250, 'darkLeft');
+        darkDown = this.add.image(screenWidth - 650 + 94 + 2, screenHeight/2 + 250, 'darkDown');
+        darkRight = this.add.image(screenWidth - 650 + 94 * 2 + 2, screenHeight/2 + 250, 'darkRight');
+        darkUp = this.add.image(screenWidth - 650 + 94 + 2, screenHeight/2 + 250 - 90 - 2, 'darkUp');
+        darkSpace = this.add.image(screenWidth - 650 + 94 + 2, screenHeight/2 + 250 + 90 + 2, 'darkSpace');
 
+        liteLeft = this.add.image(screenWidth - 650, screenHeight/2 + 250, 'left');
+        liteDown = this.add.image(screenWidth - 650 + 94 + 2, screenHeight/2 + 250, 'down');
+        liteRight = this.add.image(screenWidth - 650 + 94 * 2 + 2, screenHeight/2 + 250, 'right');
+        liteUp = this.add.image(screenWidth - 650 + 94 + 2, screenHeight/2 + 250 - 90 - 2, 'up');
+        liteSpace = this.add.image(screenWidth - 650 + 94 + 2, screenHeight/2 + 250 + 90 + 2, 'space');
 
-        var lane1 = this.add.sprite(laneImgX, menuRow1Y + tableYOffset, 'table_1136');
-        var lane2 = this.add.sprite(laneImgX, menuRow2Y + tableYOffset, 'table_1136');
+        liteLeft.setVisible(false);
+        liteDown.setVisible(false);
+        liteRight.setVisible(false);
+        liteUp.setVisible(false);
+        liteSpace.setVisible(false);
+
+        var lane1 = this.add.sprite(laneImgX, menuRow1Y + tableYOffset, 'table_852');
+        var lane2 = this.add.sprite(laneImgX, menuRow2Y + tableYOffset, 'table_852');
 
         player = this.physics.add.image(screenWidth - playerMenuOffSetX, menuRow1Y, 'player').setOrigin(0,0);
         row = 1;
         score = 0;
         level = 1;
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        step = 0;
+        menuUsedMeter = false;
+        buttonFlashTimer = 500;
+        usingBomb = false;
+        round = 2;
+        round2 = 2;
+
+        textScaleEnlarging = true;
+        textScaleCurrentTime = 0;
 
         sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
         bomb_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'bomb_icon');
@@ -95,8 +183,7 @@ class Menu extends Phaser.Scene {
         menuLane = [{length : barLength3, position: menuRow1Y},
                 {length : barLength3, position: menuRow2Y}]
 
-        this.add.text(960, 540, "Menu" + "\n\nPress S to Begin")
-
+        menuText = this.add.bitmapText(screenWidth / 2 - 130, screenHeight / 2 - 100, 'snowtop-caps-orange-white', '0', 35);
 
         this.anims.create({
             key: 'sushi_fallingAnim',
@@ -173,7 +260,7 @@ class Menu extends Phaser.Scene {
                 },
             fire: function (x, y){
                 this.setTexture('bear');
-                this.setPosition(300, menuRow2Y);
+                this.setPosition(0, menuRow2Y);
                 this.setActive(true);
                 this.setVisible(true);
             },
@@ -184,7 +271,6 @@ class Menu extends Phaser.Scene {
                     this.setTexture('Bear_blasted');
                     if(this.spedUp == false)
                     {
-                        this.speed = bearSpeed;
                         this.x -= this.speed * delta * pushedBackMod;
                     }
                     else
@@ -195,13 +281,15 @@ class Menu extends Phaser.Scene {
                 }
                 else
                 {
-                    if(this.spedUp == false)
-                    {
-                        this.x += this.speed * delta;
-                    }
-                    else
-                    {
-                        this.x += this.fastSpeed * delta;
+                    if(this.x <= 300){
+                        if(this.spedUp == false)
+                        {
+                            this.x += this.speed * delta;
+                        }
+                        else
+                        {
+                            this.x += this.fastSpeed * delta;
+                        }
                     }
                 }
 
@@ -223,7 +311,6 @@ class Menu extends Phaser.Scene {
                 //The bear may need time for eating sushi
                 if (this.x < 0) //if pushed back off the screen
                 {
-                    console.log('pushed out of screen');
                     sound.play('penguin_out');
                     this.y = -50;
                     //this.speed = Phaser.Math.GetSpeed(bearSpeed * movementSpeedMod, 1);
@@ -251,15 +338,16 @@ class Menu extends Phaser.Scene {
                 function Penguin (game)
                 {
                     Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'penguin_eating')
-                    this.speed = Phaser.Math.GetSpeed(0, 1); // Set the penguins' speed
+                    this.speed = Phaser.Math.GetSpeed(penguinSpeed, 1); // Set the penguins' speed
                     this.pushedBack = false; //If the penguin is pushed back
                     this.drinking = false; //If the penguin is drinking
                     this.pushedBackXLocation = 0; //the location where the penguin was pushed back
                     this.drinkTimer = 0; //the time for drinking
+                    this.pushed = false;
                 },
             fire: function (x, y){
                 this.setTexture('penguin', 0);
-                this.setPosition(440, menuRow1Y);
+                this.setPosition(0, menuRow1Y);
                 this.setActive(true);
                 this.setVisible(true);
             },
@@ -283,6 +371,7 @@ class Menu extends Phaser.Scene {
                     if(this.drinkTimer > 3000)
                     {
                         this.drinking = false;
+                        this.pushed = true;
                         this.drinkTimer = 0;
                         this.setTexture('penguin_eating', 0);
                         sushiOnHit(this.x, this.y); //send off the sushi after eating
@@ -291,7 +380,16 @@ class Menu extends Phaser.Scene {
                 }
                 else
                 {
-                    this.x += this.speed * delta;
+                    if(this.x <= 440 && this.pushed == false){
+                        this.x += this.speed * delta;
+                    }
+                    else if(this.x <= 240 && this.pushed == true){
+                        this.x += this.speed * delta;
+                    }
+                }
+
+                if(step == 0 && this.x >= 440){
+                    step = 1;
                 }
 
                 for(var i = 0; i < menuLane.length; i++){
@@ -318,6 +416,7 @@ class Menu extends Phaser.Scene {
                     this.pushedBackXLocation = 0;
                     this.drinking = false;
                     this.drinkTimer = 0;
+                    this.pushed = false;
                 }
             }
 
@@ -334,10 +433,9 @@ class Menu extends Phaser.Scene {
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi_falling');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi');
                     this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
                     this.taken = false;
-                    this.setOrigin(0.5, 0.3);
                 },
             fire: function (x, y) //Spawn sushi based on player's location
             {
@@ -387,7 +485,6 @@ class Menu extends Phaser.Scene {
                 if (this.x < 90)
                 {
                     //Thrown sushi doesn't hit anyone fail state
-                    addSushiFalingAnim(this.x, this.y);
                     this.setActive(false);
                     this.setVisible(false);
                 }
@@ -405,9 +502,8 @@ class Menu extends Phaser.Scene {
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bomb_falling');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bomb');
                     this.speed = Phaser.Math.GetSpeed(bombSpeed, 1);
-                    this.setOrigin(0.5, 0.3);
                 },
             fire: function (x, y) //Spawn bomb based on player's location
             {
@@ -429,6 +525,7 @@ class Menu extends Phaser.Scene {
                             sound.play('explosion');
                             penguins.children.entries[elem].y = -50;
                             addBoomAnim(this.x, this.y);
+
                             console.log("hit with penguin"+ this.x + " " + this.y);
                             this.setActive(false);
                             this.setVisible(false);
@@ -516,6 +613,7 @@ class Menu extends Phaser.Scene {
 
                 if(this.x >= player.x && this.y == player.y){
                     sound.play('get_mug');
+                    menuPlatePicked();
                     this.setActive(false);
                     this.setVisible(false);
                 }
@@ -528,17 +626,165 @@ class Menu extends Phaser.Scene {
             runChildUpdate: true
         });
 
+
+
     }
 
-    update(){
+    update(time, delta){
         changeThrowableDisplay(false);
+
+        menuBoy1.x -= Phaser.Math.GetSpeed(menuBoySpeed, 1) * delta;
+        menuBoy2.x += Phaser.Math.GetSpeed(menuBoySpeed, 1) * delta;
+
+        if(menuBoy1.x <= 0 && round%2 == 0){
+            menuBoy1.x = screenWidth;
+            menuBoy1.y = screenHeight/2 - 50;
+            round++;
+        }
+        else if(menuBoy1.x <= 0 && round%2 == 1){
+            menuBoy1.x = screenWidth;
+            menuBoy1.y = screenHeight/2 - 350;
+            round++;
+        }
+
+        if(menuBoy2.x >= screenWidth && round2%2 == 0){
+            menuBoy2.x = 0;
+            menuBoy2.y = screenHeight/2 - 350;
+            round2++;
+        }
+        else if(menuBoy2.x >= screenWidth && round2%2 == 1){
+            menuBoy2.x = 0;
+            menuBoy2.y = screenHeight/2 - 50;
+            round2++
+        }
+
+
+        menuText.setText("Press S to Start");
+
+        textScaleCurrentTime += delta;
+        if(textScaleCurrentTime >= timeToScaleText)
+        {
+            textScaleEnlarging = !textScaleEnlarging;
+            textScaleCurrentTime -= timeToScaleText;
+        }
+
+        if(textScaleEnlarging == true)
+        {
+            //menuText.setScale((textScaleCurrentTime / timeToScaleText) * .5 + 0.5);
+        }
+        else
+        {
+            //menuText.setScale(1 - (textScaleCurrentTime / timeToScaleText) * .5);
+        }
+
+        if(step == 0){
+            liteSpace.setVisible(false);
+            spawnPenguin();
+            spawnBear();
+        }
+        else if(step == 1){
+            buttonFlashTimer -= delta;
+            if(buttonFlashTimer >= 250){
+                liteSpace.setVisible(true);
+            }
+            else if(buttonFlashTimer <= 0){
+                buttonFlashTimer = 500;
+            }
+            else{
+                liteSpace.setVisible(false);
+            }
+        }
+        else if(step == 2){
+            liteSpace.setVisible(false);
+            buttonFlashTimer -= delta;
+            if(buttonFlashTimer >= 250){
+                liteDown.setVisible(true);
+            }
+            else if(buttonFlashTimer <= 0){
+                buttonFlashTimer = 500;
+            }
+            else{
+                liteDown.setVisible(false);
+            }
+        }
+        else if(step == 3){
+            liteDown.setVisible(false);
+            buttonFlashTimer -= delta;
+            if(buttonFlashTimer >= 250){
+                liteRight.setVisible(true);
+            }
+            else if(buttonFlashTimer <= 0){
+                buttonFlashTimer = 500;
+            }
+            else{
+                liteRight.setVisible(false);
+            }
+        }
+        else if(step == 4){
+            liteRight.setVisible(false);
+            buttonFlashTimer -= delta;
+            if(buttonFlashTimer >= 250){
+                liteSpace.setVisible(true);
+            }
+            else if(buttonFlashTimer <= 0){
+                buttonFlashTimer = 500;
+            }
+            else{
+                liteSpace.setVisible(false);
+            }
+        }
+        else if(step == 5){
+            liteSpace.setVisible(false);
+            buttonFlashTimer -= delta;
+            if(buttonFlashTimer >= 250){
+                liteUp.setVisible(true);
+            }
+            else if(buttonFlashTimer <= 0){
+                buttonFlashTimer = 500;
+            }
+            else{
+                liteUp.setVisible(false);
+            }
+        }
+        else if(step == 6){
+            liteUp.setVisible(false);
+            buttonFlashTimer -= delta;
+            liteLeft.setVisible(true);
+        }
+        else if(step == 7){
+            liteLeft.setVisible(false);
+            buttonFlashTimer -= delta;
+            if(buttonFlashTimer >= 250){
+                liteRight.setVisible(true);
+            }
+            else if(buttonFlashTimer <= 0){
+                buttonFlashTimer = 500;
+            }
+            else{
+                liteRight.setVisible(false);
+            }
+        }
+        else if(step == 8){
+            liteRight.setVisible(false);
+            buttonFlashTimer -= delta;
+            if(buttonFlashTimer >= 250){
+                liteSpace.setVisible(true);
+            }
+            else if(buttonFlashTimer <= 0){
+                buttonFlashTimer = 500;
+            }
+            else{
+                liteSpace.setVisible(false);
+            }
+        }
 
         if(Phaser.Input.Keyboard.JustDown(s)){
             this.scene.start("PlayingScreen");
         }
 
-        if (Phaser.Input.Keyboard.JustDown(up) && row >= 1) //Prevent "holding down" actions
+        if (Phaser.Input.Keyboard.JustDown(up) && row >= 1 && step == 5) //Prevent "holding down" actions
         {
+            step = 6;
             if(row == 1){
                 sound.play('up');
                 player.y = menuRow2Y;
@@ -552,8 +798,10 @@ class Menu extends Phaser.Scene {
                 player.x = menuLane[row - 1].length;
             }
         }
-        if (Phaser.Input.Keyboard.JustDown(down) && row <= 2)
+
+        if (Phaser.Input.Keyboard.JustDown(down) && row <= 2 && step == 2)
         {
+            step = 3;
             if(row == 2){
                 sound.play('down');
                 player.y = menuRow1Y;
@@ -568,15 +816,25 @@ class Menu extends Phaser.Scene {
             }
         }
 
-        if(cursors.left.isDown){
+        if(cursors.left.isDown && step == 6){
             player.setVelocityX(playerMoveSpeed);
         }
         else{
             player.setVelocityX(0);
         }
 
-        if(Phaser.Input.Keyboard.JustDown(space)){
+        if(Phaser.Input.Keyboard.JustDown(space) && (step == 1|| step == 4 || step == 8)){
             player.x = menuLane[row - 1].length;
+            if(step == 1){
+                step = 2;
+            }
+            else if(step == 4){
+                step = 5;
+            }
+            else if(step == 8){
+                step = 0;
+            }
+
             if(!usingBomb)
             {
                 var sushi = sushis.get();
@@ -596,20 +854,22 @@ class Menu extends Phaser.Scene {
 
         }
 
-        if(Phaser.Input.Keyboard.JustUp(right)){
+        if(Phaser.Input.Keyboard.JustUp(right) && (step == 3 || step == 7)){
             //change the type of usingBomb here if we didn't use meter
-            console.log('right hit');
-            if(justUsedMeter == false)
+            if(step == 3){
+                step = 4;
+            }
+            else if(step == 7){
+                step = 8;
+            }
+            if(menuUsedMeter == false)
             {
                 usingBomb = !usingBomb;
                 changeThrowableDisplay(true);
             }
 
-            justUsedMeter = false;
+            menuUsedMeter = false;
         }
-
-        spawnPenguin();
-        spawnBear();
     }
 }
 
@@ -626,6 +886,13 @@ function spawnBear() {
         bear.fire()
     }
 }
+
+function menuPlatePicked(){
+    if(step == 6){
+        step = 7;
+    }
+}
+
 function addBoomAnim(x,y) {
     var boomAnim = bombAnims.get();
     boomAnim.setActive(true);
@@ -665,7 +932,6 @@ function addSushiFalingAnim(x,y) {
     var anim = sushiFallingAnims.get();
     anim.setActive(true);
     anim.setVisible(true);
-    anim.setOrigin(0.5, 0.3);
     if(anim)
     {
         anim.x = x;
@@ -683,7 +949,6 @@ function addBombFalingAnim(x,y) {
     var anim = bombFallingAnims.get();
     anim.setActive(true);
     anim.setVisible(true);
-    anim.setOrigin(0.5, 0.3);
     if(anim)
     {
         anim.x = x;

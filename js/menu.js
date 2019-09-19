@@ -20,7 +20,7 @@ class Menu extends Phaser.Scene {
         super("MenuScreen");
     }
     preload(){
-        this.load.image('background', 'assets/menuBG.png');
+        this.load.image('Menu_background', 'assets/menuBG.png');
         this.load.image('title', 'assets/Flipper.png');
         this.load.image('table_1136','assets/Table_852.png');
         this.load.image('player', 'assets/PenguinWaiterSushi.png');
@@ -55,7 +55,7 @@ class Menu extends Phaser.Scene {
         this.load.audio('penguin_scream', 'assets/audio/penguin_scream.mp3');
     }
     create(){
-        this.add.image(screenWidth/2, screenHeight/2, 'background');
+        backgroundImage = this.add.image(screenWidth/2, screenHeight/2, 'Menu_background');
         this.add.image(screenWidth/2, screenHeight/2 - 250, 'title');
 
         var lane1 = this.add.sprite(laneImgX, menuRow1Y + tableYOffset, 'table_1136');
@@ -421,7 +421,6 @@ class Menu extends Phaser.Scene {
                             sound.play('explosion');
                             penguins.children.entries[elem].y = -50;
                             addBoomAnim(this.x, this.y);
-
                             console.log("hit with penguin"+ this.x + " " + this.y);
                             this.setActive(false);
                             this.setVisible(false);

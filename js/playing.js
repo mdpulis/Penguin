@@ -35,6 +35,7 @@ var busboyCounter;
 var winning;
 var winboyCount;
 var laneHP, maxLaneHP;
+var backgroundImage;
 let lane;
 //var bear;
 
@@ -179,7 +180,7 @@ class Playing extends Phaser.Scene{
 //Create Objects
     create ()
     {
-        this.add.image(960, 540, 'background');
+        backgroundImage = this.add.image(960, 540, 'background');
         this.add.image(screenWidth - 80, screenHeight / 2, 'chief');
 
         //Lane pictures

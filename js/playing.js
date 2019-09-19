@@ -35,7 +35,7 @@ var busboyCounter;
 var winning;
 var winboyCount;
 var laneHP, maxLaneHP;
-var backgroundImage, chalkboard;
+var backgroundImage;
 let lane;
 //var bear;
 
@@ -46,6 +46,7 @@ const screenHeight = 1080;
 const playerXOffset = 500;
 const tableYOffset = 70;
 const meterWidth = 1028;
+const hp_icon_y = 50;
 
 const penguinRange = 50;
 const returnedPlateRange = 25;
@@ -190,11 +191,11 @@ class Playing extends Phaser.Scene{
         var lane3 = this.add.sprite(laneImgX, row3Position + tableYOffset, 'table_1420');
         var lane4 = this.add.sprite(laneImgX, row4Position + tableYOffset, 'table_1420');
 
-        hpIcon1 = this.add.image(screenWidth - 128 * 2 + 32 * 4, 32, 'penguin_head');
-        hpIcon2 = this.add.image(screenWidth - 128 * 2 + 32 * 3, 32, 'penguin_head');
-        hpIcon3 = this.add.image(screenWidth - 128 * 2 + 32 * 2, 32, 'penguin_head');
-        hpIcon4 = this.add.image(screenWidth - 128 * 2 + 32 * 1, 32, 'penguin_head');
-        hpIcon5 = this.add.image(screenWidth - 128 * 2 + 32 * 0, 32, 'penguin_head');
+        hpIcon1 = this.add.image(screenWidth - 128 * 2 + 32 * 4 + 30, hp_icon_y, 'penguin_head');
+        hpIcon2 = this.add.image(screenWidth - 128 * 2 + 32 * 3 + 30, hp_icon_y, 'penguin_head');
+        hpIcon3 = this.add.image(screenWidth - 128 * 2 + 32 * 2 + 30, hp_icon_y, 'penguin_head');
+        hpIcon4 = this.add.image(screenWidth - 128 * 2 + 32 * 1 + 30, hp_icon_y, 'penguin_head');
+        hpIcon5 = this.add.image(screenWidth - 128 * 2 + 32 * 0 + 30, hp_icon_y, 'penguin_head');
 
         player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0);
 
@@ -237,7 +238,7 @@ class Playing extends Phaser.Scene{
 		gameTimer = this.time.addEvent({ delay: 1000, callback: addGameTime, loop: true });
         row = 1; //Limits the number of rows
         movementSpeedMod = 1 + (.06 * level);
-        ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 48, 'snowtop-caps-orange-white', '0', 32);
+        ui = this.add.bitmapText(screenWidth - playerXOffset / 2, 70, 'snowtop-caps-orange-white', '0', 32);
 
         hp = 5;
         justLostHealth = false;

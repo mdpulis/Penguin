@@ -593,6 +593,7 @@ class Menu extends Phaser.Scene {
 
         if(Phaser.Input.Keyboard.JustUp(right)){
             //change the type of usingBomb here if we didn't use meter
+            console.log('right hit');
             if(justUsedMeter == false)
             {
                 usingBomb = !usingBomb;

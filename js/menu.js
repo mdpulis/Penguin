@@ -1,7 +1,7 @@
 var space;
 var level;
 var score;
-var up, down, left, right, space, q, s;
+var up, down, left, right, space, q, s, enter;
 var cursors;
 var row;
 var sound;
@@ -178,6 +178,7 @@ class Menu extends Phaser.Scene {
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         q = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q);
         s = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+        enter = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
         cursors = this.input.keyboard.createCursorKeys();
 
         menuLane = [{length : barLength3, position: menuRow1Y},
@@ -659,7 +660,7 @@ class Menu extends Phaser.Scene {
         }
 
 
-        menuText.setText("Press S to Start");
+        menuText.setText("Press Enter to Start");
 
         textScaleCurrentTime += delta;
         if(textScaleCurrentTime >= timeToScaleText)
@@ -778,7 +779,7 @@ class Menu extends Phaser.Scene {
             }
         }
 
-        if(Phaser.Input.Keyboard.JustDown(s)){
+        if(Phaser.Input.Keyboard.JustDown(enter) || Phaser.Input.Keyboard.JustDown(s)){
             this.scene.start("PlayingScreen");
         }
 

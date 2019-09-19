@@ -151,7 +151,7 @@ class Playing extends Phaser.Scene{
         this.load.spritesheet('Table_852-568','assets/anim/Table_852-568.png', {frameWidth: 1420, frameHeight: 130});
         this.load.spritesheet('Table_852-284','assets/anim/Table_852-284.png', {frameWidth: 1420, frameHeight: 130});
         this.load.spritesheet('Table_568-284','assets/anim/Table_568-284.png', {frameWidth: 1420, frameHeight: 130});
-
+        this.load.spritesheet('tapper_Animation','assets/anim/tapper_Animation.png', {frameWidth: 250, frameHeight: 700});
 
         //Load audio
         this.load.audio('bgm','assets/audio/level1_bgm.mp3');
@@ -182,7 +182,8 @@ class Playing extends Phaser.Scene{
     create ()
     {
         backgroundImage = this.add.image(960, 540, 'background');
-        this.add.image(screenWidth - 80, screenHeight / 2, 'chief');
+        //this.add.image(screenWidth - 80, screenHeight / 2, 'chief');
+
 
         //Lane pictures
         var lane1 = this.add.sprite(laneImgX, row1Position + tableYOffset, 'table_1420');
@@ -190,13 +191,15 @@ class Playing extends Phaser.Scene{
         var lane3 = this.add.sprite(laneImgX, row3Position + tableYOffset, 'table_1420');
         var lane4 = this.add.sprite(laneImgX, row4Position + tableYOffset, 'table_1420');
 
+        var tapper = this.add.sprite(screenWidth - 180, screenHeight / 2 + 80, 'tapper_Animation');
+
         hpIcon1 = this.add.image(screenWidth - 128 * 2 + 32 * 4 + 30, hp_icon_y, 'penguin_head');
         hpIcon2 = this.add.image(screenWidth - 128 * 2 + 32 * 3 + 30, hp_icon_y, 'penguin_head');
         hpIcon3 = this.add.image(screenWidth - 128 * 2 + 32 * 2 + 30, hp_icon_y, 'penguin_head');
         hpIcon4 = this.add.image(screenWidth - 128 * 2 + 32 * 1 + 30, hp_icon_y, 'penguin_head');
         hpIcon5 = this.add.image(screenWidth - 128 * 2 + 32 * 0 + 30, hp_icon_y, 'penguin_head');
 
-        player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0);
+        player = this.physics.add.image(screenWidth - playerXOffset, 0 + 100, 'player').setOrigin(0,0.2);
 
         arrow_key_icon = this.add.image(screenWidth - 128 * 2 - 16, screenHeight - 128, 'arrow_key_icon');
         sushi_icon = this.add.image(screenWidth - 128, screenHeight - 128, 'sushi_icon');
@@ -406,6 +409,13 @@ class Playing extends Phaser.Scene{
             frameRate: 10,
             repeat: 0
         });
+        this.anims.create({
+            key: 'tapper_anim',
+            frames: this.anims.generateFrameNumbers('tapper_Animation',{ start: 0, end: 18}),
+            frameRate: 2,
+            repeat: -1
+        });
+        tapper.anims.play('tapper_anim');
         //lane breaking animations here =======================================
         this.anims.create({
             key: 'Table_1420-1136_Anim',

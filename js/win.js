@@ -19,7 +19,7 @@ class Win extends Phaser.Scene {
         this.load.image('GameOver_title', 'assets/GameOver.png');
     }
     create(){
-        winText = this.add.bitmapText(screenWidth / 2, screenHeight / 2, 'snowtop-caps-orange-white', '0', 32);
+        winText = this.add.bitmapText(screenWidth / 2 - 160, screenHeight / 2, 'snowtop-caps-orange-white', '0', 32);
         space = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         win_title = this.add.image(screenWidth/2, screenHeight/2 - 300, 'level_'+ level);
         win_title.setScale(2);

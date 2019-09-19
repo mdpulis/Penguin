@@ -122,7 +122,7 @@ class Playing extends Phaser.Scene{
         this.load.image('table_1136','assets/Table_1136.png');
         this.load.image('table_1420','assets/Table_1420.png');
 
-        this.load.image('penguin_head', 'assets/penguin_head.png');
+        this.load.image('penguin_head', 'assets/waitress_life.png');
 
         this.load.image('arrow_key_icon', 'assets/arrow_key.png');
         this.load.image('sushi_icon', 'assets/sushi_icon.png');
@@ -138,8 +138,8 @@ class Playing extends Phaser.Scene{
         this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
         this.load.spritesheet('sushi','assets/SushiFinal.png', {frameWidth: 196, frameHeight: 218});//{frameWidth: 96, frameHeight: 96});
         this.load.spritesheet('penguin_eating','assets/anim/PenguinEating_Animation.png', {frameWidth: 182, frameHeight: 346});
-        this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
-        this.load.spritesheet('bomb_falling','assets/anim/BombPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
+        this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 278});
+        this.load.spritesheet('bomb_falling','assets/anim/BombPlate_Animation.png', {frameWidth: 186, frameHeight: 278});
         this.load.spritesheet('Table_1420-1136','assets/anim/Table_1420-1136.png', {frameWidth: 1420, frameHeight: 130});
         this.load.spritesheet('Table_1420-852','assets/anim/Table_1420-852.png', {frameWidth: 1420, frameHeight: 130});
         this.load.spritesheet('Table_1420-568','assets/anim/Table_1420-568.png', {frameWidth: 1420, frameHeight: 130});
@@ -535,6 +535,7 @@ class Playing extends Phaser.Scene{
             var anim = sushiFallingAnims.get();
             anim.setActive(true);
             anim.setVisible(true);
+            anim.setOrigin(0.5, 0.3);
             if(anim)
             {
                 anim.x = x;
@@ -552,6 +553,7 @@ class Playing extends Phaser.Scene{
             var anim = bombFallingAnims.get();
             anim.setActive(true);
             anim.setVisible(true);
+            anim.setOrigin(0.5, 0.3);
             if(anim)
             {
                 anim.x = x;
@@ -850,8 +852,9 @@ class Playing extends Phaser.Scene{
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bomb');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bomb_falling');
                     this.speed = Phaser.Math.GetSpeed(bombSpeed, 1);
+                    this.setOrigin(0.5, 0.3);
                 },
             fire: function (x, y) //Spawn bomb based on player's location
             {
@@ -1267,6 +1270,7 @@ class Playing extends Phaser.Scene{
                     Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi_falling');
                     this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
 					this.taken = false;
+					this.setOrigin(0.5, 0.3);
                 },
             fire: function (x, y) //Spawn sushi based on player's location
             {

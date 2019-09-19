@@ -32,8 +32,8 @@ class Menu extends Phaser.Scene {
         this.load.image('bomb_icon', 'assets/bomb_icon.png');
         this.load.image('Bear_blasted','assets/Bear_blasted.png');
 
-        this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
-        this.load.spritesheet('bomb_falling','assets/anim/BombPlate_Animation.png', {frameWidth: 186, frameHeight: 218});
+        this.load.spritesheet('sushi_falling','assets/anim/SushiPlate_Animation.png', {frameWidth: 186, frameHeight: 278});
+        this.load.spritesheet('bomb_falling','assets/anim/BombPlate_Animation.png', {frameWidth: 186, frameHeight: 278});
         this.load.spritesheet('penguin_eating','assets/anim/PenguinEating_Animation.png', {frameWidth: 182, frameHeight: 346});
         this.load.spritesheet('falling_plate','assets/anim/EmptyPlate_Animation.png',{frameWidth: 196, frameHeight: 218});
         this.load.spritesheet('boom','assets/anim/boom.png', {frameWidth: 128, frameHeight: 128});
@@ -337,6 +337,7 @@ class Menu extends Phaser.Scene {
                     Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'sushi_falling');
                     this.speed = Phaser.Math.GetSpeed(sushiSpeed, 1);
                     this.taken = false;
+                    this.setOrigin(0.5, 0.3);
                 },
             fire: function (x, y) //Spawn sushi based on player's location
             {
@@ -386,6 +387,7 @@ class Menu extends Phaser.Scene {
                 if (this.x < 90)
                 {
                     //Thrown sushi doesn't hit anyone fail state
+                    addSushiFalingAnim(this.x, this.y);
                     this.setActive(false);
                     this.setVisible(false);
                 }
@@ -403,8 +405,9 @@ class Menu extends Phaser.Scene {
             initialize:
                 function Bullet (game)
                 {
-                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bomb');
+                    Phaser.GameObjects.Sprite.call(this, game, 0, 0, 'bomb_falling');
                     this.speed = Phaser.Math.GetSpeed(bombSpeed, 1);
+                    this.setOrigin(0.5, 0.3);
                 },
             fire: function (x, y) //Spawn bomb based on player's location
             {
@@ -662,6 +665,7 @@ function addSushiFalingAnim(x,y) {
     var anim = sushiFallingAnims.get();
     anim.setActive(true);
     anim.setVisible(true);
+    anim.setOrigin(0.5, 0.3);
     if(anim)
     {
         anim.x = x;
@@ -679,6 +683,7 @@ function addBombFalingAnim(x,y) {
     var anim = bombFallingAnims.get();
     anim.setActive(true);
     anim.setVisible(true);
+    anim.setOrigin(0.5, 0.3);
     if(anim)
     {
         anim.x = x;
